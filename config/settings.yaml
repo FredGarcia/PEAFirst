@@ -1,0 +1,31 @@
+# ============================================================
+# PEAdvisor — Paramètres généraux
+# Tout le paramétrage se fait ici, sans modification du code.
+# ============================================================
+
+app:
+  nom: PEAdvisor
+  langue: fr
+
+donnees:
+  # Source de données active : "seed" (jeu de données local de démonstration)
+  # ou "yahoo" (Yahoo Finance via yfinance, nécessite un accès réseau).
+  source_active: seed
+  # Activer la poche PEA-PME (option du cahier des charges)
+  inclure_pea_pme: false
+
+mise_a_jour:
+  # Mise à jour automatique planifiée (APScheduler)
+  automatique: false
+  # "quotidienne" ou "hebdomadaire"
+  frequence: quotidienne
+  # Heure d'exécution (HH:MM, heure locale du serveur)
+  heure: "07:30"
+
+allocation:
+  # Contraintes de diversification appliquées par le moteur d'allocation
+  poids_max_par_ligne: 0.10   # 10 % maximum du capital sur une même ligne
+  lignes_min: 8               # nombre minimal de lignes proposées
+  lignes_max: 25              # nombre maximal de lignes proposées
+  poids_max_par_secteur: 0.30 # 30 % maximum sur un même secteur
+  part_min_etf_opcvm: 0.30    # part minimale de fonds (ETF/OPCVM) dans la poche cœur

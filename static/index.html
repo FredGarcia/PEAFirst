@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PEAdvisor — Tableau de bord</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="logo">PEA<span>dvisor</span></div>
+      <a href="#dashboard" class="nav-link" data-vue="dashboard">Tableau de bord</a>
+      <a href="#actions" class="nav-link" data-vue="actions">Actions</a>
+      <a href="#etf" class="nav-link" data-vue="etf">ETF</a>
+      <a href="#opcvm" class="nav-link" data-vue="opcvm">OPCVM</a>
+      <a href="#allocation" class="nav-link" data-vue="allocation">Allocation</a>
+      <a href="#watchlist" class="nav-link" data-vue="watchlist">Watchlist</a>
+      <a href="#historique" class="nav-link" data-vue="historique">Historique</a>
+      <a href="#sources" class="nav-link" data-vue="sources">Sources</a>
+      <a href="#parametres" class="nav-link" data-vue="parametres">Paramètres</a>
+      <div class="sidebar-pied">
+        <a href="/docs" target="_blank" rel="noopener">API (Swagger)</a>
+      </div>
+    </nav>
+    <main id="contenu" class="contenu">
+      <p class="muted">Chargement…</p>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
