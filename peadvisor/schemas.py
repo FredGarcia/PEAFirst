@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ActifOut(BaseModel):
@@ -35,8 +36,14 @@ class ActifOut(BaseModel):
     potentiel: float | None = None
     consensus: float | None = None
     score_global: float | None = None
+    indicateurs_quant: dict | None = None
     source: str | None = None
     maj_le: datetime | None = None
+
+    @field_validator("indicateurs_quant", mode="before")
+    @classmethod
+    def _json_vers_dict(cls, valeur):
+        return json.loads(valeur) if isinstance(valeur, str) else valeur
 
 
 class DemandeAllocation(BaseModel):

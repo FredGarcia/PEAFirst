@@ -16,8 +16,11 @@
 1. **Source de données réelle** — brancher un fournisseur fiable (EOD
    Historical Data, Euronext…) et constituer le référentiel complet des valeurs
    éligibles PEA. C'est le prérequis de tout le reste.
-2. **Historiques de cours** (table dédiée) — débloque la volatilité calculée,
-   les corrélations, le drawdown, Sharpe/Sortino (moteur quantitatif complet).
+2. ~~**Historiques de cours**~~ — ✅ fait : table `historique_cours`
+   (append-only, dédoublonnée par date), séries synthétiques côté `seed` et
+   réelles côté `yahoo`, moteur quantitatif complet (volatilité réalisée
+   intégrée au scoring, perf 1 an, drawdown, Sharpe, Sortino, VaR 95 %,
+   corrélations exposées dans l'API, l'interface et l'agent MCP).
 3. **Simulateur d'investissement** — versement unique / programmé,
    réinvestissement des dividendes, horizons 5/10/15/20 ans, trois scénarios.
 4. **Exports** Excel / CSV / PDF des listes, classements et allocations.

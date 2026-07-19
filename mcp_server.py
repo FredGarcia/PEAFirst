@@ -85,6 +85,7 @@ def _actif_vers_dict(a: Actif, complet: bool = False) -> dict:
             "objectif_cours": a.objectif_cours,
             "consensus_1_5": a.consensus,
             "sous_scores": json.loads(a.sous_scores) if a.sous_scores else None,
+            "indicateurs_quantitatifs": json.loads(a.indicateurs_quant) if a.indicateurs_quant else None,
             "source": a.source,
             "maj_le": a.maj_le.isoformat() if a.maj_le else None,
         })
@@ -156,6 +157,25 @@ def classement_multicritere(methode: str = "topsis", limite: int = 15) -> list[d
              "valeur": v, "score_global": a.score_global}
             for i, (a, v) in enumerate(classer(actifs, methode)[:limite])
         ]
+
+
+@mcp.tool()
+def correlations(isins: list[str] | None = None) -> dict:
+    """Matrice de corrélation des rendements quotidiens entre actifs
+    (moteur quantitatif, à partir des historiques de cours). Utile pour
+    évaluer la diversification réelle d'une sélection ou d'une allocation.
+
+    Args:
+        isins: Liste de codes ISIN à comparer ; omise = top 10 par score.
+    """
+    from peadvisor.services.quantitatif import correlations as moteur
+
+    with _session() as s:
+        if not isins:
+            tops = (s.query(Actif).order_by(Actif.score_global.desc().nulls_last())
+                    .limit(10).all())
+            isins = [a.isin for a in tops]
+        return moteur(s, isins)
 
 
 # --------------------------------------------------------------------------

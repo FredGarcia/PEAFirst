@@ -30,6 +30,10 @@ allocation:
   poids_max_par_secteur: 0.30 # 30 % maximum sur un même secteur
   part_min_etf_opcvm: 0.30    # part minimale de fonds (ETF/OPCVM) dans la poche cœur
 
+quantitatif:
+  # Taux sans risque annuel utilisé pour les ratios de Sharpe et Sortino
+  taux_sans_risque_pct: 2.5
+
 # ------------------------------------------------------------
 # Couche de second ordre : auto-observation et auto-amélioration
 # ------------------------------------------------------------

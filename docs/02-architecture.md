@@ -40,7 +40,7 @@ rejets, statut, détail), consultable dans l'écran **Historique**.
 |---|---|---|
 | M1 | Collecte des données | ✅ sources branchables + import manuel/planifié |
 | M2 | Normalisation et dédoublonnage | ✅ par ISIN, doublons intra-lot écartés |
-| M3 | Indicateurs financiers | ✅ champs stockés + potentiel calculé ; ratios avancés (Sharpe, drawdown…) à venir avec les historiques de cours |
+| M3 | Indicateurs financiers | ✅ champs stockés + potentiel calculé + **moteur quantitatif** sur historiques de cours (volatilité réalisée, perf 1 an, drawdown, Sharpe, Sortino, VaR 95 %, corrélations) |
 | M4 | Scores ESG et risque | ✅ ESG 0-100, niveau 1-7 (SRI fourni ou dérivé de la volatilité) |
 | M5 | Moteur de décision multicritère | ✅ score pondéré + TOPSIS (AHP/PROMETHEE/ELECTRE : extension prévue, même signature) |
 | M6 | Optimisation de portefeuille | ✅ allocation par poches et contraintes (optimisation type Markowitz : roadmap) |

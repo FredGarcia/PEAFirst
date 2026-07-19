@@ -39,8 +39,18 @@ class SourceYahoo(SourceDonnees):
                 continue
             symbole = ticker if "." in ticker else f"{ticker}.PA"
             try:
-                info = yf.Ticker(symbole).info or {}
+                titre = yf.Ticker(symbole)
+                info = titre.info or {}
                 maj = dict(actif)
+                # Historique réel (~3 ans de clôtures) pour le moteur quantitatif.
+                try:
+                    cloture = titre.history(period="3y", interval="1d")["Close"].dropna()
+                    maj["historique"] = [
+                        {"date": idx.date().isoformat(), "cours": round(float(v), 4)}
+                        for idx, v in cloture.items()
+                    ]
+                except Exception:
+                    pass  # sans historique, l'actif reste exploitable
                 maj["cours"] = info.get("currentPrice") or info.get("regularMarketPrice") or actif.get("cours")
                 if info.get("marketCap"):
                     maj["capitalisation"] = round(info["marketCap"] / 1e6, 1)

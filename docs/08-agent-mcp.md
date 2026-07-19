@@ -45,7 +45,7 @@ un environnement virtuel — recommandé : pointer sur `.venv/bin/python`) :
 Redémarrer Claude Desktop : les outils « peadvisor » apparaissent dans le
 menu des connecteurs.
 
-## 3. Les 13 outils exposés
+## 3. Les 14 outils exposés
 
 | Outil | Rôle |
 |---|---|
@@ -53,6 +53,7 @@ menu des connecteurs.
 | `fiche_actif` | Fiche complète + sous-scores du score propriétaire |
 | `synthese_dashboard` | KPI, répartitions, tops du tableau de bord |
 | `classement_multicritere` | Classement TOPSIS ou score pondéré |
+| `correlations` | Matrice de corrélation des rendements (diversification réelle) |
 | `proposer_allocation` | Allocation selon capital / risque / horizon / objectif |
 | `consulter_watchlist` / `gerer_watchlist` | Suivi de valeurs |
 | `lancer_mise_a_jour` | Import + dédoublonnage + rescoring |

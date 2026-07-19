@@ -28,3 +28,10 @@ def creer_tables() -> None:
     from peadvisor import models  # noqa: F401 — enregistre les modèles
 
     Base.metadata.create_all(engine)
+
+    # Mini-migration : create_all ne modifie pas les tables existantes ;
+    # on ajoute les colonnes apparues depuis la création de la base.
+    with engine.begin() as conn:
+        colonnes = [ligne[1] for ligne in conn.exec_driver_sql("PRAGMA table_info(actifs)")]
+        if "indicateurs_quant" not in colonnes:
+            conn.exec_driver_sql("ALTER TABLE actifs ADD COLUMN indicateurs_quant TEXT")

@@ -10,14 +10,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
 
 from peadvisor.config import charger_settings
-from peadvisor.models import Actif, JournalMaj, TypeActif
-from peadvisor.services import scoring
+from peadvisor.models import Actif, HistoriqueCours, JournalMaj, TypeActif
+from peadvisor.services import quantitatif, scoring
 
 CHAMPS_MAJ = [
     "nom", "mnemonique", "marche", "devise", "pays", "secteur",
@@ -43,6 +43,30 @@ def _normaliser(brut: dict[str, Any]) -> dict[str, Any] | None:
     return propre
 
 
+def _inserer_historique(session: Session, actif: Actif, points: list[dict] | None) -> int:
+    """Insère les cours quotidiens absents de la base (dédoublonnage par date).
+
+    Les dates déjà présentes ne sont jamais réécrites : l'historique est
+    append-only, ce qui préserve la cohérence des séries entre deux imports.
+    """
+    if not points:
+        return 0
+    existantes = {d for (d,) in session.query(HistoriqueCours.date)
+                  .filter(HistoriqueCours.actif_id == actif.id).all()}
+    nouveaux = []
+    for point in points:
+        try:
+            jour = date.fromisoformat(str(point["date"]))
+            cours = float(point["cours"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if jour not in existantes and cours > 0:
+            nouveaux.append(HistoriqueCours(actif_id=actif.id, date=jour, cours=cours))
+            existantes.add(jour)
+    session.add_all(nouveaux)
+    return len(nouveaux)
+
+
 def importer(session: Session, nom_source: str | None = None) -> JournalMaj:
     """Importe la source demandée (ou la source active) et journalise le résultat."""
     from peadvisor.sources import REGISTRE
@@ -65,6 +89,7 @@ def importer(session: Session, nom_source: str | None = None) -> JournalMaj:
         return journal
 
     vus: set[str] = set()
+    nb_points = 0
     for brut in bruts:
         propre = _normaliser(brut)
         if propre is None:
@@ -83,18 +108,26 @@ def importer(session: Session, nom_source: str | None = None) -> JournalMaj:
                 setattr(existant, champ, valeur)
             existant.source = nom_source
             existant.date_cours = datetime.utcnow()
+            actif = existant
             journal.nb_maj += 1
         else:
-            session.add(Actif(**propre, source=nom_source, date_cours=datetime.utcnow()))
+            actif = Actif(**propre, source=nom_source, date_cours=datetime.utcnow())
+            session.add(actif)
+            session.flush()  # attribue l'id, nécessaire pour l'historique
             journal.nb_crees += 1
+        nb_points += _inserer_historique(session, actif, brut.get("historique"))
 
     session.commit()
 
+    # L2 : indicateurs quantitatifs d'abord (la volatilité réalisée remplace
+    # la volatilité déclarative), puis scoring.
+    nb_quant = quantitatif.calculer_tous(session)
     nb_scores = scoring.scorer_tous(session)
     journal.detail = (
         f"{journal.nb_crees} créé(s), {journal.nb_maj} mis à jour, "
-        f"{journal.nb_doublons} doublon(s) écarté(s), {journal.nb_erreurs} rejet(s). "
-        f"Scores recalculés pour {nb_scores} actif(s)."
+        f"{journal.nb_doublons} doublon(s) écarté(s), {journal.nb_erreurs} rejet(s), "
+        f"{nb_points} point(s) d'historique ajouté(s). Indicateurs quantitatifs pour "
+        f"{nb_quant} actif(s), scores recalculés pour {nb_scores} actif(s)."
     )
     if journal.nb_erreurs:
         journal.statut = "avertissement"

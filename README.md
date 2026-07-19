@@ -35,13 +35,14 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | Référentiel | Actions, ETF, OPCVM éligibles PEA — 20+ champs par actif (ISIN, secteur, PER, rendement, ESG, volatilité, consensus…) |
 | Import | Sources branchables (`seed` locale, `yahoo` via yfinance), normalisation, **dédoublonnage par ISIN**, journal des traitements |
 | Scoring | Score 0-100, 7 critères, **pondérations modifiables** depuis l'interface (recalcul immédiat), historique des scores |
+| Quantitatif | Historiques de cours (~3 ans) et indicateurs calculés : volatilité réalisée (réinjectée dans le scoring), perf 1 an, drawdown max, Sharpe, Sortino, VaR 95 %, corrélations |
 | Décision | Matrice multicritère : score pondéré ou **TOPSIS** |
 | Allocation | Capital + risque (1-7) + horizon + objectif (croissance / dividendes / équilibré) → portefeuille avec contraintes de diversification |
 | Tableau de bord | KPI, répartitions type/secteur/pays, tops (opportunités, dividendes, croissance), classement TOPSIS |
 | Watchlist | Suivi de valeurs, ajout/retrait en un clic |
 | Automatisation | Mise à jour quotidienne ou hebdomadaire planifiée (APScheduler), activable dans `config/settings.yaml` |
 | Second ordre | **Auto-observation** (complétude, fraîcheur, anomalies, dérive des scores, pouvoir prédictif) et **auto-amélioration** (recommandations + optimisation des pondérations validée sur les rendements réalisés, supervision humaine par défaut) — écran Système |
-| Agent (MCP) | Serveur MCP (`mcp_server.py`) : 13 outils pour piloter PEAdvisor depuis Claude Desktop — analyse, explications, allocation, auto-diagnostic (voir docs/08) |
+| Agent (MCP) | Serveur MCP (`mcp_server.py`) : 14 outils pour piloter PEAdvisor depuis Claude Desktop — analyse, explications, allocation, auto-diagnostic (voir docs/08) |
 
 ## Paramétrage (sans toucher au code)
 

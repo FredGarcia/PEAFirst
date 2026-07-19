@@ -61,6 +61,21 @@ def synthese(session: Session = Depends(get_session)):
     }
 
 
+@router.get("/correlations")
+def matrice_correlations(isins: str | None = Query(None, description="ISIN séparés par des virgules ; omis = top 10 par score"),
+                         session: Session = Depends(get_session)):
+    """Matrice de corrélation des rendements quotidiens (moteur quantitatif)."""
+    from peadvisor.services.quantitatif import correlations
+
+    if isins:
+        liste = [i.strip() for i in isins.split(",") if i.strip()]
+    else:
+        tops = (session.query(Actif).order_by(Actif.score_global.desc().nulls_last())
+                .limit(10).all())
+        liste = [a.isin for a in tops]
+    return correlations(session, liste)
+
+
 @router.get("/classement", response_model=list[LigneClassement])
 def matrice_decision(
     methode: str = Query("weighted", pattern="^(weighted|topsis)$"),

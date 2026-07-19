@@ -54,6 +54,21 @@ def sous_scores_actif(isin: str, session: Session = Depends(get_session)):
     return json.loads(actif.sous_scores) if actif.sous_scores else {}
 
 
+@router.get("/{isin}/cours")
+def serie_de_cours(isin: str, limite: int = Query(750, le=5000),
+                   session: Session = Depends(get_session)):
+    """Historique de cours quotidiens (du plus ancien au plus récent)."""
+    from peadvisor.models import HistoriqueCours
+
+    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+    if not actif:
+        raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
+    lignes = (session.query(HistoriqueCours)
+              .filter(HistoriqueCours.actif_id == actif.id)
+              .order_by(HistoriqueCours.date.desc()).limit(limite).all())
+    return [{"date": l.date.isoformat(), "cours": l.cours} for l in reversed(lignes)]
+
+
 @router.get("/{isin}/historique")
 def historique_actif(isin: str, limite: int = Query(100, le=1000),
                      session: Session = Depends(get_session)):

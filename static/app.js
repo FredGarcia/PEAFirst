@@ -94,7 +94,10 @@ async function vueActifs(type, titre) {
       <thead><tr>
         <th>Nom</th><th>ISIN</th><th>Secteur</th>
         <th class="num">Cours</th><th class="num">Rdt %</th><th class="num">PER</th>
-        <th class="num">Potentiel %</th><th class="num">ESG</th><th class="num">Risque</th>
+        <th class="num">Potentiel %</th><th class="num">Vol. %</th>
+        <th class="num" title="Ratio de Sharpe (annualisé)">Sharpe</th>
+        <th class="num" title="Pire baisse depuis un plus-haut">Perte max %</th>
+        <th class="num">ESG</th><th class="num">Risque</th>
         <th class="num">Score</th><th></th>
       </tr></thead>
       <tbody>${actifs.map((a) => `<tr>
@@ -105,6 +108,9 @@ async function vueActifs(type, titre) {
         <td class="num">${fmt(a.rendement, 1)}</td>
         <td class="num">${fmt(a.per, 1)}</td>
         <td class="num ${a.potentiel > 0 ? "hausse" : "baisse"}">${fmt(a.potentiel, 1)}</td>
+        <td class="num">${fmt(a.indicateurs_quant?.volatilite_pct, 1)}</td>
+        <td class="num">${fmt(a.indicateurs_quant?.sharpe, 2)}</td>
+        <td class="num baisse">${fmt(a.indicateurs_quant?.drawdown_max_pct, 1)}</td>
         <td class="num">${fmt(a.score_esg, 0)}</td>
         <td class="num">${a.niveau_risque ?? "—"}/7</td>
         <td class="num score-badge">${fmt(a.score_global, 0)}</td>

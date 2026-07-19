@@ -10,9 +10,9 @@ Tables :
 from __future__ import annotations
 
 import enum
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, Enum, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Date, DateTime, Enum, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from peadvisor.database import Base
@@ -62,6 +62,10 @@ class Actif(Base):
     score_global: Mapped[float | None] = mapped_column(Float, index=True)
     sous_scores: Mapped[str | None] = mapped_column(Text)  # JSON des sous-notes
 
+    # Indicateurs du moteur quantitatif (JSON : perf_1an, drawdown_max,
+    # sharpe, sortino, var_95, volatilite calculée...), issus de l'historique.
+    indicateurs_quant: Mapped[str | None] = mapped_column(Text)
+
     # Traçabilité
     source: Mapped[str | None] = mapped_column(String(40))
     cree_le: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -80,6 +84,18 @@ class HistoriqueScore(Base):
     cours: Mapped[float | None] = mapped_column(Float)
 
     actif: Mapped[Actif] = relationship(back_populates="historique_scores")
+
+
+class HistoriqueCours(Base):
+    """Série de cours quotidiens d'un actif (alimente le moteur quantitatif)."""
+
+    __tablename__ = "historique_cours"
+    __table_args__ = (UniqueConstraint("actif_id", "date", name="uq_cours_actif_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    actif_id: Mapped[int] = mapped_column(ForeignKey("actifs.id"), index=True)
+    date: Mapped[date] = mapped_column(Date, index=True)
+    cours: Mapped[float] = mapped_column(Float)
 
 
 class JournalMaj(Base):
