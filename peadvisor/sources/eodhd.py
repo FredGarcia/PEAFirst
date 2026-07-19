@@ -1,63 +1,45 @@
+"""EODHD (https://eodhd.com) — cotations temps réel différé et historiques
+end-of-day, très bonne couverture européenne. Suffixe Paris : .PA."""
+
 from __future__ import annotations
 
 from typing import Any
 
-from peadvisor.sources.base import SourceDonnees
-from peadvisor.sources.seed import SourceSeed
+from peadvisor.sources.http import SourceHTTPBase
 
-class SourceEODHD(SourceDonnees):
+URL = "https://eodhd.com/api"
+
+
+class SourceEODHD(SourceHTTPBase):
     nom = "eodhd"
+    nom_cle = "eodhd"
+    variable_env = "EODHD_API_TOKEN"
+    pause_s = 0.2
 
-    def recuperer(self) -> list[dict[str, Any]]:
-        try:
-            import os
-            import requests
-        except ImportError as exc:
-            raise RuntimeError(
-                "La source 'eodhd' nécessite requests : pip install requests"
-            ) from exc
+    def cotation(self, symbole: str, cle: str | None) -> dict[str, Any]:
+        data = self._get_json(f"{URL}/real-time/{symbole}",
+                              {"api_token": cle, "fmt": "json"})
+        if not isinstance(data, dict):
+            return {}
+        champs: dict[str, Any] = {}
+        prix = data.get("close") or data.get("last")
+        if prix and prix != "NA":
+            champs["cours"] = float(prix)
+        if data.get("market_capitalization"):
+            champs["capitalisation"] = round(float(data["market_capitalization"]) / 1e6, 1)
+        if data.get("pe_ratio"):
+            champs["per"] = float(data["pe_ratio"])
+        if data.get("dividend_yield"):
+            champs["rendement"] = float(data["dividend_yield"])
+        return champs
 
-        api_key = os.getenv("EODHD_API_TOKEN")
-        if not api_key:
-            raise RuntimeError(
-                "La source 'eodhd' nécessite la variable d'environnement EODHD_API_TOKEN"
-            )
-
-        base = SourceSeed().recuperer()
-        resultats: list[dict[str, Any]] = []
-
-        for actif in base:
-            ticker = actif.get("mnemonique")
-            if not ticker or actif.get("type") == "OPCVM":
-                resultats.append(actif)
-                continue
-
-            symbole = ticker if "." in ticker else f"{ticker}.PA"
-            try:
-                url = f"https://eodhd.com/api/real-time/{symbole}"
-                params = {
-                    "api_token": api_key,
-                    "fmt": "json",
-                }
-                data = requests.get(url, params=params, timeout=20).json()
-
-                maj = dict(actif)
-                if isinstance(data, dict):
-                    prix = data.get("close") or data.get("last")
-                    if prix:
-                        maj["cours"] = float(prix)
-
-                    if data.get("market_capitalization"):
-                        maj["capitalisation"] = round(float(data["market_capitalization"]) / 1e6, 1)
-
-                    if data.get("pe_ratio"):
-                        maj["per"] = float(data["pe_ratio"])
-
-                    if data.get("dividend_yield"):
-                        maj["rendement"] = float(data["dividend_yield"])
-
-                resultats.append(maj)
-            except Exception:
-                resultats.append(actif)
-
-        return resultats
+    def serie(self, symbole: str, cle: str | None) -> list[dict[str, Any]]:
+        data = self._get_json(f"{URL}/eod/{symbole}",
+                              {"api_token": cle, "fmt": "json", "period": "d"})
+        lignes = data if isinstance(data, list) else []
+        return sorted(
+            ({"date": str(l["date"])[:10],
+              "cours": float(l.get("adjusted_close") or l["close"])}
+             for l in lignes if l.get("date") and (l.get("adjusted_close") or l.get("close"))),
+            key=lambda p: p["date"],
+        )

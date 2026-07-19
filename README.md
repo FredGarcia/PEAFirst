@@ -33,7 +33,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | Domaine | Contenu |
 |---|---|
 | Référentiel | Actions, ETF, OPCVM éligibles PEA — 20+ champs par actif (ISIN, secteur, PER, rendement, ESG, volatilité, consensus…) |
-| Import | Sources branchables (`seed` locale, `yahoo` via yfinance), normalisation, **dédoublonnage par ISIN**, journal des traitements |
+| Import | 8 sources branchables (`seed`, **`stooq` sans clé**, `yahoo`, AlphaVantage, TwelveData, FMP, EODHD, Marketstack), gestion des clés API (fichier gitignoré ou variables d'env.), bouton « Tester » par source, normalisation, **dédoublonnage par ISIN**, journal |
 | Scoring | Score 0-100, 7 critères, **pondérations modifiables** depuis l'interface (recalcul immédiat), historique des scores |
 | Quantitatif | Historiques de cours (~3 ans) et indicateurs calculés : volatilité réalisée (réinjectée dans le scoring), perf 1 an, drawdown max, Sharpe, Sortino, VaR 95 %, corrélations |
 | Décision | Matrice multicritère : score pondéré ou **TOPSIS** |
@@ -63,6 +63,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | [docs/06-roadmap.md](docs/06-roadmap.md) | État d'avancement vs cahier des charges, prochaines étapes |
 | [docs/07-auto-observation.md](docs/07-auto-observation.md) | Couche de second ordre : auto-observation et auto-amélioration |
 | [docs/08-agent-mcp.md](docs/08-agent-mcp.md) | Agent : serveur MCP pour Claude Desktop (installation, outils, exemples) |
+| [docs/09-sources-donnees.md](docs/09-sources-donnees.md) | Sources de données : intégrées, clés API, étude comparative (~30 fournisseurs) |
 
 ## Structure du projet
 

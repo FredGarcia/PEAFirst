@@ -46,8 +46,12 @@ function tableTop(titre, lignes, unite) {
 /* --- Vues -------------------------------------------------------------- */
 
 async function vueDashboard() {
-  const s = await api("/api/dashboard/synthese");
-  const classement = await api("/api/dashboard/classement?methode=topsis&limite=10");
+  const [s, profil] = await Promise.all([
+    api("/api/dashboard/synthese"),
+    api("/api/parametres/profil"),
+  ]);
+  const algo = profil.algorithme_decision || "topsis";
+  const classement = await api(`/api/dashboard/classement?methode=${algo}&limite=10`);
   contenu.innerHTML = `
     <h1>Tableau de bord</h1>
     <p class="sous-titre">${s.nb_actifs} actifs éligibles PEA suivis — données indicatives, ceci n'est pas un conseil en investissement.</p>
@@ -72,16 +76,20 @@ async function vueDashboard() {
       ${tableTop("Top dividendes (rendement)", s.top_dividendes, " %")}
       ${tableTop("Top croissance", s.top_croissance, " %")}
     </div>
-    <h2>Matrice de décision multicritère (TOPSIS)</h2>
+    <h2>Matrice de décision multicritère (${LIBELLES_ALGO[algo] ?? algo})</h2>
     <div class="carte"><div class="table-scroll"><table>
-      <thead><tr><th>Rang</th><th>Valeur</th><th>Type</th><th class="num">Proximité idéale</th></tr></thead>
+      <thead><tr><th>Rang</th><th>Valeur</th><th>Type</th>
+        <th class="num">${algo === "topsis" ? "Proximité idéale" : "Score"}</th></tr></thead>
       <tbody>${classement.map((l) => `<tr>
         <td class="num">${l.rang}</td>
         <td><span class="pastille ${l.type}"></span>${echap(l.nom)}</td>
         <td>${l.type}</td>
         <td class="num">${fmt(l.valeur, 3)}</td></tr>`).join("")}
       </tbody></table></div>
-      <p class="note-bas">Classement TOPSIS : proximité à la solution idéale (0 à 1), pondérations de config/scoring.yaml.</p>
+      <p class="note-bas">${algo === "topsis"
+        ? "Classement TOPSIS : proximité à la solution idéale (0 à 1), pondérations de config/scoring.yaml."
+        : "Classement par score global pondéré (0 à 100)."}
+        L'algorithme se choisit dans l'onglet Paramètres.</p>
     </div>`;
 }
 
@@ -124,22 +132,25 @@ async function vueActifs(type, titre) {
 }
 
 async function vueAllocation() {
+  const profil = await api("/api/parametres/profil");
+  const choix = (v) => (profil.objectif === v ? "selected" : "");
   contenu.innerHTML = `
     <h1>Allocation automatique</h1>
-    <p class="sous-titre">Proposition indicative selon capital, profil de risque, horizon et objectif.</p>
+    <p class="sous-titre">Proposition indicative — pré-remplie avec votre profil investisseur
+      (modifiable dans Paramètres).</p>
     <form class="panneau" id="form-allocation">
       <div class="champs">
         <label class="champ">Capital (€)
           <input type="number" name="capital" value="10000" min="100" step="100" required></label>
         <label class="champ">Niveau de risque (1-7)
-          <input type="number" name="niveau_risque" value="4" min="1" max="7" required></label>
+          <input type="number" name="niveau_risque" value="${profil.niveau_risque}" min="1" max="7" required></label>
         <label class="champ">Horizon (années)
-          <input type="number" name="horizon_annees" value="10" min="1" max="40" required></label>
+          <input type="number" name="horizon_annees" value="${profil.horizon_annees}" min="1" max="40" required></label>
         <label class="champ">Objectif
           <select name="objectif">
-            <option value="equilibre">Équilibré</option>
-            <option value="croissance">Croissance</option>
-            <option value="dividendes">Dividendes (revenus)</option>
+            <option value="equilibre" ${choix("equilibre")}>Équilibré</option>
+            <option value="croissance" ${choix("croissance")}>Capitalisation (croissance)</option>
+            <option value="dividendes" ${choix("dividendes")}>Revenus (dividendes)</option>
           </select></label>
         <button type="submit">Proposer une allocation</button>
       </div>
@@ -239,21 +250,79 @@ async function vueSources() {
   const s = await api("/api/sources");
   contenu.innerHTML = `
     <h1>Sources de données</h1>
-    <div class="carte">
-      <p>Source active : <strong>${echap(s.source_active)}</strong></p>
-      <p>Sources disponibles : ${s.sources_disponibles.map(echap).join(", ")}</p>
-      <p class="note-bas">La source active se change dans <code>config/settings.yaml</code>
-      (clé <code>donnees.source_active</code>). « seed » = jeu de données local de démonstration ;
-      « yahoo » = Yahoo Finance via yfinance (accès réseau requis).</p>
+    <p class="sous-titre">Source active : <strong>${echap(s.source_active)}</strong>
+      (se change dans <code>config/settings.yaml</code>, clé <code>donnees.source_active</code>)</p>
+    <div class="carte"><div class="table-scroll"><table>
+      <thead><tr><th>Source</th><th>Clé API</th><th>État de la clé</th><th></th><th>Résultat du test</th></tr></thead>
+      <tbody>${s.sources.map((src) => `<tr>
+        <td>${src.nom === s.source_active ? "▶ " : ""}<strong>${echap(src.nom)}</strong></td>
+        <td>${src.necessite_cle ? `requise (<code>${echap(src.variable_env ?? "")}</code>)` : "aucune"}</td>
+        <td>${src.necessite_cle
+          ? (src.cle_configuree ? '<span class="hausse">configurée ✓</span>'
+                                : '<span class="baisse">absente ✗</span>')
+          : "—"}</td>
+        <td>${src.testable ? `<button class="secondaire" data-tester="${src.nom}">Tester</button>` : ""}</td>
+        <td class="muted" id="test-${src.nom}"></td>
+      </tr>`).join("")}</tbody></table></div>
+      <p class="note-bas">Clés API : copier <code>config/cles_api.exemple.yaml</code> vers
+      <code>config/cles_api.yaml</code> (jamais versionné) ou définir les variables
+      d'environnement, qui priment. Le test interroge un titre (TotalEnergies) et
+      indique le nombre de points d'historique reçus. Détails et comparatif des
+      sources : <code>docs/09-sources-donnees.md</code>.</p>
     </div>`;
+  contenu.querySelectorAll("[data-tester]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const cible = document.getElementById(`test-${b.dataset.tester}`);
+      cible.textContent = "test en cours…";
+      b.disabled = true;
+      try {
+        const r = await api(`/api/sources/${b.dataset.tester}/tester`, { method: "POST" });
+        cible.innerHTML = r.ok
+          ? `<span class="hausse">OK</span> — ${r.points_historique ?? 0} point(s) d'historique`
+            + (r.cotation?.cours ? `, cours ${r.cotation.cours}` : "")
+          : `<span class="baisse">Échec</span> — ${echap(r.erreur ?? r.info ?? "")}`;
+      } catch (err) {
+        cible.innerHTML = `<span class="baisse">Erreur</span> — ${echap(err.message)}`;
+      }
+      b.disabled = false;
+    }));
+}
+
+const LIBELLES_OBJECTIF = { croissance: "Capitalisation", dividendes: "Revenus", equilibre: "Équilibré" };
+const LIBELLES_ALGO = { weighted: "Score pondéré", topsis: "TOPSIS" };
+
+function segments(champ, options, valeurActive) {
+  return `<span class="segments" data-champ="${champ}">${Object.entries(options)
+    .map(([valeur, libelle]) => `<button data-valeur="${valeur}"
+      class="${String(valeur) === String(valeurActive) ? "actif" : ""}">${libelle}</button>`)
+    .join("")}</span>`;
 }
 
 async function vueParametres() {
-  const cfg = await api("/api/parametres/scoring");
+  const [cfg, profil] = await Promise.all([
+    api("/api/parametres/scoring"),
+    api("/api/parametres/profil"),
+  ]);
   const criteres = Object.entries(cfg.ponderations);
+  const risques = Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [n, n]));
   contenu.innerHTML = `
-    <h1>Paramètres du score</h1>
-    <p class="sous-titre">Pondérations du score propriétaire (0-100). La somme est renormalisée automatiquement.</p>
+    <h1>Paramètres</h1>
+    <h2>Profil investisseur</h2>
+    <div class="panneau" id="panneau-profil">
+      <div class="reglage"><span class="libelle-reglage">Objectif</span>
+        ${segments("objectif", LIBELLES_OBJECTIF, profil.objectif)}</div>
+      <div class="reglage"><span class="libelle-reglage">Profil de risque (1-7)</span>
+        ${segments("niveau_risque", risques, profil.niveau_risque)}</div>
+      <div class="reglage"><span class="libelle-reglage">Algorithme de décision</span>
+        ${segments("algorithme_decision", LIBELLES_ALGO, profil.algorithme_decision)}</div>
+      <div class="reglage"><span class="libelle-reglage">Horizon (années)</span>
+        <input type="number" id="profil-horizon" value="${profil.horizon_annees}" min="1" max="40" style="width:90px">
+      </div>
+      <p class="note-bas" id="retour-profil">Ce profil pilote l'algorithme du classement
+        du tableau de bord et pré-remplit le formulaire d'allocation.</p>
+    </div>
+    <h2>Pondérations du score</h2>
+    <p class="sous-titre">Score propriétaire (0-100). La somme est renormalisée automatiquement.</p>
     <form class="panneau" id="form-poids">
       <div class="champs">
         ${criteres.map(([c, p]) => `<label class="champ">${c}
@@ -274,6 +343,29 @@ async function vueParametres() {
     });
     document.getElementById("retour-poids").textContent =
       `Enregistré — scores recalculés pour ${r.actifs_recalcules} actifs.`;
+  });
+
+  // Interrupteurs du profil : chaque clic enregistre immédiatement.
+  const enregistrerProfil = async (maj) => {
+    await api("/api/parametres/profil", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(maj),
+    });
+    document.getElementById("retour-profil").textContent = "Profil enregistré ✓";
+  };
+  document.querySelectorAll("#panneau-profil .segments").forEach((groupe) =>
+    groupe.addEventListener("click", async (e) => {
+      const bouton = e.target.closest("button");
+      if (!bouton) return;
+      groupe.querySelectorAll("button").forEach((b) => b.classList.remove("actif"));
+      bouton.classList.add("actif");
+      const champ = groupe.dataset.champ;
+      const brut = bouton.dataset.valeur;
+      await enregistrerProfil({ [champ]: champ === "niveau_risque" ? Number(brut) : brut });
+    }));
+  document.getElementById("profil-horizon").addEventListener("change", async (e) => {
+    await enregistrerProfil({ horizon_annees: Number(e.target.value) });
   });
 }
 

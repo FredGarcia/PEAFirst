@@ -5,7 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from peadvisor.config import charger_scoring, charger_settings, sauvegarder_scoring
+from peadvisor.config import (charger_profil, charger_scoring, charger_settings,
+                              sauvegarder_profil, sauvegarder_scoring)
 from peadvisor.database import get_session
 from peadvisor.models import Actif, ElementWatchlist, JournalMaj
 from peadvisor.schemas import ElementWatchlistOut, JournalOut
@@ -42,11 +43,65 @@ def consulter_journal(limite: int = Query(50, le=500), session: Session = Depend
 
 @router.get("/sources")
 def lister_sources():
+    from peadvisor.sources.http import SourceHTTPBase
+
     settings = charger_settings()
+    sources = []
+    for nom, classe in REGISTRE.items():
+        info = {"nom": nom, "necessite_cle": False, "cle_configuree": None,
+                "testable": issubclass(classe, SourceHTTPBase)}
+        if issubclass(classe, SourceHTTPBase):
+            instance = classe()
+            info["necessite_cle"] = instance.necessite_cle
+            if instance.necessite_cle:
+                info["cle_configuree"] = instance._cle() is not None
+                info["variable_env"] = instance.variable_env
+        sources.append(info)
     return {
         "source_active": settings["donnees"]["source_active"],
-        "sources_disponibles": list(REGISTRE),
+        "sources": sources,
     }
+
+
+@router.post("/sources/{nom}/tester")
+def tester_source(nom: str):
+    """Teste une source sur un titre : présence de la clé, appel réel,
+    nombre de points d'historique reçus."""
+    from peadvisor.sources.http import SourceHTTPBase
+
+    if nom not in REGISTRE:
+        raise HTTPException(404, f"Source inconnue : {nom}. Disponibles : {list(REGISTRE)}")
+    classe = REGISTRE[nom]
+    if not issubclass(classe, SourceHTTPBase):
+        return {"ok": True, "info": f"La source '{nom}' ne se teste pas par requête HTTP "
+                                    "(locale ou bibliothèque dédiée)."}
+    return classe().tester()
+
+
+@router.get("/parametres/profil")
+def consulter_profil():
+    """Profil investisseur : objectif, niveau de risque, horizon, algorithme."""
+    return charger_profil()
+
+
+@router.put("/parametres/profil")
+def modifier_profil(maj: dict = Body(...)):
+    """Modifie le profil investisseur (interrupteurs de l'écran Paramètres).
+
+    Il pilote l'algorithme du classement du tableau de bord et pré-remplit
+    le formulaire d'allocation.
+    """
+    if "objectif" in maj and maj["objectif"] not in ("croissance", "dividendes", "equilibre"):
+        raise HTTPException(400, "objectif : croissance (capitalisation), dividendes (revenus) ou equilibre")
+    if "algorithme_decision" in maj and maj["algorithme_decision"] not in ("weighted", "topsis"):
+        raise HTTPException(400, "algorithme_decision : weighted ou topsis")
+    if "niveau_risque" in maj and not (isinstance(maj["niveau_risque"], int)
+                                       and 1 <= maj["niveau_risque"] <= 7):
+        raise HTTPException(400, "niveau_risque : entier de 1 à 7")
+    if "horizon_annees" in maj and not (isinstance(maj["horizon_annees"], int)
+                                        and 1 <= maj["horizon_annees"] <= 40):
+        raise HTTPException(400, "horizon_annees : entier de 1 à 40")
+    return sauvegarder_profil(maj)
 
 
 @router.get("/parametres/scoring")

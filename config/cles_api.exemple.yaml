@@ -1,0 +1,22 @@
+# ============================================================
+# PEAdvisor — Clés API des sources de données
+#
+# 1. Copier ce fichier vers config/cles_api.yaml
+#    (il est ignoré par git : les clés ne sont jamais versionnées).
+# 2. Renseigner les clés des sources que vous utilisez.
+#
+# Les variables d'environnement PRIMENT sur ce fichier :
+#   ALPHAVANTAGE_API_KEY, TWELVEDATA_API_KEY, FMP_API_KEY,
+#   EODHD_API_TOKEN, MARKETSTACK_API_KEY
+#
+# « stooq » et « seed » ne nécessitent aucune clé.
+# La source active se choisit dans config/settings.yaml
+# (donnees.source_active) et se vérifie via l'écran Sources
+# (bouton « Tester »).
+# ============================================================
+
+alphavantage: ""            # https://www.alphavantage.co/support/#api-key
+twelvedata: ""              # https://twelvedata.com/account/api-keys
+financialmodelingprep: ""   # https://site.financialmodelingprep.com/developer/docs
+eodhd: ""                   # https://eodhd.com/cp/settings
+marketstack: ""             # https://marketstack.com/dashboard

@@ -4,6 +4,8 @@ __pycache__/
 venv/
 *.db
 *.sqlite3
+config/cles_api.yaml
+config/profil.yaml
 .pytest_cache/
 .coverage
 dist/

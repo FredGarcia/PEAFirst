@@ -1,63 +1,38 @@
+"""Marketstack (https://marketstack.com) — historiques end-of-day, symboles
+suffixés par le code MIC de la place (Euronext Paris : .XPAR)."""
+
 from __future__ import annotations
 
 from typing import Any
 
-from peadvisor.sources.base import SourceDonnees
-from peadvisor.sources.seed import SourceSeed
+from peadvisor.sources.http import SourceHTTPBase
 
-class SourceEODHD(SourceDonnees):
-    nom = "eodhd"
+URL = "https://api.marketstack.com/v1"
 
-    def recuperer(self) -> list[dict[str, Any]]:
-        try:
-            import os
-            import requests
-        except ImportError as exc:
-            raise RuntimeError(
-                "La source 'eodhd' nécessite requests : pip install requests"
-            ) from exc
 
-        api_key = os.getenv("EODHD_API_TOKEN")
-        if not api_key:
-            raise RuntimeError(
-                "La source 'eodhd' nécessite la variable d'environnement EODHD_API_TOKEN"
-            )
+class SourceMarketstack(SourceHTTPBase):
+    nom = "marketstack"
+    nom_cle = "marketstack"
+    variable_env = "MARKETSTACK_API_KEY"
+    pause_s = 0.5
 
-        base = SourceSeed().recuperer()
-        resultats: list[dict[str, Any]] = []
+    def symbole(self, ticker: str) -> str:
+        return ticker if "." in ticker else f"{ticker}.XPAR"
 
-        for actif in base:
-            ticker = actif.get("mnemonique")
-            if not ticker or actif.get("type") == "OPCVM":
-                resultats.append(actif)
-                continue
+    def cotation(self, symbole: str, cle: str | None) -> dict[str, Any]:
+        data = self._get_json(f"{URL}/eod/latest",
+                              {"access_key": cle, "symbols": symbole})
+        lignes = data.get("data", []) if isinstance(data, dict) else []
+        if lignes and lignes[0].get("close"):
+            return {"cours": float(lignes[0]["close"])}
+        return {}
 
-            symbole = ticker if "." in ticker else f"{ticker}.PA"
-            try:
-                url = f"https://eodhd.com/api/real-time/{symbole}"
-                params = {
-                    "api_token": api_key,
-                    "fmt": "json",
-                }
-                data = requests.get(url, params=params, timeout=20).json()
-
-                maj = dict(actif)
-                if isinstance(data, dict):
-                    prix = data.get("close") or data.get("last")
-                    if prix:
-                        maj["cours"] = float(prix)
-
-                    if data.get("market_capitalization"):
-                        maj["capitalisation"] = round(float(data["market_capitalization"]) / 1e6, 1)
-
-                    if data.get("pe_ratio"):
-                        maj["per"] = float(data["pe_ratio"])
-
-                    if data.get("dividend_yield"):
-                        maj["rendement"] = float(data["dividend_yield"])
-
-                resultats.append(maj)
-            except Exception:
-                resultats.append(actif)
-
-        return resultats
+    def serie(self, symbole: str, cle: str | None) -> list[dict[str, Any]]:
+        data = self._get_json(f"{URL}/eod",
+                              {"access_key": cle, "symbols": symbole, "limit": 1000})
+        lignes = data.get("data", []) if isinstance(data, dict) else []
+        return sorted(
+            ({"date": str(l["date"])[:10], "cours": float(l["close"])}
+             for l in lignes if l.get("date") and l.get("close")),
+            key=lambda p: p["date"],
+        )

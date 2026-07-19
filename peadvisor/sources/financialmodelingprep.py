@@ -1,71 +1,44 @@
+"""Financial Modeling Prep (https://financialmodelingprep.com) — cotations et
+fondamentaux (PER, capitalisation, objectif de cours). Suffixe Paris : .PA."""
+
 from __future__ import annotations
 
 from typing import Any
 
-from peadvisor.sources.base import SourceDonnees
-from peadvisor.sources.seed import SourceSeed
+from peadvisor.sources.http import SourceHTTPBase
+
+URL = "https://financialmodelingprep.com/stable"
 
 
-class SourceFinancialModelingPrep(SourceDonnees):
+class SourceFinancialModelingPrep(SourceHTTPBase):
     nom = "financialmodelingprep"
+    nom_cle = "financialmodelingprep"
+    variable_env = "FMP_API_KEY"
+    pause_s = 0.3
 
-    def recuperer(self) -> list[dict[str, Any]]:
-        try:
-            import os
-            import requests
-        except ImportError as exc:
-            raise RuntimeError(
-                "La source 'financialmodelingprep' nécessite requests : pip install requests"
-            ) from exc
+    def cotation(self, symbole: str, cle: str | None) -> dict[str, Any]:
+        data = self._get_json(f"{URL}/quote", {"symbol": symbole, "apikey": cle})
+        quote = data[0] if isinstance(data, list) and data else {}
+        champs: dict[str, Any] = {}
+        if quote.get("price"):
+            champs["cours"] = float(quote["price"])
+        if quote.get("marketCap"):
+            champs["capitalisation"] = round(float(quote["marketCap"]) / 1e6, 1)
+        if quote.get("pe"):
+            champs["per"] = float(quote["pe"])
+        if quote.get("dividendYield"):
+            champs["rendement"] = round(float(quote["dividendYield"]), 2)
+        if quote.get("priceTarget"):
+            champs["objectif_cours"] = float(quote["priceTarget"])
+        return champs
 
-        api_key = os.getenv("FMP_API_KEY")
-        if not api_key:
-            raise RuntimeError(
-                "La source 'financialmodelingprep' nécessite la variable d'environnement FMP_API_KEY"
-            )
-
-        base = SourceSeed().recuperer()
-        resultats: list[dict[str, Any]] = []
-
-        for actif in base:
-            ticker = actif.get("mnemonique")
-            if not ticker or actif.get("type") == "OPCVM":
-                resultats.append(actif)
-                continue
-
-            symbole = ticker if "." in ticker else f"{ticker}.PA"
-            try:
-                url = "https://financialmodelingprep.com/stable/quote"
-                params = {
-                    "symbol": symbole,
-                    "apikey": api_key,
-                }
-                data = requests.get(url, params=params, timeout=20).json()
-                quote = data[0] if isinstance(data, list) and data else {}
-
-                maj = dict(actif)
-                prix = quote.get("price")
-                if prix:
-                    maj["cours"] = float(prix)
-
-                cap = quote.get("marketCap")
-                if cap:
-                    maj["capitalisation"] = round(float(cap) / 1e6, 1)
-
-                pe = quote.get("pe")
-                if pe:
-                    maj["per"] = float(pe)
-
-                div = quote.get("dividendYield")
-                if div:
-                    maj["rendement"] = round(float(div), 2)
-
-                target = quote.get("priceTarget")
-                if target:
-                    maj["objectif_cours"] = float(target)
-
-                resultats.append(maj)
-            except Exception:
-                resultats.append(actif)
-
-        return resultats
+    def serie(self, symbole: str, cle: str | None) -> list[dict[str, Any]]:
+        data = self._get_json(f"{URL}/historical-price-eod/light",
+                              {"symbol": symbole, "apikey": cle})
+        lignes = data if isinstance(data, list) else data.get("historical", [])
+        points = []
+        for ligne in lignes:
+            cours = ligne.get("price") or ligne.get("close")
+            if ligne.get("date") and cours:
+                points.append({"date": str(ligne["date"])[:10], "cours": float(cours)})
+        return sorted(points, key=lambda p: p["date"])

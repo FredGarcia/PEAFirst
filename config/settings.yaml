@@ -8,8 +8,14 @@ app:
   langue: fr
 
 donnees:
-  # Source de données active : "seed" (jeu de données local de démonstration)
-  # ou "yahoo" (Yahoo Finance via yfinance, nécessite un accès réseau).
+  # Source de données active. Disponibles :
+  #   seed                  — jeu local de démonstration (sans réseau)
+  #   stooq                 — historiques réels, GRATUIT et SANS CLÉ
+  #   yahoo                 — via yfinance (non officiel)
+  #   alphavantage, twelvedata, financialmodelingprep, eodhd, marketstack
+  #                         — nécessitent une clé API (config/cles_api.yaml
+  #                           ou variable d'environnement ; voir l'écran
+  #                           Sources et docs/09-sources-donnees.md)
   source_active: seed
   # Activer la poche PEA-PME (option du cahier des charges)
   inclure_pea_pme: false

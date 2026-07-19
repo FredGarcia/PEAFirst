@@ -15,7 +15,6 @@ from __future__ import annotations
 from typing import Any
 
 from peadvisor.sources.base import SourceDonnees
-from peadvisor.sources.seed import SourceSeed
 
 
 class SourceYahoo(SourceDonnees):
@@ -29,7 +28,11 @@ class SourceYahoo(SourceDonnees):
                 "La source 'yahoo' nécessite la bibliothèque yfinance : pip install yfinance"
             ) from exc
 
-        base = SourceSeed().recuperer()
+        from peadvisor.sources.http import univers_de_base
+
+        # Univers de référence SANS l'historique synthétique : une source
+        # réelle ne doit jamais importer des séries de démonstration.
+        base = univers_de_base()
         resultats: list[dict[str, Any]] = []
         for actif in base:
             ticker = actif.get("mnemonique")
