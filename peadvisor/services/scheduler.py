@@ -26,6 +26,13 @@ def _tache_mise_a_jour() -> None:
     try:
         journal = importer(session)
         logger.info("Mise à jour planifiée terminée : %s (%s)", journal.detail, journal.statut)
+        # Couche de second ordre : le système s'observe (et s'optimise si configuré)
+        # après chaque mise à jour planifiée.
+        if charger_settings().get("meta", {}).get("observer_apres_maj", True):
+            from peadvisor.services.amelioration import cycle_second_ordre
+
+            resultat = cycle_second_ordre(session)
+            logger.info("Auto-diagnostic : %s", resultat.get("optimisation"))
     finally:
         session.close()
 

@@ -8,6 +8,7 @@
 | **L2 — Analyse** | Indicateurs, scoring, ESG, risque | `services/scoring.py` (sous-notes 0-100, score global, niveau de risque dérivé de la volatilité) |
 | **L3 — Décision** | Multicritère, allocation | `services/decision.py` (score pondéré, TOPSIS) + `services/allocation.py` |
 | **L4 — Pilotage** | Tableau de bord, journal, watchlist | `routers/` (API REST) + `static/` (interface web) |
+| **L5 — Second ordre** | Le système s'observe et s'améliore | `services/introspection.py` + `services/amelioration.py` (voir [docs/07-auto-observation.md](07-auto-observation.md)) |
 
 ## Flux de données
 

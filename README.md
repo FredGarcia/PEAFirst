@@ -40,6 +40,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | Tableau de bord | KPI, répartitions type/secteur/pays, tops (opportunités, dividendes, croissance), classement TOPSIS |
 | Watchlist | Suivi de valeurs, ajout/retrait en un clic |
 | Automatisation | Mise à jour quotidienne ou hebdomadaire planifiée (APScheduler), activable dans `config/settings.yaml` |
+| Second ordre | **Auto-observation** (complétude, fraîcheur, anomalies, dérive des scores, pouvoir prédictif) et **auto-amélioration** (recommandations + optimisation des pondérations validée sur les rendements réalisés, supervision humaine par défaut) — écran Système |
 
 ## Paramétrage (sans toucher au code)
 
@@ -58,6 +59,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | [docs/04-scoring-et-decision.md](docs/04-scoring-et-decision.md) | Normalisation, score propriétaire, TOPSIS |
 | [docs/05-allocation.md](docs/05-allocation.md) | Profils de risque, poches, contraintes de diversification |
 | [docs/06-roadmap.md](docs/06-roadmap.md) | État d'avancement vs cahier des charges, prochaines étapes |
+| [docs/07-auto-observation.md](docs/07-auto-observation.md) | Couche de second ordre : auto-observation et auto-amélioration |
 
 ## Structure du projet
 

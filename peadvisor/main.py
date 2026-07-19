@@ -21,7 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from peadvisor import __version__
 from peadvisor.database import SessionLocal, creer_tables
 from peadvisor.models import Actif
-from peadvisor.routers import actifs, administration, allocation, dashboard
+from peadvisor.routers import actifs, administration, allocation, dashboard, meta
 from peadvisor.services import scheduler
 from peadvisor.services.importer import importer
 
@@ -56,6 +56,7 @@ app.include_router(dashboard.router)
 app.include_router(actifs.router)
 app.include_router(allocation.router)
 app.include_router(administration.router)
+app.include_router(meta.router)
 
 # Le tableau de bord web est servi à la racine.
 app.mount("/", StaticFiles(directory=DOSSIER_STATIC, html=True), name="static")

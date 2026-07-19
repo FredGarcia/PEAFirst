@@ -29,3 +29,23 @@ allocation:
   lignes_max: 25              # nombre maximal de lignes proposées
   poids_max_par_secteur: 0.30 # 30 % maximum sur un même secteur
   part_min_etf_opcvm: 0.30    # part minimale de fonds (ETF/OPCVM) dans la poche cœur
+
+# ------------------------------------------------------------
+# Couche de second ordre : auto-observation et auto-amélioration
+# ------------------------------------------------------------
+meta:
+  # Auto-diagnostic exécuté après chaque mise à jour planifiée
+  observer_apres_maj: true
+  # Données considérées périmées au-delà de N jours
+  fraicheur_max_jours: 7
+  # Variation de score entre deux mises à jour considérée comme une dérive
+  seuil_derive_score: 20
+  # Sous-note dont l'écart-type est inférieur à ce seuil = critère peu discriminant
+  seuil_discrimination: 5
+  optimisation:
+    # true : les pondérations optimisées sont appliquées automatiquement
+    # false : elles restent des suggestions à valider dans l'écran Système
+    auto_appliquer: false
+    pas: 5                 # pas d'exploration d'une pondération (points)
+    ajustement_max: 15     # écart maximal par critère vs pondération actuelle
+    gain_minimal: 0.02     # gain de corrélation minimal pour émettre une suggestion

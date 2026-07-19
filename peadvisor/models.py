@@ -96,6 +96,46 @@ class JournalMaj(Base):
     nb_erreurs: Mapped[int] = mapped_column(Integer, default=0)
 
 
+class RapportSysteme(Base):
+    """Instantané d'auto-diagnostic (couche de second ordre)."""
+
+    __tablename__ = "rapports_systeme"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    contenu: Mapped[str] = mapped_column(Text)  # rapport complet en JSON
+
+
+class Anomalie(Base):
+    """Anomalie détectée par l'auto-observation (donnée incohérente, dérive...)."""
+
+    __tablename__ = "anomalies"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    actif_id: Mapped[int | None] = mapped_column(ForeignKey("actifs.id"), index=True)
+    type: Mapped[str] = mapped_column(String(40), index=True)
+    gravite: Mapped[str] = mapped_column(String(15))  # "info" | "avertissement" | "critique"
+    message: Mapped[str] = mapped_column(Text)
+    statut: Mapped[str] = mapped_column(String(15), default="ouverte")  # "ouverte" | "ignoree" | "resolue"
+
+    actif: Mapped[Actif | None] = relationship()
+
+
+class SuggestionPonderations(Base):
+    """Pondérations optimisées proposées par l'auto-amélioration."""
+
+    __tablename__ = "suggestions_ponderations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    ponderations: Mapped[str] = mapped_column(Text)  # JSON critère → poids
+    correlation_avant: Mapped[float | None] = mapped_column(Float)
+    correlation_apres: Mapped[float | None] = mapped_column(Float)
+    statut: Mapped[str] = mapped_column(String(15), default="proposee")  # "proposee" | "appliquee" | "rejetee"
+    commentaire: Mapped[str | None] = mapped_column(Text)
+
+
 class ElementWatchlist(Base):
     __tablename__ = "watchlist"
 

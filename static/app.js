@@ -271,6 +271,104 @@ async function vueParametres() {
   });
 }
 
+async function vueSysteme() {
+  const [rapport, anomalies, suggestions] = await Promise.all([
+    api("/api/meta/sante"),
+    api("/api/meta/anomalies?statut=ouverte"),
+    api("/api/meta/suggestions"),
+  ]);
+  const predictif = rapport?.pouvoir_predictif;
+  const completude = rapport ? Object.entries(rapport.completude_par_champ) : [];
+  contenu.innerHTML = `
+    <h1>Système — auto-observation &amp; auto-amélioration</h1>
+    <p class="sous-titre">Le système s'observe (qualité des données, anomalies, pouvoir prédictif du score)
+      et propose ses propres améliorations. Validation humaine par défaut
+      (<code>meta.optimisation.auto_appliquer</code> pour la boucle fermée).</p>
+    <div class="panneau">
+      <button id="btn-observer">Lancer l'auto-diagnostic</button>
+      <button id="btn-optimiser" class="secondaire">Optimiser les pondérations</button>
+      <span class="muted" id="retour-meta"></span>
+    </div>
+    ${rapport ? `
+    <div class="tuiles">
+      ${tuile("Complétude des données", fmt(rapport.completude_globale_pct, 0), " %")}
+      ${tuile("Anomalies ouvertes", rapport.anomalies_ouvertes)}
+      ${tuile("Cours périmés", rapport.actifs_cours_perimes)}
+      ${tuile("Imports en erreur (7 j)", rapport.imports_en_erreur_7j)}
+      ${tuile("Corrélation score → rendement",
+              predictif?.correlation === null || predictif?.correlation === undefined
+                ? "—" : fmt(predictif.correlation, 2))}
+    </div>
+    <h2>Recommandations du système</h2>
+    <div class="carte">${rapport.recommandations.length
+      ? `<ul>${rapport.recommandations.map((r) => `<li>${echap(r)}</li>`).join("")}</ul>`
+      : `<p class="muted">Aucune recommandation : le système ne détecte rien à améliorer.</p>`}
+      ${predictif?.correlation === null
+        ? `<p class="note-bas">${echap(predictif.detail)}</p>` : ""}
+    </div>
+    <h2>Complétude par champ</h2>
+    <div class="cartes">${grapheBarres("Champs renseignés (%)",
+      Object.fromEntries(completude))}</div>`
+    : `<div class="carte"><p class="muted">Aucun diagnostic encore. Cliquer sur
+       « Lancer l'auto-diagnostic ».</p></div>`}
+    <h2>Anomalies ouvertes (${anomalies.length})</h2>
+    <div class="carte"><div class="table-scroll"><table>
+      <thead><tr><th>Date (UTC)</th><th>Gravité</th><th>Type</th><th>Message</th><th></th></tr></thead>
+      <tbody>${anomalies.map((a) => `<tr>
+        <td class="muted">${a.date.replace("T", " ").slice(0, 16)}</td>
+        <td class="${a.gravite === "critique" ? "baisse" : ""}">${a.gravite}</td>
+        <td>${echap(a.type)}</td>
+        <td>${echap(a.message)}</td>
+        <td><button class="secondaire" data-anomalie="${a.id}">Ignorer</button></td>
+      </tr>`).join("") || `<tr><td colspan="5" class="muted">Aucune anomalie ouverte.</td></tr>`}
+      </tbody></table></div></div>
+    <h2>Suggestions de pondérations</h2>
+    <div class="carte"><div class="table-scroll"><table>
+      <thead><tr><th>Date (UTC)</th><th>Pondérations proposées</th>
+        <th class="num">Corrélation avant → après</th><th>Statut</th><th></th></tr></thead>
+      <tbody>${suggestions.map((s) => `<tr>
+        <td class="muted">${s.date.replace("T", " ").slice(0, 16)}</td>
+        <td>${Object.entries(s.ponderations).map(([c, p]) => `${echap(c)} ${p}`).join(" · ")}</td>
+        <td class="num">${fmt(s.correlation_avant, 2)} → <span class="hausse">${fmt(s.correlation_apres, 2)}</span></td>
+        <td>${s.statut}</td>
+        <td>${s.statut === "proposee" ? `
+          <button data-appliquer="${s.id}">Appliquer</button>
+          <button class="secondaire" data-rejeter="${s.id}">Rejeter</button>` : ""}</td>
+      </tr>`).join("") || `<tr><td colspan="5" class="muted">Aucune suggestion.
+        L'optimisation nécessite plusieurs mises à jour avec des cours qui évoluent.</td></tr>`}
+      </tbody></table></div></div>`;
+
+  document.getElementById("btn-observer").addEventListener("click", async (e) => {
+    e.target.disabled = true;
+    await api("/api/meta/observer", { method: "POST" });
+    vueSysteme();
+  });
+  document.getElementById("btn-optimiser").addEventListener("click", async (e) => {
+    e.target.disabled = true;
+    const r = await api("/api/meta/optimiser", { method: "POST" });
+    if (r.suggestion) { vueSysteme(); }
+    else {
+      document.getElementById("retour-meta").textContent = r.detail;
+      e.target.disabled = false;
+    }
+  });
+  contenu.querySelectorAll("[data-anomalie]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await api(`/api/meta/anomalies/${b.dataset.anomalie}/ignorer`, { method: "POST" });
+      vueSysteme();
+    }));
+  contenu.querySelectorAll("[data-appliquer]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await api(`/api/meta/suggestions/${b.dataset.appliquer}/appliquer`, { method: "POST" });
+      vueSysteme();
+    }));
+  contenu.querySelectorAll("[data-rejeter]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await api(`/api/meta/suggestions/${b.dataset.rejeter}/rejeter`, { method: "POST" });
+      vueSysteme();
+    }));
+}
+
 /* --- Routage ------------------------------------------------------------ */
 
 const VUES = {
@@ -283,6 +381,7 @@ const VUES = {
   historique: vueHistorique,
   sources: vueSources,
   parametres: vueParametres,
+  systeme: vueSysteme,
 };
 
 async function router() {
