@@ -41,6 +41,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | Watchlist | Suivi de valeurs, ajout/retrait en un clic |
 | Automatisation | Mise à jour quotidienne ou hebdomadaire planifiée (APScheduler), activable dans `config/settings.yaml` |
 | Second ordre | **Auto-observation** (complétude, fraîcheur, anomalies, dérive des scores, pouvoir prédictif) et **auto-amélioration** (recommandations + optimisation des pondérations validée sur les rendements réalisés, supervision humaine par défaut) — écran Système |
+| Agent (MCP) | Serveur MCP (`mcp_server.py`) : 13 outils pour piloter PEAdvisor depuis Claude Desktop — analyse, explications, allocation, auto-diagnostic (voir docs/08) |
 
 ## Paramétrage (sans toucher au code)
 
@@ -60,6 +61,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | [docs/05-allocation.md](docs/05-allocation.md) | Profils de risque, poches, contraintes de diversification |
 | [docs/06-roadmap.md](docs/06-roadmap.md) | État d'avancement vs cahier des charges, prochaines étapes |
 | [docs/07-auto-observation.md](docs/07-auto-observation.md) | Couche de second ordre : auto-observation et auto-amélioration |
+| [docs/08-agent-mcp.md](docs/08-agent-mcp.md) | Agent : serveur MCP pour Claude Desktop (installation, outils, exemples) |
 
 ## Structure du projet
 
