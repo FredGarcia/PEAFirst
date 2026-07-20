@@ -58,7 +58,7 @@ menu des connecteurs.
 | `proposer_allocation` | Allocation selon capital / risque / horizon / objectif |
 | `simuler_investissement` | Projection PEA : versements, dividendes, 3 scénarios, fiscalité |
 | `consulter_watchlist` / `gerer_watchlist` | Suivi de valeurs |
-| `importer_boursorama` | Scrape une valeur Boursorama et l'ajoute au référentiel |
+| `importer_valeur` | Scrape une valeur (Boursorama, Boursier…) par nom/ISIN et l'ajoute |
 | `resoudre_isin` | Annuaire OpenFIGI : ISIN → ticker/place |
 | `lancer_mise_a_jour` | Import + dédoublonnage + rescoring |
 | `journal_traitements` | Journal des traitements |

@@ -304,46 +304,24 @@ def lancer_mise_a_jour(source: str | None = None) -> dict:
 
 
 @mcp.tool()
-def importer_boursorama(requete: str) -> dict:
-    """Ajoute ou met à jour une valeur depuis Boursorama par **nom, ISIN ou
-    code** (ex. « Air Liquide », « FR0000120073 » ou « 1rPAI »), avec recalcul
-    des scores. La source de la ligne devient « boursorama ». Extrait aussi
-    objectif de cours, potentiel, consensus analystes et risque ESG.
+def importer_valeur(requete: str, source: str = "boursorama") -> dict:
+    """Ajoute ou met à jour une valeur en la scrapant sur une source web, par
+    **nom, ISIN ou code** (ex. « Air Liquide », « FR0000120073 »). La ligne
+    prend la source indiquée ; Boursorama extrait en plus objectif de cours,
+    potentiel, consensus analystes et risque ESG.
 
     Args:
-        requete: Nom, code ISIN ou code Boursorama de la valeur.
+        requete: Nom, code ISIN ou code de la valeur.
+        source: "boursorama" (défaut), "boursier", "zonebourse",
+            "boursedirect", "ouestfrance" ou "euronext".
     """
-    from datetime import datetime
-
-    from peadvisor.models import Actif, TypeActif
-    from peadvisor.services.scoring import scorer_tous
-    from peadvisor.sources.boursorama import (CHAMPS_FICHE, code_ou_recherche,
-                                              recuperer_un)
+    from peadvisor.services.scraping import importer_valeur as importer
 
     with _session() as s:
         try:
-            code = code_ou_recherche(requete)
-            if not code:
-                return {"erreur": f"Aucune valeur trouvée pour « {requete} »"}
-            donnees = recuperer_un(code)
+            return importer(s, source, requete)
         except Exception as exc:
-            return {"erreur": f"Scraping échoué : {exc}"}
-        isin = donnees.get("isin")
-        if not isin:
-            return {"erreur": "ISIN introuvable sur la page"}
-        champs = {c: donnees[c] for c in CHAMPS_FICHE if c in donnees}
-        actif = s.query(Actif).filter(Actif.isin == isin).one_or_none()
-        cree = actif is None
-        if cree:
-            actif = Actif(isin=isin, type=TypeActif.ACTION, nom=donnees.get("nom") or code)
-            s.add(actif)
-        for champ, valeur in champs.items():
-            setattr(actif, champ, valeur)
-        actif.date_cours = datetime.utcnow()
-        s.commit()
-        scorer_tous(s)
-        return {"cree": cree, "isin": isin, "nom": actif.nom, "cours": actif.cours,
-                "source": actif.source}
+            return {"erreur": str(exc)}
 
 
 @mcp.tool()

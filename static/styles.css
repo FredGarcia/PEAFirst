@@ -117,6 +117,8 @@ table { border-collapse: collapse; width: 100%; background: var(--surface); bord
 th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--grid); font-size: 13px; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 th { color: var(--muted); font-weight: 600; font-size: 12px; }
+th.triable { cursor: pointer; user-select: none; white-space: nowrap; }
+th.triable:hover { color: var(--ink); }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: color-mix(in srgb, var(--serie-1) 6%, transparent); }
 

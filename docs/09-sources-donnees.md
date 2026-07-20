@@ -174,6 +174,38 @@ ESG 12,7, consensus 1,55, PER 27,6, rendement 2,01 %, valorisation 113 401 M€.
 L'onglet Actions affiche désormais la **variation du jour**, le **volume** et
 une colonne **Source** indiquant l'origine de chaque ligne.
 
+## 3 quater. Scraping multi-sources (framework)
+
+Plusieurs sites peuvent être scrapés via un registre commun
+(`peadvisor/sources/web.py`). Chaque source est un `Scraper` : soit **validé**
+avec son parseur dédié (Boursorama), soit **best-effort** piloté par
+configuration (URL de recherche + motif de lien + `parser_generique`), à
+fiabiliser dès qu'une page exemple est fournie.
+
+| Source | État | Notes |
+|---|---|---|
+| **Boursorama** | ✅ validé | Parseur dédié, indicateurs riches (objectif, potentiel, ESG, consensus) |
+| Boursier, Zonebourse, Bourse Direct, Ouest-France, Euronext Paris | ⚠️ à valider | Branchées avec un parseur générique (nom, ISIN, cours) — envoyer une page exemple de chacune pour un parseur dédié, comme pour Boursorama |
+
+Dans l'onglet **Actions** : un champ « nom, ISIN ou code » + **un bouton par
+source**. Les sources non validées portent un « * » ; en cas d'extraction
+pauvre, le message indique qu'un parseur dédié est nécessaire (envoyer une
+page). API : `GET /api/sources/scrapers` (liste), `POST /api/import/web/
+{source}/{requête}` (import). Outil MCP : `importer_valeur(requete, source)`.
+
+Ajouter/fiabiliser une source = ~15 lignes : une entrée dans `SCRAPERS` et,
+après examen d'une vraie page, une fonction `parser_page` dédiée (le chemin
+suivi pour Boursorama, cf. `tests/fixtures_boursorama.py`).
+
+## 3 quinquies. Confort du tableau Actions
+
+- **Tri par colonne** : clic sur un en-tête (indicateur ▴/▾), valeurs
+  manquantes en bas.
+- **Données de démonstration** : bouton « Charger » sur la ligne `seed` de
+  l'onglet Sources (verse le jeu `seed`), et bascule **« Masquer / Afficher
+  les données de démonstration (seed) »** dans les onglets Actions/ETF/OPCVM
+  pour ne voir que les valeurs réellement scrapées/importées.
+
 ## 4. Ajouter une source
 
 1. Créer `peadvisor/sources/<nom>.py` héritant de `SourceHTTPBase` :

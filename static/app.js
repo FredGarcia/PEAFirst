@@ -96,79 +96,140 @@ async function vueDashboard() {
 const volumeCourt = (v) => v == null ? "—"
   : v >= 1e6 ? `${(v / 1e6).toFixed(1)} M` : v >= 1e3 ? `${(v / 1e3).toFixed(0)} k` : String(v);
 
+// État de tri et de masquage seed, persistant entre les rendus.
+const triActifs = { cle: "score_global", sens: -1 };
+let masquerSeed = false;
+
+// Colonnes du tableau : clé de tri, accès à la valeur, rendu de cellule.
+const COLONNES_ACTIFS = [
+  { cle: "nom", label: "Nom", num: false, val: (a) => a.nom || "",
+    cell: (a) => `<span class="pastille ${a.type}"></span>${echap(a.nom)}` },
+  { cle: "isin", label: "ISIN", num: false, val: (a) => a.isin,
+    cell: (a) => `<span class="muted">${a.isin}</span>` },
+  { cle: "secteur", label: "Secteur", num: false, val: (a) => a.secteur || "",
+    cell: (a) => echap(a.secteur ?? "—") },
+  { cle: "cours", label: "Cours", num: true, val: (a) => a.cours, cell: (a) => fmt(a.cours, 2) },
+  { cle: "variation_pct", label: "Var. %", num: true, val: (a) => a.variation_pct,
+    cell: (a) => `<span class="${a.variation_pct > 0 ? "hausse" : a.variation_pct < 0 ? "baisse" : ""}">${fmt(a.variation_pct, 2)}</span>` },
+  { cle: "rendement", label: "Rdt %", num: true, val: (a) => a.rendement, cell: (a) => fmt(a.rendement, 1) },
+  { cle: "per", label: "PER", num: true, val: (a) => a.per, cell: (a) => fmt(a.per, 1) },
+  { cle: "potentiel", label: "Potentiel %", num: true, val: (a) => a.potentiel,
+    cell: (a) => `<span class="${a.potentiel > 0 ? "hausse" : "baisse"}">${fmt(a.potentiel, 1)}</span>` },
+  { cle: "volume", label: "Volume", num: true, val: (a) => a.volume, cell: (a) => volumeCourt(a.volume) },
+  { cle: "volatilite", label: "Vol. %", num: true, val: (a) => a.indicateurs_quant?.volatilite_pct,
+    cell: (a) => fmt(a.indicateurs_quant?.volatilite_pct, 1) },
+  { cle: "sharpe", label: "Sharpe", num: true, val: (a) => a.indicateurs_quant?.sharpe,
+    cell: (a) => fmt(a.indicateurs_quant?.sharpe, 2) },
+  { cle: "score_esg", label: "ESG", num: true, val: (a) => a.score_esg, cell: (a) => fmt(a.score_esg, 0) },
+  { cle: "niveau_risque", label: "Risque", num: true, val: (a) => a.niveau_risque,
+    cell: (a) => `${a.niveau_risque ?? "—"}/7` },
+  { cle: "score_global", label: "Score", num: true, val: (a) => a.score_global,
+    cell: (a) => `<span class="score-badge">${fmt(a.score_global, 0)}</span>` },
+  { cle: "source", label: "Source", num: false, val: (a) => a.source || "",
+    cell: (a) => `<span class="muted">${echap(a.source ?? "—")}</span>` },
+];
+
+function trierActifs(liste) {
+  const col = COLONNES_ACTIFS.find((c) => c.cle === triActifs.cle) || COLONNES_ACTIFS[0];
+  return [...liste].sort((a, b) => {
+    const x = col.val(a), y = col.val(b);
+    const vide = (v) => v == null || v === "";
+    if (vide(x) && vide(y)) return 0;
+    if (vide(x)) return 1;        // valeurs manquantes toujours en bas
+    if (vide(y)) return -1;
+    const cmp = col.num ? (x - y) : String(x).localeCompare(String(y), "fr");
+    return cmp * triActifs.sens;
+  });
+}
+
 async function vueActifs(type, titre) {
-  const actifs = await api(`/api/actifs?type=${type}`);
-  const importBoursorama = type === "ACTION" ? `
-    <form class="panneau" id="form-boursorama">
+  const [actifs, scrapers] = await Promise.all([
+    api(`/api/actifs?type=${type}`),
+    api("/api/sources/scrapers"),
+  ]);
+  const aDuSeed = actifs.some((a) => a.source === "seed");
+
+  const barreRecherche = type === "ACTION" ? `
+    <form class="panneau" id="form-scrap">
+      <label class="champ" style="display:block;margin-bottom:8px">Ajouter une valeur (nom, ISIN ou code) — choisir la source :
+        <input type="text" id="scrap-requete" placeholder="ex. Air Liquide, FR0000120073 ou 1rPAI" style="width:340px"></label>
       <div class="champs">
-        <label class="champ">Ajouter une valeur depuis Boursorama (nom, ISIN ou code)
-          <input type="text" name="code" value="" placeholder="ex. Air Liquide, FR0000120073 ou 1rPAI"></label>
-        <button type="submit">Rechercher &amp; ajouter</button>
-        <span class="muted" id="retour-boursorama"></span>
+        ${scrapers.map((s) => `<button type="button" class="${s.valide ? "" : "secondaire"}"
+          data-source="${s.nom}" title="${s.valide ? "Source validée" : "Source à valider — envoyer une page exemple"}">
+          ${echap(s.libelle)}${s.valide ? "" : " *"}</button>`).join("")}
       </div>
+      <p class="note-bas" id="retour-scrap">« * » : source branchée mais parseur à fiabiliser (envoyer une page exemple).</p>
     </form>` : "";
+
+  const toggleSeed = aDuSeed ? `<button class="secondaire" id="toggle-seed">${
+    masquerSeed ? "Afficher les données de démonstration" : "Masquer les données de démonstration (seed)"}</button>` : "";
+
   contenu.innerHTML = `
     <h1>${titre}</h1>
-    <p class="sous-titre">${actifs.length} valeur(s), triées par score global décroissant.</p>
-    ${importBoursorama}
-    <div class="carte"><div class="table-scroll"><table>
-      <thead><tr>
-        <th>Nom</th><th>ISIN</th><th>Secteur</th>
-        <th class="num">Cours</th><th class="num" title="Variation du jour">Var. %</th>
-        <th class="num">Rdt %</th><th class="num">PER</th>
-        <th class="num">Potentiel %</th><th class="num" title="Volume du jour">Volume</th>
-        <th class="num" title="Volatilité annualisée">Vol. %</th>
-        <th class="num" title="Ratio de Sharpe (annualisé)">Sharpe</th>
-        <th class="num">ESG</th><th class="num">Risque</th>
-        <th class="num">Score</th><th>Source</th><th></th>
-      </tr></thead>
-      <tbody>${actifs.map((a) => `<tr>
-        <td><span class="pastille ${a.type}"></span>${echap(a.nom)}</td>
-        <td class="muted">${a.isin}</td>
-        <td>${echap(a.secteur ?? "—")}</td>
-        <td class="num">${fmt(a.cours, 2)}</td>
-        <td class="num ${a.variation_pct > 0 ? "hausse" : a.variation_pct < 0 ? "baisse" : ""}">${fmt(a.variation_pct, 2)}</td>
-        <td class="num">${fmt(a.rendement, 1)}</td>
-        <td class="num">${fmt(a.per, 1)}</td>
-        <td class="num ${a.potentiel > 0 ? "hausse" : "baisse"}">${fmt(a.potentiel, 1)}</td>
-        <td class="num">${volumeCourt(a.volume)}</td>
-        <td class="num">${fmt(a.indicateurs_quant?.volatilite_pct, 1)}</td>
-        <td class="num">${fmt(a.indicateurs_quant?.sharpe, 2)}</td>
-        <td class="num">${fmt(a.score_esg, 0)}</td>
-        <td class="num">${a.niveau_risque ?? "—"}/7</td>
-        <td class="num score-badge">${fmt(a.score_global, 0)}</td>
-        <td class="muted">${echap(a.source ?? "—")}</td>
-        <td><button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button></td>
-      </tr>`).join("")}</tbody></table></div></div>`;
-  contenu.querySelectorAll("[data-watch]").forEach((b) =>
-    b.addEventListener("click", async () => {
-      await api(`/api/watchlist/${b.dataset.watch}`, { method: "POST" });
-      b.textContent = "★";
+    <p class="sous-titre">${actifs.length} valeur(s). Cliquer sur un en-tête de colonne pour trier. ${toggleSeed}</p>
+    ${barreRecherche}
+    <div class="carte"><div class="table-scroll"><table id="table-actifs">
+      <thead><tr>${COLONNES_ACTIFS.map((c) => `<th class="triable ${c.num ? "num" : ""}"
+        data-cle="${c.cle}">${c.label}${triActifs.cle === c.cle ? (triActifs.sens < 0 ? " ▾" : " ▴") : ""}</th>`).join("")}
+        <th></th></tr></thead>
+      <tbody id="corps-actifs"></tbody></table></div></div>`;
+
+  function dessinerLignes() {
+    const liste = masquerSeed ? actifs.filter((a) => a.source !== "seed") : actifs;
+    document.getElementById("corps-actifs").innerHTML = trierActifs(liste).map((a) => `<tr>
+      ${COLONNES_ACTIFS.map((c) => `<td class="${c.num ? "num" : ""}">${c.cell(a)}</td>`).join("")}
+      <td><button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button></td>
+    </tr>`).join("");
+    document.querySelectorAll("[data-watch]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        await api(`/api/watchlist/${b.dataset.watch}`, { method: "POST" });
+        b.textContent = "★";
+      }));
+  }
+  dessinerLignes();
+
+  // Tri au clic sur les en-têtes.
+  document.querySelectorAll("th.triable").forEach((th) =>
+    th.addEventListener("click", () => {
+      const cle = th.dataset.cle;
+      if (triActifs.cle === cle) triActifs.sens *= -1;
+      else { triActifs.cle = cle; triActifs.sens = COLONNES_ACTIFS.find((c) => c.cle === cle).num ? -1 : 1; }
+      vueActifs(type, titre);
     }));
-  const form = document.getElementById("form-boursorama");
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const code = new FormData(e.target).get("code").trim();
-      const retour = document.getElementById("retour-boursorama");
-      retour.textContent = "scraping en cours…";
-      try {
-        const r = await api(`/api/import/boursorama/${encodeURIComponent(code)}`, { method: "POST" });
-        const d = r.donnees_extraites || {};
-        const extra = [
-          d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
-          d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
-          d.consensus_bourso != null ? `consensus ${fmt(d.consensus_bourso, 2)}` : null,
-          d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
-        ].filter(Boolean).join(" · ");
-        retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
-          + `${echap(r.nom)} (${r.isin}) — cours ${fmt(r.cours, 2)}`
-          + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "");
-        setTimeout(() => vueActifs(type, titre), 1200);
-      } catch (err) {
-        retour.innerHTML = `<span class="baisse">Échec</span> — ${echap(err.message)}`;
-      }
+
+  if (aDuSeed) {
+    document.getElementById("toggle-seed").addEventListener("click", () => {
+      masquerSeed = !masquerSeed;
+      vueActifs(type, titre);
     });
+  }
+
+  const form = document.getElementById("form-scrap");
+  if (form) {
+    form.querySelectorAll("[data-source]").forEach((bouton) =>
+      bouton.addEventListener("click", async () => {
+        const requete = document.getElementById("scrap-requete").value.trim();
+        const retour = document.getElementById("retour-scrap");
+        if (!requete) { retour.textContent = "Saisir un nom, un ISIN ou un code."; return; }
+        retour.textContent = `Recherche sur ${bouton.textContent.trim()}…`;
+        try {
+          const r = await api(`/api/import/web/${bouton.dataset.source}/${encodeURIComponent(requete)}`,
+                              { method: "POST" });
+          const d = r.donnees_extraites || {};
+          const extra = [
+            d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
+            d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
+            d.consensus_bourso != null ? `consensus ${fmt(d.consensus_bourso, 2)}` : null,
+            d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
+          ].filter(Boolean).join(" · ");
+          retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
+            + `${echap(r.nom)} (${r.isin}) — cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`
+            + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "");
+          setTimeout(() => vueActifs(type, titre), 1200);
+        } catch (err) {
+          retour.innerHTML = `<span class="baisse">Échec (${echap(bouton.textContent.trim())})</span> — ${echap(err.message)}`;
+        }
+      }));
   }
 }
 
@@ -417,7 +478,8 @@ async function vueSources() {
           ? (src.cle_configuree ? '<span class="hausse">configurée ✓</span>'
                                 : '<span class="baisse">absente ✗</span>')
           : "—"}</td>
-        <td>${src.testable ? `<button class="secondaire" data-tester="${src.nom}">Tester</button>` : ""}</td>
+        <td>${src.testable ? `<button class="secondaire" data-tester="${src.nom}">Tester</button>`
+             : (src.nom === "seed" ? `<button class="secondaire" data-charger="seed">Charger</button>` : "")}</td>
         <td class="muted" id="test-${src.nom}"></td>
       </tr>`).join("")}</tbody></table></div>
       <p class="note-bas">Clés API : copier <code>config/cles_api.exemple.yaml</code> vers
@@ -437,6 +499,20 @@ async function vueSources() {
           ? `<span class="hausse">OK</span> — ${r.points_historique ?? 0} point(s) d'historique`
             + (r.cotation?.cours ? `, cours ${r.cotation.cours}` : "")
           : `<span class="baisse">Échec</span> — ${echap(r.erreur ?? r.info ?? "")}`;
+      } catch (err) {
+        cible.innerHTML = `<span class="baisse">Erreur</span> — ${echap(err.message)}`;
+      }
+      b.disabled = false;
+    }));
+  // Bouton « Charger » de la ligne seed : verse le jeu de démonstration en base.
+  contenu.querySelectorAll("[data-charger]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const cible = document.getElementById(`test-${b.dataset.charger}`);
+      cible.textContent = "chargement…";
+      b.disabled = true;
+      try {
+        const r = await api(`/api/import?source=${b.dataset.charger}`, { method: "POST" });
+        cible.innerHTML = `<span class="hausse">Chargé</span> — ${echap(r.detail ?? "")}`;
       } catch (err) {
         cible.innerHTML = `<span class="baisse">Erreur</span> — ${echap(err.message)}`;
       }

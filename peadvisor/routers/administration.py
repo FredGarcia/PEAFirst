@@ -29,46 +29,34 @@ def lancer_import(source: str | None = None, session: Session = Depends(get_sess
     return importer(session, source)
 
 
+@router.get("/sources/scrapers")
+def lister_scrapers():
+    """Liste des sources de scraping (pour les boutons de l'onglet Actions)."""
+    from peadvisor.sources.web import SCRAPERS
+
+    return [{"nom": s.nom, "libelle": s.libelle, "valide": s.valide}
+            for s in SCRAPERS.values()]
+
+
+@router.post("/import/web/{source}/{requete:path}")
+def importer_web(source: str, requete: str, session: Session = Depends(get_session)):
+    """Ajoute/met à jour une valeur en la scrapant sur `source` (Boursorama,
+    Boursier, Zonebourse…), par **nom, ISIN ou code**, puis recalcule les scores."""
+    from peadvisor.services.scraping import importer_valeur
+
+    try:
+        return importer_valeur(session, source, requete)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except Exception as exc:
+        raise HTTPException(502, f"Scraping {source} échoué : {exc}")
+
+
+# Rétro-compatibilité : l'ancienne route Boursorama passe par le dispatcher.
 @router.post("/import/boursorama/{requete:path}")
 def importer_boursorama(requete: str, session: Session = Depends(get_session)):
-    """Ajoute/met à jour une valeur depuis Boursorama, par **nom, ISIN ou code**
-    (ex. « Air Liquide », « FR0000120073 » ou « 1rPAI »), puis recalcule les
-    scores. La recherche par nom/ISIN résout automatiquement le code."""
-    from peadvisor.sources.boursorama import (CHAMPS_FICHE, code_ou_recherche,
-                                              recuperer_un)
-
-    try:
-        code = code_ou_recherche(requete)
-    except Exception as exc:
-        raise HTTPException(502, f"Recherche Boursorama échouée : {exc}")
-    if not code:
-        raise HTTPException(404, f"Aucune valeur Boursorama trouvée pour « {requete} »")
-    try:
-        donnees = recuperer_un(code)
-    except Exception as exc:
-        raise HTTPException(502, f"Scraping Boursorama échoué ({code}) : {exc}")
-    isin = donnees.get("isin")
-    if not isin:
-        raise HTTPException(422, "ISIN introuvable sur la page (structure Boursorama modifiée ?)")
-
-    champs = {c: donnees[c] for c in CHAMPS_FICHE if c in donnees}
-    actif = session.query(Actif).filter(Actif.isin == isin).one_or_none()
-    cree = actif is None
-    if cree:
-        actif = Actif(isin=isin, type=TypeActif.ACTION, nom=donnees.get("nom") or code)
-        session.add(actif)
-    for champ, valeur in champs.items():
-        setattr(actif, champ, valeur)
-    if not actif.nom:
-        actif.nom = donnees.get("nom") or code
-    actif.date_cours = datetime.utcnow()
-    session.commit()
-
-    scorer_tous(session)
-    session.refresh(actif)
-    return {"cree": cree, "code_boursorama": code, "isin": isin, "nom": actif.nom,
-            "cours": actif.cours, "source": actif.source,
-            "score_global": actif.score_global, "donnees_extraites": donnees}
+    """Alias historique de /import/web/boursorama/{requête}."""
+    return importer_web("boursorama", requete, session)
 
 
 @router.post("/scores/recalculer")
