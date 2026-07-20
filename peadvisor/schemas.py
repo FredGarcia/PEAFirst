@@ -75,6 +75,50 @@ class ReponseAllocation(BaseModel):
     commentaire: str
 
 
+class DemandeSimulation(BaseModel):
+    capital_initial: float = Field(0, ge=0, description="Versement initial en euros")
+    versement_mensuel: float = Field(0, ge=0, description="Versement mensuel programmé en euros")
+    horizon_annees: int = Field(ge=1, le=40, description="Durée de projection en années")
+    rendement_prix_pct: float = Field(5.0, ge=-20, le=30,
+                                      description="Appréciation annuelle attendue du cours (%)")
+    rendement_dividende_pct: float = Field(0.0, ge=0, le=15,
+                                           description="Rendement annuel du dividende (%)")
+    reinvestir_dividendes: bool = True
+    volatilite_pct: float | None = Field(None, ge=0, le=80,
+                                         description="Volatilité pour l'écart des scénarios ; défaut = config")
+
+    @field_validator("versement_mensuel")
+    @classmethod
+    def _au_moins_un_versement(cls, v, info):
+        if not v and not info.data.get("capital_initial"):
+            raise ValueError("Renseigner un capital initial et/ou un versement mensuel.")
+        return v
+
+
+class ScenarioSimulation(BaseModel):
+    nom: str
+    rendement_annuel_pct: float
+    versements_cumules: float
+    valeur_finale_brute: float
+    plus_value_brute: float
+    dividendes_percus: float
+    impot_estime: float
+    valeur_finale_nette: float
+    regime_fiscal: str
+    exonere_ir: bool
+    trajectoire: list[dict]
+
+
+class ReponseSimulation(BaseModel):
+    capital_initial: float
+    versement_mensuel: float
+    horizon_annees: int
+    reinvestir_dividendes: bool
+    ecart_scenario_pct: float
+    scenarios: dict[str, ScenarioSimulation]
+    commentaire: str
+
+
 class LigneClassement(BaseModel):
     isin: str
     nom: str

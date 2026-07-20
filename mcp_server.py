@@ -202,6 +202,41 @@ def proposer_allocation(capital: float, niveau_risque: int, horizon_annees: int,
         return moteur(s, demande).model_dump()
 
 
+@mcp.tool()
+def simuler_investissement(horizon_annees: int, capital_initial: float = 0,
+                           versement_mensuel: float = 0, rendement_prix_pct: float = 5.0,
+                           rendement_dividende_pct: float = 2.5,
+                           reinvestir_dividendes: bool = True,
+                           volatilite_pct: float | None = None) -> dict:
+    """Projette un investissement PEA dans le temps : versement initial et
+    versements programmés, réinvestissement des dividendes, trois scénarios
+    (prudent / médian / optimiste) et fiscalité PEA estimée (exonération d'IR
+    après 5 ans, prélèvements sociaux).
+
+    Args:
+        horizon_annees: Durée de projection (1 à 40).
+        capital_initial: Versement initial en euros.
+        versement_mensuel: Versement mensuel programmé en euros.
+        rendement_prix_pct: Appréciation annuelle attendue du cours (%).
+        rendement_dividende_pct: Rendement annuel du dividende (%).
+        reinvestir_dividendes: Réinvestir les dividendes (capitalisation).
+        volatilite_pct: Volatilité pour l'écart des scénarios (défaut config).
+    """
+    from peadvisor.schemas import DemandeSimulation
+    from peadvisor.services.simulation import simuler
+
+    demande = DemandeSimulation(
+        capital_initial=capital_initial, versement_mensuel=versement_mensuel,
+        horizon_annees=horizon_annees, rendement_prix_pct=rendement_prix_pct,
+        rendement_dividende_pct=rendement_dividende_pct,
+        reinvestir_dividendes=reinvestir_dividendes, volatilite_pct=volatilite_pct)
+    reponse = simuler(demande).model_dump()
+    # Allège la sortie : on retire les trajectoires détaillées (résumé par scénario).
+    for s in reponse["scenarios"].values():
+        s.pop("trajectoire", None)
+    return reponse
+
+
 # --------------------------------------------------------------------------
 # Watchlist
 # --------------------------------------------------------------------------

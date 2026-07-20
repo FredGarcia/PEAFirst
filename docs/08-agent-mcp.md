@@ -45,7 +45,7 @@ un environnement virtuel — recommandé : pointer sur `.venv/bin/python`) :
 Redémarrer Claude Desktop : les outils « peadvisor » apparaissent dans le
 menu des connecteurs.
 
-## 3. Les 15 outils exposés
+## 3. Les 16 outils exposés
 
 | Outil | Rôle |
 |---|---|
@@ -56,6 +56,7 @@ menu des connecteurs.
 | `correlations` | Matrice de corrélation des rendements (diversification réelle) |
 | `taux_sans_risque` | Taux sans risque courant (fixe ou BCE) et son origine |
 | `proposer_allocation` | Allocation selon capital / risque / horizon / objectif |
+| `simuler_investissement` | Projection PEA : versements, dividendes, 3 scénarios, fiscalité |
 | `consulter_watchlist` / `gerer_watchlist` | Suivi de valeurs |
 | `lancer_mise_a_jour` | Import + dédoublonnage + rescoring |
 | `journal_traitements` | Journal des traitements |

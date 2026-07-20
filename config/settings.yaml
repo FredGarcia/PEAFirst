@@ -48,6 +48,19 @@ macro:
   # Devise de référence du portefeuille (conversions futures via la BCE)
   devise_reference: EUR
 
+simulation:
+  # Écart de rendement annuel des scénarios = coefficient × volatilité / racine(horizon).
+  # La dispersion annualisée se resserre mécaniquement avec l'horizon.
+  coefficient_scenario: 1.0
+  volatilite_defaut_pct: 15.0
+
+fiscalite_pea:
+  # Après le seuil : gains exonérés d'impôt sur le revenu, seuls les
+  # prélèvements sociaux s'appliquent. Avant : prélèvement forfaitaire unique.
+  seuil_exoneration_ir_annees: 5
+  prelevements_sociaux_pct: 17.2
+  pfu_impot_pct: 12.8   # part « impôt » du PFU (12,8 % IR + 17,2 % PS = 30 %)
+
 # ------------------------------------------------------------
 # Couche de second ordre : auto-observation et auto-amélioration
 # ------------------------------------------------------------

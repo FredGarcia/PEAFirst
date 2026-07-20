@@ -58,7 +58,8 @@ porte sa justification), déterministe. Les évolutions prévues (roadmap) :
 
 - optimisation moyenne-variance (Markowitz) et parité de risque, qui
   nécessitent les **corrélations** entre actifs, donc les historiques de cours ;
-- simulateur (versements programmés, réinvestissement des dividendes,
-  scénarios optimiste/médian/prudent, fiscalité PEA) ;
+- ~~simulateur~~ ✅ livré (`services/simulation.py`, écran Simulateur) :
+  versements programmés, réinvestissement des dividendes, scénarios
+  prudent/médian/optimiste et fiscalité PEA estimée ;
 - comparaison allocation cible vs allocation réelle après import d'un
   portefeuille existant.

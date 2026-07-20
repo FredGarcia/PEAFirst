@@ -21,8 +21,11 @@
    réelles côté `yahoo`, moteur quantitatif complet (volatilité réalisée
    intégrée au scoring, perf 1 an, drawdown, Sharpe, Sortino, VaR 95 %,
    corrélations exposées dans l'API, l'interface et l'agent MCP).
-3. **Simulateur d'investissement** — versement unique / programmé,
-   réinvestissement des dividendes, horizons 5/10/15/20 ans, trois scénarios.
+3. ~~**Simulateur d'investissement**~~ — ✅ fait : versement initial +
+   versements programmés, réinvestissement des dividendes, trois scénarios
+   (écart annualisé ∝ volatilité / racine(horizon)), **fiscalité PEA**
+   estimée (exonération d'IR après 5 ans, PFU avant), trajectoire graphique,
+   exposé dans l'interface, l'API et l'agent MCP.
 4. **Exports** Excel / CSV / PDF des listes, classements et allocations.
 5. **Alertes** — franchissement de score, de potentiel ou d'objectif de cours
    sur la watchlist (e-mail).

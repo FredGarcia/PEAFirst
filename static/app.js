@@ -190,6 +190,121 @@ async function vueAllocation() {
   });
 }
 
+function grapheTrajectoire(scenarios) {
+  // Courbe SVG des trois scénarios + versements cumulés, en valeur nette-ish (brute).
+  const annees = scenarios.median.trajectoire.map((p) => p.annee);
+  const series = [
+    { cle: "optimiste", couleur: "var(--serie-2)", pts: scenarios.optimiste.trajectoire },
+    { cle: "médian", couleur: "var(--serie-1)", pts: scenarios.median.trajectoire },
+    { cle: "prudent", couleur: "var(--serie-3)", pts: scenarios.prudent.trajectoire },
+  ];
+  const maxV = Math.max(...scenarios.optimiste.trajectoire.map((p) => p.valeur), 1);
+  const maxA = Math.max(...annees, 1);
+  const L = 640, H = 240, mg = 44;
+  const x = (a) => mg + (a / maxA) * (L - mg - 10);
+  const y = (v) => H - 24 - (v / maxV) * (H - 44);
+  const ligne = (pts, key) => pts.map((p, i) =>
+    `${i ? "L" : "M"}${x(p.annee).toFixed(1)},${y(p[key]).toFixed(1)}`).join(" ");
+  const versements = scenarios.median.trajectoire;
+  return `<svg viewBox="0 0 ${L} ${H}" width="100%" role="img" aria-label="Trajectoire des scénarios">
+    <line x1="${mg}" y1="${H - 24}" x2="${L - 10}" y2="${H - 24}" stroke="var(--baseline)"/>
+    <line x1="${mg}" y1="20" x2="${mg}" y2="${H - 24}" stroke="var(--baseline)"/>
+    <path d="${ligne(versements, "versements_cumules")}" fill="none"
+      stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3"/>
+    ${series.map((s) => `<path d="${ligne(s.pts, "valeur")}" fill="none"
+      stroke="${s.couleur}" stroke-width="2"/>`).join("")}
+    <text x="${mg}" y="14" fill="var(--muted)" font-size="11">Valeur (€)</text>
+    <text x="${L - 10}" y="${H - 8}" fill="var(--muted)" font-size="11" text-anchor="end">Années</text>
+  </svg>`;
+}
+
+async function vueSimulateur() {
+  const profil = await api("/api/parametres/profil");
+  contenu.innerHTML = `
+    <h1>Simulateur d'investissement</h1>
+    <p class="sous-titre">Projection PEA : versements, dividendes, 3 scénarios et fiscalité estimée.
+      Estimation indicative — pas un conseil en investissement ni fiscal.</p>
+    <form class="panneau" id="form-simulation">
+      <div class="champs">
+        <label class="champ">Capital initial (€)
+          <input type="number" name="capital_initial" value="10000" min="0" step="500"></label>
+        <label class="champ">Versement mensuel (€)
+          <input type="number" name="versement_mensuel" value="200" min="0" step="50"></label>
+        <label class="champ">Horizon (années)
+          <input type="number" name="horizon_annees" value="${profil.horizon_annees}" min="1" max="40"></label>
+        <label class="champ">Croissance annuelle du cours (%)
+          <input type="number" name="rendement_prix_pct" value="5" min="-20" max="30" step="0.5"></label>
+        <label class="champ">Rendement du dividende (%)
+          <input type="number" name="rendement_dividende_pct" value="2.5" min="0" max="15" step="0.1"></label>
+        <label class="champ">Volatilité (%)
+          <input type="number" name="volatilite_pct" value="15" min="0" max="80" step="1"></label>
+        <label class="champ">Dividendes
+          <select name="reinvestir_dividendes">
+            <option value="true">Réinvestis</option>
+            <option value="false">Versés (non réinvestis)</option>
+          </select></label>
+        <button type="submit">Simuler</button>
+      </div>
+    </form>
+    <div id="resultat-simulation"></div>`;
+  document.getElementById("form-simulation").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target));
+    const corps = {
+      capital_initial: Number(d.capital_initial),
+      versement_mensuel: Number(d.versement_mensuel),
+      horizon_annees: Number(d.horizon_annees),
+      rendement_prix_pct: Number(d.rendement_prix_pct),
+      rendement_dividende_pct: Number(d.rendement_dividende_pct),
+      volatilite_pct: Number(d.volatilite_pct),
+      reinvestir_dividendes: d.reinvestir_dividendes === "true",
+    };
+    let r;
+    try {
+      r = await api("/api/simulation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corps),
+      });
+    } catch (err) {
+      document.getElementById("resultat-simulation").innerHTML =
+        `<p class="baisse">${echap(err.message)}</p>`;
+      return;
+    }
+    const ordre = [["prudent", "Prudent"], ["median", "Médian"], ["optimiste", "Optimiste"]];
+    const carteScenario = ([cle, titre]) => {
+      const s = r.scenarios[cle];
+      return `<div class="tuile">
+        <div class="libelle">${titre} — ${fmt(s.rendement_annuel_pct, 1)} %/an</div>
+        <div class="valeur">${euros(s.valeur_finale_nette)}<span class="unite"> net</span></div>
+        <div class="muted" style="font-size:12px;margin-top:4px">
+          Brut ${euros(s.valeur_finale_brute)} · plus-value ${euros(s.plus_value_brute)}<br>
+          Impôt estimé ${euros(s.impot_estime)}</div>
+      </div>`;
+    };
+    document.getElementById("resultat-simulation").innerHTML = `
+      <div class="tuiles">${ordre.map(carteScenario).join("")}</div>
+      <h2>Trajectoire</h2>
+      <div class="carte">${grapheTrajectoire(r.scenarios)}
+        <p class="note-bas">Traits pleins : scénarios (vert optimiste, bleu médian, rose prudent).
+          Pointillé gris : total des versements. ${echap(r.commentaire)}</p></div>
+      <h2>Détail (scénario médian)</h2>
+      <div class="carte"><div class="table-scroll"><table>
+        <thead><tr><th class="num">Année</th><th class="num">Versements cumulés</th>
+          <th class="num">Valeur projetée</th><th class="num">Plus-value</th></tr></thead>
+        <tbody>${r.scenarios.median.trajectoire.filter((p, i, a) =>
+          p.annee % Math.ceil(a.length / 12) === 0 || i === a.length - 1).map((p) => `<tr>
+          <td class="num">${p.annee}</td>
+          <td class="num">${euros(p.versements_cumules)}</td>
+          <td class="num">${euros(p.valeur)}</td>
+          <td class="num ${p.valeur >= p.versements_cumules ? "hausse" : "baisse"}">
+            ${euros(p.valeur - p.versements_cumules)}</td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="note-bas">Fiscalité : ${echap(r.scenarios.median.regime_fiscal)}.
+          Paramètres dans <code>config/settings.yaml</code> (section fiscalite_pea).</p></div>`;
+  });
+}
+
 async function vueWatchlist() {
   const elements = await api("/api/watchlist");
   contenu.innerHTML = `
@@ -475,6 +590,7 @@ const VUES = {
   etf: () => vueActifs("ETF", "ETF éligibles PEA"),
   opcvm: () => vueActifs("OPCVM", "OPCVM éligibles PEA"),
   allocation: vueAllocation,
+  simulateur: vueSimulateur,
   watchlist: vueWatchlist,
   historique: vueHistorique,
   sources: vueSources,
