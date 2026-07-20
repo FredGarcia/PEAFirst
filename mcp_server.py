@@ -329,6 +329,15 @@ def lister_anomalies(statut: str = "ouverte") -> list[dict]:
 
 
 @mcp.tool()
+def taux_sans_risque() -> dict:
+    """Taux sans risque annuel (%) utilisé pour Sharpe/Sortino, et son origine
+    (valeur fixe paramétrée ou rendement 10 ans zone euro récupéré à la BCE)."""
+    from peadvisor.services.macro import taux_sans_risque as calcul
+
+    return calcul()
+
+
+@mcp.tool()
 def ponderations_score() -> dict:
     """Pondérations et bornes de normalisation actuelles du score
     propriétaire (config/scoring.yaml)."""

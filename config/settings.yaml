@@ -38,7 +38,15 @@ allocation:
 
 quantitatif:
   # Taux sans risque annuel utilisé pour les ratios de Sharpe et Sortino
+  # (valeur de repli si la source macro est indisponible ou "fixe")
   taux_sans_risque_pct: 2.5
+
+macro:
+  # Origine du taux sans risque : "fixe" (valeur ci-dessus) ou "bce"
+  # (rendement 10 ans des emprunts AAA de la zone euro, BCE, gratuit sans clé)
+  taux_sans_risque_source: fixe
+  # Devise de référence du portefeuille (conversions futures via la BCE)
+  devise_reference: EUR
 
 # ------------------------------------------------------------
 # Couche de second ordre : auto-observation et auto-amélioration

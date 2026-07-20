@@ -59,11 +59,46 @@ données licencié pour ce cas d'usage.
 
 | Source | Rôle pertinent pour PEAdvisor |
 |---|---|
-| **OpenFIGI** | Gratuit : correspondance **ISIN → ticker/place**. Très utile le jour du référentiel complet (résoudre automatiquement les symboles par source) — candidat sérieux pour un module « référentiel » |
-| **FRED** (Federal Reserve) | Séries macro gratuites : pourrait alimenter automatiquement le `taux_sans_risque_pct` (Sharpe/Sortino) et de futurs indicateurs de contexte |
+| **OpenFIGI** | Gratuit : correspondance **ISIN → ticker/place**. Très utile le jour du référentiel complet (résoudre automatiquement les symboles par source) — candidat sérieux pour un module « référentiel ». ⚠️ **V2 fermée le 1er juillet 2026 (HTTP 410) : viser directement l'API V3** |
+| **FRED** (Federal Reserve) | Séries macro gratuites (clé requise) : rendements souverains, y compris séries internationales (ex. `IRLTLT01FRM156N`, taux long français). Alternative à la BCE pour le taux sans risque |
 | SEC EDGAR | Fondamentaux officiels mais **émetteurs US** — hors périmètre PEA |
 
-## 3. Ajouter une source
+## 3. Sources trouvées au-delà de la liste (nouvelles pistes)
+
+Recherche complémentaire, orientée vers les **manques réels** de PEAdvisor
+(univers PEA complet, OPCVM français, taux/devises), avec une priorité aux
+sources **institutionnelles, gratuites et sans clé**.
+
+| Source | Rôle | Clé | Intérêt pour PEAdvisor |
+|---|---|---|---|
+| **BCE — ECB Data Portal (SDMX)** ✅ intégré | Taux zone euro + change | **non** | **Taux sans risque** (rendement 10 ans AAA) pour Sharpe/Sortino et **taux de change** EUR — voir moteur macro ci-dessous |
+| **Frankfurter** | Taux de change | **non** | Alternative légère à la BCE pour le change (données BCE reconditionnées en JSON, sans clé) |
+| **AMF GECO** | VL des OPCVM français | non (web/open data) | **Comble le trou OPCVM** : les fonds ne sont cotés sur aucune API boursière. Base officielle de l'Autorité des marchés financiers, recherche par ISIN. Accès surtout web ; jeux partiels sur data.gouv.fr — un connecteur demanderait de fiabiliser l'accès programmatique |
+| **Euronext — Web Services / post-trade différé** | Cours Euronext officiels | licence | Données de la place elle-même (différé 15 min gratuit, temps réel sous licence) : la source de référence pour l'univers Paris à terme |
+| **Deutsche Börse / Boerse Frankfurt** | Cours EU | partiel | Complément pour les valeurs cotées en Allemagne |
+| **justETF** | Référentiel ETF (TER, indices, encours) | API non officielle | Riche sur les ETF européens, mais **pas d'API publique documentée** (seulement des wrappers non officiels / scraping) : à éviter en production |
+
+Restent écartées pour les mêmes raisons qu'en §2 : Investing.com, Boursorama,
+TradingView, Google Finance, Macrotrends (pas d'API publique → scraping exclu),
+et les fournisseurs US-centrés (Polygon, Alpaca, Tradier, Tiingo, SEC EDGAR).
+
+### Moteur macro (BCE) — intégré
+
+`peadvisor/services/macro.py` interroge le portail SDMX de la BCE (CSV, **sans
+clé**) pour :
+
+- le **taux sans risque** de la zone euro (rendement 10 ans des emprunts AAA),
+  qui alimente désormais les ratios de Sharpe et de Sortino — activable par
+  `macro.taux_sans_risque_source: bce` dans `config/settings.yaml` (défaut
+  `fixe` : la valeur `quantitatif.taux_sans_risque_pct`, garantie hors-ligne) ;
+- les **taux de change** face à l'euro (`taux_change()`), pour de futures
+  conversions d'actifs libellés hors EUR.
+
+Exposé via `GET /api/dashboard/taux-sans-risque` et l'outil MCP
+`taux_sans_risque`. Repli automatique sur la valeur paramétrée si la BCE est
+injoignable — aucune régression hors ligne.
+
+## 4. Ajouter une source
 
 1. Créer `peadvisor/sources/<nom>.py` héritant de `SourceHTTPBase` :
    implémenter `symbole()`, `cotation()` et/ou `serie()` (~30 lignes, voir

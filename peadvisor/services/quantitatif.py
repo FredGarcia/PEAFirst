@@ -93,8 +93,10 @@ def calculer_tous(session: Session) -> int:
     disposant d'un historique suffisant. La volatilité réalisée remplace la
     volatilité déclarative (elle alimentera le scoring et le niveau de
     risque). Renvoie le nombre d'actifs traités."""
+    from peadvisor.services import macro
+
     settings = charger_settings()
-    taux = float(settings.get("quantitatif", {}).get("taux_sans_risque_pct", 2.5))
+    taux = macro.taux_sans_risque(settings)["taux"]
     nb = 0
     for actif in session.query(Actif).all():
         serie = _serie(session, actif.id)

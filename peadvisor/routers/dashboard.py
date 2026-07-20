@@ -61,6 +61,14 @@ def synthese(session: Session = Depends(get_session)):
     }
 
 
+@router.get("/taux-sans-risque")
+def taux_sans_risque_courant():
+    """Taux sans risque utilisé par les ratios de Sharpe/Sortino et son origine."""
+    from peadvisor.services.macro import taux_sans_risque
+
+    return taux_sans_risque()
+
+
 @router.get("/correlations")
 def matrice_correlations(isins: str | None = Query(None, description="ISIN séparés par des virgules ; omis = top 10 par score"),
                          session: Session = Depends(get_session)):
