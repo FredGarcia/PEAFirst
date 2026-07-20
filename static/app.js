@@ -93,35 +93,51 @@ async function vueDashboard() {
     </div>`;
 }
 
+const volumeCourt = (v) => v == null ? "—"
+  : v >= 1e6 ? `${(v / 1e6).toFixed(1)} M` : v >= 1e3 ? `${(v / 1e3).toFixed(0)} k` : String(v);
+
 async function vueActifs(type, titre) {
   const actifs = await api(`/api/actifs?type=${type}`);
+  const importBoursorama = type === "ACTION" ? `
+    <form class="panneau" id="form-boursorama">
+      <div class="champs">
+        <label class="champ">Importer depuis Boursorama (code)
+          <input type="text" name="code" value="1rPAI" placeholder="ex. 1rPAI = Air Liquide"></label>
+        <button type="submit">Scraper &amp; ajouter</button>
+        <span class="muted" id="retour-boursorama"></span>
+      </div>
+    </form>` : "";
   contenu.innerHTML = `
     <h1>${titre}</h1>
     <p class="sous-titre">${actifs.length} valeur(s), triées par score global décroissant.</p>
+    ${importBoursorama}
     <div class="carte"><div class="table-scroll"><table>
       <thead><tr>
         <th>Nom</th><th>ISIN</th><th>Secteur</th>
-        <th class="num">Cours</th><th class="num">Rdt %</th><th class="num">PER</th>
-        <th class="num">Potentiel %</th><th class="num">Vol. %</th>
+        <th class="num">Cours</th><th class="num" title="Variation du jour">Var. %</th>
+        <th class="num">Rdt %</th><th class="num">PER</th>
+        <th class="num">Potentiel %</th><th class="num" title="Volume du jour">Volume</th>
+        <th class="num" title="Volatilité annualisée">Vol. %</th>
         <th class="num" title="Ratio de Sharpe (annualisé)">Sharpe</th>
-        <th class="num" title="Pire baisse depuis un plus-haut">Perte max %</th>
         <th class="num">ESG</th><th class="num">Risque</th>
-        <th class="num">Score</th><th></th>
+        <th class="num">Score</th><th>Source</th><th></th>
       </tr></thead>
       <tbody>${actifs.map((a) => `<tr>
         <td><span class="pastille ${a.type}"></span>${echap(a.nom)}</td>
         <td class="muted">${a.isin}</td>
         <td>${echap(a.secteur ?? "—")}</td>
         <td class="num">${fmt(a.cours, 2)}</td>
+        <td class="num ${a.variation_pct > 0 ? "hausse" : a.variation_pct < 0 ? "baisse" : ""}">${fmt(a.variation_pct, 2)}</td>
         <td class="num">${fmt(a.rendement, 1)}</td>
         <td class="num">${fmt(a.per, 1)}</td>
         <td class="num ${a.potentiel > 0 ? "hausse" : "baisse"}">${fmt(a.potentiel, 1)}</td>
+        <td class="num">${volumeCourt(a.volume)}</td>
         <td class="num">${fmt(a.indicateurs_quant?.volatilite_pct, 1)}</td>
         <td class="num">${fmt(a.indicateurs_quant?.sharpe, 2)}</td>
-        <td class="num baisse">${fmt(a.indicateurs_quant?.drawdown_max_pct, 1)}</td>
         <td class="num">${fmt(a.score_esg, 0)}</td>
         <td class="num">${a.niveau_risque ?? "—"}/7</td>
         <td class="num score-badge">${fmt(a.score_global, 0)}</td>
+        <td class="muted">${echap(a.source ?? "—")}</td>
         <td><button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button></td>
       </tr>`).join("")}</tbody></table></div></div>`;
   contenu.querySelectorAll("[data-watch]").forEach((b) =>
@@ -129,6 +145,23 @@ async function vueActifs(type, titre) {
       await api(`/api/watchlist/${b.dataset.watch}`, { method: "POST" });
       b.textContent = "★";
     }));
+  const form = document.getElementById("form-boursorama");
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = new FormData(e.target).get("code").trim();
+      const retour = document.getElementById("retour-boursorama");
+      retour.textContent = "scraping en cours…";
+      try {
+        const r = await api(`/api/import/boursorama/${encodeURIComponent(code)}`, { method: "POST" });
+        retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
+          + `${echap(r.nom)} (${r.isin}) — cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`;
+        setTimeout(() => vueActifs(type, titre), 900);
+      } catch (err) {
+        retour.innerHTML = `<span class="baisse">Échec</span> — ${echap(err.message)}`;
+      }
+    });
+  }
 }
 
 async function vueAllocation() {

@@ -304,6 +304,46 @@ def lancer_mise_a_jour(source: str | None = None) -> dict:
 
 
 @mcp.tool()
+def importer_boursorama(code: str) -> dict:
+    """Scrape une valeur sur Boursorama (par son code, ex. 1rPAI = Air Liquide)
+    et l'ajoute ou la met à jour dans le référentiel, avec recalcul des scores.
+    La source de la ligne devient « boursorama ».
+
+    Args:
+        code: Code Boursorama de la valeur (préfixe de place + mnémonique).
+    """
+    from datetime import datetime
+
+    from peadvisor.models import Actif, TypeActif
+    from peadvisor.services.scoring import scorer_tous
+    from peadvisor.sources.boursorama import recuperer_un
+
+    with _session() as s:
+        try:
+            donnees = recuperer_un(code)
+        except Exception as exc:
+            return {"erreur": f"Scraping échoué : {exc}"}
+        isin = donnees.get("isin")
+        if not isin:
+            return {"erreur": "ISIN introuvable sur la page"}
+        champs = {c: donnees[c] for c in ("nom", "cours", "devise", "variation_pct",
+                  "volume", "capitalisation", "per", "rendement", "eligible_pea",
+                  "source") if c in donnees}
+        actif = s.query(Actif).filter(Actif.isin == isin).one_or_none()
+        cree = actif is None
+        if cree:
+            actif = Actif(isin=isin, type=TypeActif.ACTION, nom=donnees.get("nom") or code)
+            s.add(actif)
+        for champ, valeur in champs.items():
+            setattr(actif, champ, valeur)
+        actif.date_cours = datetime.utcnow()
+        s.commit()
+        scorer_tous(s)
+        return {"cree": cree, "isin": isin, "nom": actif.nom, "cours": actif.cours,
+                "source": actif.source}
+
+
+@mcp.tool()
 def journal_traitements(limite: int = 20) -> list[dict]:
     """Journal des traitements (imports, scoring, auto-diagnostics,
     optimisations), du plus récent au plus ancien.

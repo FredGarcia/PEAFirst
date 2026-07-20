@@ -45,7 +45,7 @@ un environnement virtuel — recommandé : pointer sur `.venv/bin/python`) :
 Redémarrer Claude Desktop : les outils « peadvisor » apparaissent dans le
 menu des connecteurs.
 
-## 3. Les 17 outils exposés
+## 3. Les 19 outils exposés
 
 | Outil | Rôle |
 |---|---|
@@ -58,6 +58,8 @@ menu des connecteurs.
 | `proposer_allocation` | Allocation selon capital / risque / horizon / objectif |
 | `simuler_investissement` | Projection PEA : versements, dividendes, 3 scénarios, fiscalité |
 | `consulter_watchlist` / `gerer_watchlist` | Suivi de valeurs |
+| `importer_boursorama` | Scrape une valeur Boursorama et l'ajoute au référentiel |
+| `resoudre_isin` | Annuaire OpenFIGI : ISIN → ticker/place |
 | `lancer_mise_a_jour` | Import + dédoublonnage + rescoring |
 | `journal_traitements` | Journal des traitements |
 | `rapport_systeme` | Auto-diagnostic (dernier rapport ou nouveau) |

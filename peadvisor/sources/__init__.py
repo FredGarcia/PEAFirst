@@ -9,6 +9,7 @@ docs/09-sources-donnees.md.
 
 from peadvisor.sources.alphavantage import SourceAlphaVantage
 from peadvisor.sources.base import SourceDonnees
+from peadvisor.sources.boursorama import SourceBoursorama
 from peadvisor.sources.eodhd import SourceEODHD
 from peadvisor.sources.financialmodelingprep import SourceFinancialModelingPrep
 from peadvisor.sources.marketstack import SourceMarketstack
@@ -26,4 +27,5 @@ REGISTRE: dict[str, type[SourceDonnees]] = {
     "financialmodelingprep": SourceFinancialModelingPrep,
     "eodhd": SourceEODHD,
     "marketstack": SourceMarketstack,
+    "boursorama": SourceBoursorama,
 }

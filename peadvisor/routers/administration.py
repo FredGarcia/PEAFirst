@@ -7,8 +7,10 @@ from sqlalchemy.orm import Session
 
 from peadvisor.config import (charger_profil, charger_scoring, charger_settings,
                               sauvegarder_profil, sauvegarder_scoring)
+from datetime import datetime
+
 from peadvisor.database import get_session
-from peadvisor.models import Actif, ElementWatchlist, JournalMaj
+from peadvisor.models import Actif, ElementWatchlist, JournalMaj, TypeActif
 from peadvisor.schemas import ElementWatchlistOut, JournalOut
 from peadvisor.services.importer import importer
 from peadvisor.services.scoring import scorer_tous
@@ -25,6 +27,44 @@ def lancer_import(source: str | None = None, session: Session = Depends(get_sess
     if source and source not in REGISTRE:
         raise HTTPException(400, f"Source inconnue : {source}. Disponibles : {list(REGISTRE)}")
     return importer(session, source)
+
+
+CHAMPS_BOURSORAMA = ("nom", "cours", "devise", "variation_pct", "volume",
+                     "capitalisation", "per", "rendement", "eligible_pea", "source")
+
+
+@router.post("/import/boursorama/{code}")
+def importer_boursorama(code: str, session: Session = Depends(get_session)):
+    """Scrape une valeur Boursorama (ex. code 1rPAI = Air Liquide) et l'ajoute
+    ou la met à jour dans le référentiel, puis recalcule les scores."""
+    from peadvisor.sources.boursorama import recuperer_un
+
+    try:
+        donnees = recuperer_un(code)
+    except Exception as exc:
+        raise HTTPException(502, f"Scraping Boursorama échoué ({code}) : {exc}")
+    isin = donnees.get("isin")
+    if not isin:
+        raise HTTPException(422, "ISIN introuvable sur la page (structure Boursorama modifiée ?)")
+
+    champs = {c: donnees[c] for c in CHAMPS_BOURSORAMA if c in donnees}
+    actif = session.query(Actif).filter(Actif.isin == isin).one_or_none()
+    cree = actif is None
+    if cree:
+        actif = Actif(isin=isin, type=TypeActif.ACTION, nom=donnees.get("nom") or code)
+        session.add(actif)
+    for champ, valeur in champs.items():
+        setattr(actif, champ, valeur)
+    if not actif.nom:
+        actif.nom = donnees.get("nom") or code
+    actif.date_cours = datetime.utcnow()
+    session.commit()
+
+    scorer_tous(session)
+    session.refresh(actif)
+    return {"cree": cree, "isin": isin, "nom": actif.nom, "cours": actif.cours,
+            "source": actif.source, "score_global": actif.score_global,
+            "donnees_extraites": donnees}
 
 
 @router.post("/scores/recalculer")

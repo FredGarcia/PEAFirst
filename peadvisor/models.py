@@ -49,6 +49,8 @@ class Actif(Base):
 
     # Indicateurs
     rendement: Mapped[float | None] = mapped_column(Float)        # dividende, en %
+    variation_pct: Mapped[float | None] = mapped_column(Float)    # variation du jour, en %
+    volume: Mapped[float | None] = mapped_column(Float)           # volume échangé du jour
     per: Mapped[float | None] = mapped_column(Float)
     croissance: Mapped[float | None] = mapped_column(Float)       # en %
     volatilite: Mapped[float | None] = mapped_column(Float)       # annualisée, en %

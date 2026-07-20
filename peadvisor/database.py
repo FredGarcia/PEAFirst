@@ -33,5 +33,8 @@ def creer_tables() -> None:
     # on ajoute les colonnes apparues depuis la création de la base.
     with engine.begin() as conn:
         colonnes = [ligne[1] for ligne in conn.exec_driver_sql("PRAGMA table_info(actifs)")]
-        if "indicateurs_quant" not in colonnes:
-            conn.exec_driver_sql("ALTER TABLE actifs ADD COLUMN indicateurs_quant TEXT")
+        for nom, type_sql in (("indicateurs_quant", "TEXT"),
+                              ("variation_pct", "FLOAT"),
+                              ("volume", "FLOAT")):
+            if nom not in colonnes:
+                conn.exec_driver_sql(f"ALTER TABLE actifs ADD COLUMN {nom} {type_sql}")

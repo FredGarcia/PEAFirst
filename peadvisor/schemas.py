@@ -27,6 +27,8 @@ class ActifOut(BaseModel):
     cours: float | None = None
     date_cours: datetime | None = None
     rendement: float | None = None
+    variation_pct: float | None = None
+    volume: float | None = None
     per: float | None = None
     croissance: float | None = None
     volatilite: float | None = None

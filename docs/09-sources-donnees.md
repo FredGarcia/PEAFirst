@@ -123,6 +123,43 @@ quota. Verdict par source d'après les essais :
 retirer finnhub, polygon et tiingo (US-centrés) ; garder OpenFIGI comme
 annuaire, pas comme flux de cours.
 
+## 3 ter. Scraping Boursorama
+
+Faute d'API officielle utilisable pour Euronext en gratuit, un connecteur de
+*scraping* Boursorama est fourni (`peadvisor/sources/boursorama.py`).
+
+⚠️ **Le scraping est fragile et sensible aux conditions d'utilisation** : il
+dépend de la structure HTML des pages (une refonte peut le casser) et relève
+d'un usage personnel. Pour limiter la casse, toute l'analyse est isolée dans
+la **fonction pure `parser_page(html)`**, entièrement testée — si la page
+change, seules les expressions d'extraction (et le dictionnaire `ETIQUETTES`)
+sont à ajuster, sans toucher au reste.
+
+Points clés :
+
+- **Code Boursorama** = préfixe de place + mnémonique ; Euronext Paris = `1rP`
+  (Air Liquide `1rPAI`, TotalEnergies `1rPTTE`). Exceptions dans `CODES`.
+- **En-tête navigateur** obligatoire (comme stooq, Boursorama refuse
+  `python-requests`).
+- **Colonnes extraites** : nom, ISIN, cours, devise, variation du jour,
+  ouverture / +haut / +bas / clôture veille, volume, capitalisation, PER,
+  rendement, éligibilité PEA. Les champs retenus pour la fiche sont : cours,
+  variation, volume, capitalisation, PER, rendement, éligibilité PEA, source.
+- **Historique** : cette page ne le fournit pas → indicateurs quantitatifs
+  toujours issus d'une source EOD (EODHD, Marketstack…).
+
+Utilisation :
+
+- **Une valeur** : bouton « Scraper & ajouter » de l'onglet Actions, ou
+  `POST /api/import/boursorama/{code}`, ou l'outil MCP `importer_boursorama`.
+  La ligne est créée/mise à jour et sa **colonne Source** passe à
+  « boursorama ».
+- **Tout l'univers** : `donnees.source_active: boursorama` (une requête par
+  valeur, pause d'une seconde — courtois mais lent).
+
+L'onglet Actions affiche désormais la **variation du jour**, le **volume** et
+une colonne **Source** indiquant l'origine de chaque ligne.
+
 ## 4. Ajouter une source
 
 1. Créer `peadvisor/sources/<nom>.py` héritant de `SourceHTTPBase` :

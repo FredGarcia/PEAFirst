@@ -33,7 +33,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | Domaine | Contenu |
 |---|---|
 | Référentiel | Actions, ETF, OPCVM éligibles PEA — 20+ champs par actif (ISIN, secteur, PER, rendement, ESG, volatilité, consensus…) |
-| Import | 8 sources branchables (`seed`, **`stooq` sans clé**, `yahoo`, AlphaVantage, TwelveData, FMP, EODHD, Marketstack), gestion des clés API (fichier gitignoré ou variables d'env.), bouton « Tester » par source, normalisation, **dédoublonnage par ISIN**, journal |
+| Import | 9 sources branchables — API (EODHD, Marketstack, AlphaVantage, TwelveData, FMP, `stooq`/`yahoo` sans clé) **et scraping Boursorama** ; gestion des clés API (fichier gitignoré ou variables d'env.), bouton « Tester » diagnostique par source, colonne **Source** par actif, normalisation, **dédoublonnage par ISIN**, journal |
 | Scoring | Score 0-100, 7 critères, **pondérations modifiables** depuis l'interface (recalcul immédiat), historique des scores |
 | Quantitatif | Historiques de cours (~3 ans) et indicateurs calculés : volatilité réalisée (réinjectée dans le scoring), perf 1 an, drawdown max, Sharpe, Sortino, VaR 95 %, corrélations |
 | Décision | Matrice multicritère : score pondéré ou **TOPSIS** |
@@ -43,7 +43,7 @@ automatiquement depuis la source active. Les tests s'exécutent avec
 | Watchlist | Suivi de valeurs, ajout/retrait en un clic |
 | Automatisation | Mise à jour quotidienne ou hebdomadaire planifiée (APScheduler), activable dans `config/settings.yaml` |
 | Second ordre | **Auto-observation** (complétude, fraîcheur, anomalies, dérive des scores, pouvoir prédictif) et **auto-amélioration** (recommandations + optimisation des pondérations validée sur les rendements réalisés, supervision humaine par défaut) — écran Système |
-| Agent (MCP) | Serveur MCP (`mcp_server.py`) : 17 outils pour piloter PEAdvisor depuis Claude Desktop — analyse, explications, allocation, auto-diagnostic (voir docs/08) |
+| Agent (MCP) | Serveur MCP (`mcp_server.py`) : 19 outils pour piloter PEAdvisor depuis Claude Desktop — analyse, explications, allocation, auto-diagnostic (voir docs/08) |
 
 ## Paramétrage (sans toucher au code)
 
