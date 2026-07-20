@@ -101,9 +101,9 @@ async function vueActifs(type, titre) {
   const importBoursorama = type === "ACTION" ? `
     <form class="panneau" id="form-boursorama">
       <div class="champs">
-        <label class="champ">Importer depuis Boursorama (code)
-          <input type="text" name="code" value="1rPAI" placeholder="ex. 1rPAI = Air Liquide"></label>
-        <button type="submit">Scraper &amp; ajouter</button>
+        <label class="champ">Ajouter une valeur depuis Boursorama (nom, ISIN ou code)
+          <input type="text" name="code" value="" placeholder="ex. Air Liquide, FR0000120073 ou 1rPAI"></label>
+        <button type="submit">Rechercher &amp; ajouter</button>
         <span class="muted" id="retour-boursorama"></span>
       </div>
     </form>` : "";
@@ -154,9 +154,17 @@ async function vueActifs(type, titre) {
       retour.textContent = "scraping en cours…";
       try {
         const r = await api(`/api/import/boursorama/${encodeURIComponent(code)}`, { method: "POST" });
+        const d = r.donnees_extraites || {};
+        const extra = [
+          d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
+          d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
+          d.consensus_bourso != null ? `consensus ${fmt(d.consensus_bourso, 2)}` : null,
+          d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
+        ].filter(Boolean).join(" · ");
         retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
-          + `${echap(r.nom)} (${r.isin}) — cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`;
-        setTimeout(() => vueActifs(type, titre), 900);
+          + `${echap(r.nom)} (${r.isin}) — cours ${fmt(r.cours, 2)}`
+          + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "");
+        setTimeout(() => vueActifs(type, titre), 1200);
       } catch (err) {
         retour.innerHTML = `<span class="baisse">Échec</span> — ${echap(err.message)}`;
       }

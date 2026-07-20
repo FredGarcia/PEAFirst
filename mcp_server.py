@@ -304,31 +304,34 @@ def lancer_mise_a_jour(source: str | None = None) -> dict:
 
 
 @mcp.tool()
-def importer_boursorama(code: str) -> dict:
-    """Scrape une valeur sur Boursorama (par son code, ex. 1rPAI = Air Liquide)
-    et l'ajoute ou la met à jour dans le référentiel, avec recalcul des scores.
-    La source de la ligne devient « boursorama ».
+def importer_boursorama(requete: str) -> dict:
+    """Ajoute ou met à jour une valeur depuis Boursorama par **nom, ISIN ou
+    code** (ex. « Air Liquide », « FR0000120073 » ou « 1rPAI »), avec recalcul
+    des scores. La source de la ligne devient « boursorama ». Extrait aussi
+    objectif de cours, potentiel, consensus analystes et risque ESG.
 
     Args:
-        code: Code Boursorama de la valeur (préfixe de place + mnémonique).
+        requete: Nom, code ISIN ou code Boursorama de la valeur.
     """
     from datetime import datetime
 
     from peadvisor.models import Actif, TypeActif
     from peadvisor.services.scoring import scorer_tous
-    from peadvisor.sources.boursorama import recuperer_un
+    from peadvisor.sources.boursorama import (CHAMPS_FICHE, code_ou_recherche,
+                                              recuperer_un)
 
     with _session() as s:
         try:
+            code = code_ou_recherche(requete)
+            if not code:
+                return {"erreur": f"Aucune valeur trouvée pour « {requete} »"}
             donnees = recuperer_un(code)
         except Exception as exc:
             return {"erreur": f"Scraping échoué : {exc}"}
         isin = donnees.get("isin")
         if not isin:
             return {"erreur": "ISIN introuvable sur la page"}
-        champs = {c: donnees[c] for c in ("nom", "cours", "devise", "variation_pct",
-                  "volume", "capitalisation", "per", "rendement", "eligible_pea",
-                  "source") if c in donnees}
+        champs = {c: donnees[c] for c in CHAMPS_FICHE if c in donnees}
         actif = s.query(Actif).filter(Actif.isin == isin).one_or_none()
         cree = actif is None
         if cree:

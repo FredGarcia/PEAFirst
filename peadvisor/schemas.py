@@ -34,6 +34,7 @@ class ActifOut(BaseModel):
     volatilite: float | None = None
     niveau_risque: int | None = None
     score_esg: float | None = None
+    risque_esg: float | None = None
     objectif_cours: float | None = None
     potentiel: float | None = None
     consensus: float | None = None

@@ -35,6 +35,7 @@ def creer_tables() -> None:
         colonnes = [ligne[1] for ligne in conn.exec_driver_sql("PRAGMA table_info(actifs)")]
         for nom, type_sql in (("indicateurs_quant", "TEXT"),
                               ("variation_pct", "FLOAT"),
-                              ("volume", "FLOAT")):
+                              ("volume", "FLOAT"),
+                              ("risque_esg", "FLOAT")):
             if nom not in colonnes:
                 conn.exec_driver_sql(f"ALTER TABLE actifs ADD COLUMN {nom} {type_sql}")

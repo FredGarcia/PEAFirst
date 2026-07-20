@@ -141,21 +141,35 @@ Points clés :
   (Air Liquide `1rPAI`, TotalEnergies `1rPTTE`). Exceptions dans `CODES`.
 - **En-tête navigateur** obligatoire (comme stooq, Boursorama refuse
   `python-requests`).
-- **Colonnes extraites** : nom, ISIN, cours, devise, variation du jour,
-  ouverture / +haut / +bas / clôture veille, volume, capitalisation, PER,
-  rendement, éligibilité PEA. Les champs retenus pour la fiche sont : cours,
-  variation, volume, capitalisation, PER, rendement, éligibilité PEA, source.
+- **Colonnes extraites** (validées sur une page réelle) : nom, ISIN, secteur,
+  cours, devise, variation du jour, ouverture / +haut / +bas / clôture veille,
+  volume, valorisation (capitalisation), PER et rendement estimés, **objectif
+  de cours 3 mois**, **potentiel**, **risque ESG**, **consensus analystes**.
+- **Deux conversions de convention** (documentées et testées) :
+  - *Risque ESG* Boursorama (Sustainalytics, plus bas = mieux, ex. 12,7) →
+    **score ESG** PEAdvisor (0-100, plus haut = mieux) : `score = 100 − risque`.
+  - *Consensus* Boursorama (échelle 1 = achat … 5 = vente, ex. 1,55) →
+    **consensus** PEAdvisor (1 = vente … 5 = achat fort) : `6 − valeur`.
+- **Cours en direct** : rempli par JavaScript, donc absent du HTML statique →
+  repli automatique sur la **clôture veille**.
 - **Historique** : cette page ne le fournit pas → indicateurs quantitatifs
-  toujours issus d'une source EOD (EODHD, Marketstack…).
+  (volatilité, Sharpe…) toujours issus d'une source EOD (EODHD, Marketstack…).
 
-Utilisation :
+Utilisation — **ajout à la demande par nom, ISIN ou code** :
 
-- **Une valeur** : bouton « Scraper & ajouter » de l'onglet Actions, ou
-  `POST /api/import/boursorama/{code}`, ou l'outil MCP `importer_boursorama`.
-  La ligne est créée/mise à jour et sa **colonne Source** passe à
-  « boursorama ».
+- Onglet Actions : champ « Ajouter une valeur (nom, ISIN ou code) » →
+  « Rechercher & ajouter » ; la recherche Boursorama résout le code
+  automatiquement (« Air Liquide » ou « FR0000120073 » → `1rPAI`).
+- `POST /api/import/boursorama/{nom|isin|code}` ou l'outil MCP
+  `importer_boursorama`. La ligne est créée/mise à jour, **Source =
+  boursorama**, et la réponse expose tous les indicateurs extraits
+  (`donnees_extraites`).
 - **Tout l'univers** : `donnees.source_active: boursorama` (une requête par
   valeur, pause d'une seconde — courtois mais lent).
+
+La fonction `parser_page` est validée par test contre la structure réelle
+(`tests/fixtures_boursorama.py`) : objectif 190,46, potentiel 7,18 %, risque
+ESG 12,7, consensus 1,55, PER 27,6, rendement 2,01 %, valorisation 113 401 M€.
 
 L'onglet Actions affiche désormais la **variation du jour**, le **volume** et
 une colonne **Source** indiquant l'origine de chaque ligne.

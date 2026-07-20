@@ -55,7 +55,8 @@ class Actif(Base):
     croissance: Mapped[float | None] = mapped_column(Float)       # en %
     volatilite: Mapped[float | None] = mapped_column(Float)       # annualisée, en %
     niveau_risque: Mapped[int | None] = mapped_column(Integer)    # 1 à 7 (SRI)
-    score_esg: Mapped[float | None] = mapped_column(Float)        # 0 à 100
+    score_esg: Mapped[float | None] = mapped_column(Float)        # 0 à 100 (haut = mieux)
+    risque_esg: Mapped[float | None] = mapped_column(Float)       # 0 à 100 (bas = mieux, ESG Sustainalytics)
     objectif_cours: Mapped[float | None] = mapped_column(Float)
     potentiel: Mapped[float | None] = mapped_column(Float)        # en %, calculé
     consensus: Mapped[float | None] = mapped_column(Float)        # 1 (vente) à 5 (achat fort)

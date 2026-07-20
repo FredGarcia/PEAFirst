@@ -29,16 +29,20 @@ def lancer_import(source: str | None = None, session: Session = Depends(get_sess
     return importer(session, source)
 
 
-CHAMPS_BOURSORAMA = ("nom", "cours", "devise", "variation_pct", "volume",
-                     "capitalisation", "per", "rendement", "eligible_pea", "source")
+@router.post("/import/boursorama/{requete:path}")
+def importer_boursorama(requete: str, session: Session = Depends(get_session)):
+    """Ajoute/met à jour une valeur depuis Boursorama, par **nom, ISIN ou code**
+    (ex. « Air Liquide », « FR0000120073 » ou « 1rPAI »), puis recalcule les
+    scores. La recherche par nom/ISIN résout automatiquement le code."""
+    from peadvisor.sources.boursorama import (CHAMPS_FICHE, code_ou_recherche,
+                                              recuperer_un)
 
-
-@router.post("/import/boursorama/{code}")
-def importer_boursorama(code: str, session: Session = Depends(get_session)):
-    """Scrape une valeur Boursorama (ex. code 1rPAI = Air Liquide) et l'ajoute
-    ou la met à jour dans le référentiel, puis recalcule les scores."""
-    from peadvisor.sources.boursorama import recuperer_un
-
+    try:
+        code = code_ou_recherche(requete)
+    except Exception as exc:
+        raise HTTPException(502, f"Recherche Boursorama échouée : {exc}")
+    if not code:
+        raise HTTPException(404, f"Aucune valeur Boursorama trouvée pour « {requete} »")
     try:
         donnees = recuperer_un(code)
     except Exception as exc:
@@ -47,7 +51,7 @@ def importer_boursorama(code: str, session: Session = Depends(get_session)):
     if not isin:
         raise HTTPException(422, "ISIN introuvable sur la page (structure Boursorama modifiée ?)")
 
-    champs = {c: donnees[c] for c in CHAMPS_BOURSORAMA if c in donnees}
+    champs = {c: donnees[c] for c in CHAMPS_FICHE if c in donnees}
     actif = session.query(Actif).filter(Actif.isin == isin).one_or_none()
     cree = actif is None
     if cree:
@@ -62,9 +66,9 @@ def importer_boursorama(code: str, session: Session = Depends(get_session)):
 
     scorer_tous(session)
     session.refresh(actif)
-    return {"cree": cree, "isin": isin, "nom": actif.nom, "cours": actif.cours,
-            "source": actif.source, "score_global": actif.score_global,
-            "donnees_extraites": donnees}
+    return {"cree": cree, "code_boursorama": code, "isin": isin, "nom": actif.nom,
+            "cours": actif.cours, "source": actif.source,
+            "score_global": actif.score_global, "donnees_extraites": donnees}
 
 
 @router.post("/scores/recalculer")
