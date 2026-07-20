@@ -45,7 +45,7 @@ un environnement virtuel — recommandé : pointer sur `.venv/bin/python`) :
 Redémarrer Claude Desktop : les outils « peadvisor » apparaissent dans le
 menu des connecteurs.
 
-## 3. Les 16 outils exposés
+## 3. Les 17 outils exposés
 
 | Outil | Rôle |
 |---|---|

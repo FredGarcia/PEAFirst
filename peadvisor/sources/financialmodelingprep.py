@@ -1,5 +1,11 @@
-"""Financial Modeling Prep (https://financialmodelingprep.com) — cotations et
-fondamentaux (PER, capitalisation, objectif de cours). Suffixe Paris : .PA."""
+"""Financial Modeling Prep (https://financialmodelingprep.com).
+
+⚠️ L'offre **gratuite est essentiellement limitée aux valeurs américaines** ;
+les endpoints `/stable/` et de nombreuses données européennes exigent un plan
+payant (HTTP 402). On cible ici l'API historique v3 (compatible clés
+anciennes) ; sur une clé gratuite récente, les valeurs Euronext peuvent
+renvoyer 402/403 — voir docs/09-sources-donnees.md.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +13,7 @@ from typing import Any
 
 from peadvisor.sources.http import SourceHTTPBase
 
-URL = "https://financialmodelingprep.com/stable"
+URL = "https://financialmodelingprep.com/api/v3"
 
 
 class SourceFinancialModelingPrep(SourceHTTPBase):
@@ -17,7 +23,7 @@ class SourceFinancialModelingPrep(SourceHTTPBase):
     pause_s = 0.3
 
     def cotation(self, symbole: str, cle: str | None) -> dict[str, Any]:
-        data = self._get_json(f"{URL}/quote", {"symbol": symbole, "apikey": cle})
+        data = self._get_json(f"{URL}/quote/{symbole}", {"apikey": cle})
         quote = data[0] if isinstance(data, list) and data else {}
         champs: dict[str, Any] = {}
         if quote.get("price"):
@@ -26,19 +32,14 @@ class SourceFinancialModelingPrep(SourceHTTPBase):
             champs["capitalisation"] = round(float(quote["marketCap"]) / 1e6, 1)
         if quote.get("pe"):
             champs["per"] = float(quote["pe"])
-        if quote.get("dividendYield"):
-            champs["rendement"] = round(float(quote["dividendYield"]), 2)
-        if quote.get("priceTarget"):
-            champs["objectif_cours"] = float(quote["priceTarget"])
         return champs
 
     def serie(self, symbole: str, cle: str | None) -> list[dict[str, Any]]:
-        data = self._get_json(f"{URL}/historical-price-eod/light",
-                              {"symbol": symbole, "apikey": cle})
-        lignes = data if isinstance(data, list) else data.get("historical", [])
-        points = []
-        for ligne in lignes:
-            cours = ligne.get("price") or ligne.get("close")
-            if ligne.get("date") and cours:
-                points.append({"date": str(ligne["date"])[:10], "cours": float(cours)})
-        return sorted(points, key=lambda p: p["date"])
+        data = self._get_json(f"{URL}/historical-price-full/{symbole}",
+                              {"apikey": cle, "serietype": "line"})
+        lignes = data.get("historical", []) if isinstance(data, dict) else []
+        return sorted(
+            ({"date": str(l["date"])[:10], "cours": float(l["close"])}
+             for l in lignes if l.get("date") and l.get("close")),
+            key=lambda p: p["date"],
+        )

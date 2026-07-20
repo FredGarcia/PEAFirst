@@ -373,6 +373,21 @@ def taux_sans_risque() -> dict:
 
 
 @mcp.tool()
+def resoudre_isin(isin: str, code_place: str = "GR") -> dict:
+    """Résout un ISIN en ticker et place de cotation via OpenFIGI (annuaire
+    d'instruments, pas une source de cours). Utile pour trouver le bon symbole
+    d'une valeur avant de l'ajouter au référentiel.
+
+    Args:
+        isin: Code ISIN (12 caractères).
+        code_place: Code place OpenFIGI (défaut "GR" = Euronext Paris).
+    """
+    from peadvisor.services.reference import resoudre_isin as resoudre
+
+    return resoudre(isin, code_place)
+
+
+@mcp.tool()
 def ponderations_score() -> dict:
     """Pondérations et bornes de normalisation actuelles du score
     propriétaire (config/scoring.yaml)."""

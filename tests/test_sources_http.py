@@ -29,7 +29,7 @@ class FausseReponse:
 
 def _simuler(monkeypatch, reponses):
     """Remplace requests.get : `reponses` associe un fragment d'URL à un payload."""
-    def faux_get(url, params=None, timeout=None):
+    def faux_get(url, params=None, timeout=None, headers=None):
         for fragment, payload in reponses.items():
             if fragment in url:
                 return payload
@@ -96,18 +96,17 @@ def test_twelvedata_parse(monkeypatch):
 
 
 def test_fmp_parse(monkeypatch):
+    # Endpoint gratuit v3 : /quote/{symbole} et /historical-price-full/{symbole}.
     src = SourceFinancialModelingPrep()
     _simuler(monkeypatch, {
-        "/quote": FausseReponse([{"price": 62.5, "marketCap": 148e9, "pe": 8.9,
-                                  "dividendYield": 5.1, "priceTarget": 71.0}]),
-        "/historical-price-eod": FausseReponse([
-            {"date": "2026-07-17", "price": 62.5},
+        "/quote/": FausseReponse([{"price": 62.5, "marketCap": 148e9, "pe": 8.9}]),
+        "/historical-price-full/": FausseReponse({"historical": [
+            {"date": "2026-07-17", "close": 62.5},
             {"date": "2026-07-16", "close": 62.1},
-        ]),
+        ]}),
     })
     cotation = src.cotation("TTE.PA", "k")
     assert cotation["cours"] == 62.5 and cotation["capitalisation"] == 148000.0
-    assert cotation["objectif_cours"] == 71.0
     assert len(src.serie("TTE.PA", "k")) == 2
 
 

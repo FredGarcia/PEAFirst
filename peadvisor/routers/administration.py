@@ -63,6 +63,14 @@ def lister_sources():
     }
 
 
+@router.get("/reference/figi/{isin}")
+def resoudre_figi(isin: str, place: str = "GR"):
+    """Résout un ISIN en ticker/place via OpenFIGI (annuaire, pas des cours)."""
+    from peadvisor.services.reference import resoudre_isin
+
+    return resoudre_isin(isin, place)
+
+
 @router.post("/sources/{nom}/tester")
 def tester_source(nom: str):
     """Teste une source sur un titre : présence de la clé, appel réel,

@@ -68,6 +68,28 @@ class SourceHTTPBase(SourceDonnees):
         reponse.raise_for_status()
         return reponse.json()
 
+    @staticmethod
+    def _message_reponse(reponse) -> str:
+        """Message lisible extrait du corps d'une réponse (JSON ou texte).
+
+        Les API renvoient leur raison réelle dans le corps (quota dépassé,
+        symbole introuvable, plan payant requis…) — on l'expose plutôt que le
+        code HTTP nu.
+        """
+        if reponse is None:
+            return ""
+        try:
+            data = reponse.json()
+        except Exception:
+            return (reponse.text or "").strip()[:200]
+        if isinstance(data, dict):
+            for cle in ("message", "error", "Error Message", "detail", "note",
+                        "Note", "Information", "info", "status_message"):
+                if data.get(cle):
+                    return str(data[cle])[:200]
+            return str(data)[:200]
+        return str(data)[:200]
+
     def recuperer(self) -> list[dict[str, Any]]:
         cle = self._cle()
         if self.necessite_cle and not cle:
@@ -115,7 +137,17 @@ class SourceHTTPBase(SourceDonnees):
             resultat["points_historique"] = len(points)
             resultat["ok"] = bool(cotation) or bool(points)
             if not resultat["ok"]:
-                resultat["erreur"] = "Réponse vide : vérifier la clé, le quota ou le format de symbole"
+                resultat["erreur"] = ("Réponse vide : symbole non couvert par la source ou "
+                                      "par votre plan, quota atteint, ou format de symbole à ajuster")
+        except requests.HTTPError as exc:
+            # On expose le message réel de l'API (raison du refus), pas le code nu.
+            code = exc.response.status_code if exc.response is not None else "?"
+            detail = self._message_reponse(exc.response)
+            aide = {402: " — donnée réservée à un plan payant",
+                    403: " — accès refusé (souvent : exchange hors offre gratuite)",
+                    404: " — symbole introuvable pour cette source/ce plan",
+                    429: " — quota dépassé, réessayer plus tard"}.get(code, "")
+            resultat["erreur"] = f"HTTP {code}{aide}" + (f" : {detail}" if detail else "")
         except Exception as exc:
             resultat["erreur"] = f"{type(exc).__name__} : {exc}"
         return resultat

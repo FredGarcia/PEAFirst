@@ -98,6 +98,31 @@ Exposé via `GET /api/dashboard/taux-sans-risque` et l'outil MCP
 `taux_sans_risque`. Repli automatique sur la valeur paramétrée si la BCE est
 injoignable — aucune régression hors ligne.
 
+## 3 bis. Diagnostic des tests (retours réels)
+
+Le bouton « Tester » affiche désormais le **message réel de l'API** (et non un
+code HTTP nu), avec une aide selon le code : 402 = donnée payante, 403 =
+exchange hors offre gratuite, 404 = symbole introuvable pour ce plan, 429 =
+quota. Verdict par source d'après les essais :
+
+| Source | Résultat type | Cause / action |
+|---|---|---|
+| **alphavantage** | ✅ OK (~100 pts) | Fonctionne (suffixe `.PAR`). Quota gratuit faible. |
+| **eodhd** | ✅ OK (~250 pts) | Fonctionne (`.PA`). Le meilleur candidat payant. |
+| **marketstack** | ✅ OK (~240 pts) | Fonctionne (`.XPAR`). |
+| **stooq** | 404 → **corrigé** | Le serveur bloquait `python-requests` : ajout d'un User-Agent navigateur. Couverture des actions FR incertaine (fort sur indices/US/DE) → repli propre si absent. |
+| **financialmodelingprep** | 402 payant → **atténué** | Bascule sur l'API gratuite v3 ; mais l'offre gratuite FMP reste **quasi limitée aux valeurs US** — Euronext peut rester 402/403. |
+| **twelvedata** | 404 | Le message d'erreur (désormais affiché) précise si XPAR est **hors offre gratuite** : le plan gratuit TwelveData ne couvre que les actions US. Nécessite un plan payant pour Euronext. |
+| **finnhub** | 403 | Offre gratuite **US uniquement** ; Euronext hors périmètre — inadapté au PEA. |
+| **polygon** | 400 | Polygon **ne cote aucune action Euronext** (US stocks/options/forex/crypto). À retirer pour le PEA. |
+| **tiingo** | 404 | Couverture actions surtout US ; Euronext non servi. Inadapté au PEA. |
+| **openfigi** | vide → **rôle corrigé** | Ce n'est **pas une source de cours** mais un annuaire ISIN→ticker (POST /v3/mapping). Déplacé dans `services/reference.py` (`GET /api/reference/figi/{isin}`, outil MCP `resoudre_isin`). |
+
+**Conclusion** : pour le PEA, s'appuyer sur **EODHD / Marketstack / AlphaVantage**
+(qui fonctionnent) et **stooq** (gratuit, sans clé, sous réserve de couverture) ;
+retirer finnhub, polygon et tiingo (US-centrés) ; garder OpenFIGI comme
+annuaire, pas comme flux de cours.
+
 ## 4. Ajouter une source
 
 1. Créer `peadvisor/sources/<nom>.py` héritant de `SourceHTTPBase` :
