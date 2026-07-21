@@ -16,8 +16,11 @@ def config_isolee(tmp_path, monkeypatch):
 
 def test_profil_par_defaut(config_isolee):
     profil = consulter_profil()
-    assert profil == {"objectif": "equilibre", "niveau_risque": 4,
-                      "horizon_annees": 10, "algorithme_decision": "topsis"}
+    # Cœur du profil (d'autres clés d'apparence existent aussi).
+    for cle, val in {"objectif": "equilibre", "niveau_risque": 4,
+                     "horizon_annees": 10, "algorithme_decision": "topsis"}.items():
+        assert profil[cle] == val
+    assert "couleur_actions" in profil and "yahoo_exemple_url" in profil
 
 
 def test_modification_et_persistance(config_isolee):

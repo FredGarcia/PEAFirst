@@ -22,7 +22,7 @@ from peadvisor import __version__
 from peadvisor.database import SessionLocal, creer_tables
 from peadvisor.models import Actif
 from peadvisor.routers import (actifs, administration, allocation, dashboard, meta,
-                               simulation)
+                               recherche, simulation)
 from peadvisor.services import scheduler
 from peadvisor.services.importer import importer
 
@@ -57,6 +57,7 @@ app.include_router(dashboard.router)
 app.include_router(actifs.router)
 app.include_router(allocation.router)
 app.include_router(simulation.router)
+app.include_router(recherche.router)
 app.include_router(administration.router)
 app.include_router(meta.router)
 

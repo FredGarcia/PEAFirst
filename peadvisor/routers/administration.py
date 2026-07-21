@@ -80,8 +80,9 @@ def lister_sources():
     settings = charger_settings()
     sources = []
     for nom, classe in REGISTRE.items():
+        # Yahoo n'est pas une source HTTP générique mais dispose d'un test dédié.
         info = {"nom": nom, "necessite_cle": False, "cle_configuree": None,
-                "testable": issubclass(classe, SourceHTTPBase)}
+                "testable": issubclass(classe, SourceHTTPBase) or nom == "yahoo"}
         if issubclass(classe, SourceHTTPBase):
             instance = classe()
             info["necessite_cle"] = instance.necessite_cle
@@ -111,11 +112,38 @@ def tester_source(nom: str):
 
     if nom not in REGISTRE:
         raise HTTPException(404, f"Source inconnue : {nom}. Disponibles : {list(REGISTRE)}")
+    if nom == "yahoo":
+        return _tester_yahoo()
     classe = REGISTRE[nom]
     if not issubclass(classe, SourceHTTPBase):
         return {"ok": True, "info": f"La source '{nom}' ne se teste pas par requête HTTP "
                                     "(locale ou bibliothèque dédiée)."}
     return classe().tester()
+
+
+def _tester_yahoo() -> dict:
+    """Teste Yahoo en récupérant la page exemple (URL paramétrable) et en
+    renvoyant un extrait JSON ; en cas d'échec, la cause en texte."""
+    import requests
+
+    url = charger_profil().get("yahoo_exemple_url", "")
+    if not url:
+        return {"ok": False, "erreur": "Aucune URL exemple Yahoo définie (onglet Paramètres)."}
+    try:
+        rep = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (compatible; PEAdvisor/1.0)"},
+                           timeout=20)
+        rep.raise_for_status()
+        data = rep.json()
+        # Extrait résumé : métadonnées de la série de cours Yahoo si présentes.
+        try:
+            meta = data["chart"]["result"][0]["meta"]
+            extrait = {k: meta[k] for k in ("symbol", "currency", "exchangeName",
+                       "regularMarketPrice", "regularMarketTime") if k in meta}
+        except (KeyError, IndexError, TypeError):
+            extrait = data
+        return {"ok": True, "url": url, "exemple_json": extrait}
+    except Exception as exc:
+        return {"ok": False, "url": url, "erreur": f"{type(exc).__name__} : {exc}"}
 
 
 @router.get("/parametres/profil")

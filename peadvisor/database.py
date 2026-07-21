@@ -33,9 +33,16 @@ def creer_tables() -> None:
     # on ajoute les colonnes apparues depuis la création de la base.
     with engine.begin() as conn:
         colonnes = [ligne[1] for ligne in conn.exec_driver_sql("PRAGMA table_info(actifs)")]
-        for nom, type_sql in (("indicateurs_quant", "TEXT"),
-                              ("variation_pct", "FLOAT"),
-                              ("volume", "FLOAT"),
-                              ("risque_esg", "FLOAT")):
+        nouvelles = [
+            ("indicateurs_quant", "TEXT"), ("variation_pct", "FLOAT"),
+            ("volume", "FLOAT"), ("risque_esg", "FLOAT"),
+            ("ouverture", "FLOAT"), ("plus_haut", "FLOAT"), ("plus_bas", "FLOAT"),
+            ("cloture_veille", "FLOAT"), ("haut_52s", "FLOAT"), ("bas_52s", "FLOAT"),
+            ("quantite_echangee", "FLOAT"), ("nb_titres", "FLOAT"), ("bna", "FLOAT"),
+            ("dividende", "FLOAT"), ("taux_distribution", "FLOAT"),
+            ("dette_nette", "FLOAT"), ("ca", "FLOAT"), ("nb_analystes", "FLOAT"),
+            ("date_cotation", "VARCHAR(20)"), ("heure_cotation", "VARCHAR(20)"),
+        ]
+        for nom, type_sql in nouvelles:
             if nom not in colonnes:
                 conn.exec_driver_sql(f"ALTER TABLE actifs ADD COLUMN {nom} {type_sql}")

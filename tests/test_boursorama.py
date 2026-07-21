@@ -77,7 +77,11 @@ def test_parser_page_reelle_indicateurs_riches():
 
 def test_parser_page_vide():
     d = parser_page("<html><body>rien</body></html>")
-    assert d == {"source": "boursorama"}  # aucune donnée, pas d'exception
+    # Aucune donnée de marché, pas d'exception ; type par défaut ACTION.
+    assert d["source"] == "boursorama"
+    assert d["type_detecte"] == "ACTION"
+    assert d["eligible_pea"] is False  # marqueur eligible-pea absent
+    assert "cours" not in d and "isin" not in d
 
 
 def test_symbole_code_boursorama():
@@ -105,10 +109,13 @@ def test_resolution_par_nom_ou_isin(monkeypatch):
 def test_cotation_ne_garde_que_les_champs_utiles(monkeypatch):
     monkeypatch.setattr(bourso, "recuperer_un", lambda code: parser_page(PAGE))
     champs = SourceBoursorama().cotation("1rPAI")
-    # Les champs de marché intermédiaires (ouverture, +haut…) ne polluent pas la fiche.
-    assert "ouverture" not in champs and "plus_haut" not in champs
+    # Les champs hors modèle (type_detecte, consensus_bourso, nom) sont filtrés.
+    assert "type_detecte" not in champs and "consensus_bourso" not in champs
+    assert "nom" not in champs
     assert champs["cours"] == 184.52 and champs["source"] == "boursorama"
     assert champs["capitalisation"] == 108400.0
+    # Les fondamentaux étendus font désormais partie de la fiche.
+    assert "ouverture" in champs and "plus_haut" in champs
 
 
 def test_import_boursorama_met_a_jour(monkeypatch, session):

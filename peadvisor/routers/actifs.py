@@ -46,6 +46,23 @@ def detail_actif(isin: str, session: Session = Depends(get_session)):
     return actif
 
 
+@router.delete("/{isin}")
+def supprimer_actif(isin: str, session: Session = Depends(get_session)):
+    """Retire une valeur du référentiel (bouton « supprimer » d'une ligne)."""
+    from peadvisor.models import ElementWatchlist, HistoriqueCours, HistoriqueScore
+
+    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+    if not actif:
+        raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
+    # Nettoyage des dépendances (pas de cascade déclarée).
+    session.query(HistoriqueCours).filter(HistoriqueCours.actif_id == actif.id).delete()
+    session.query(HistoriqueScore).filter(HistoriqueScore.actif_id == actif.id).delete()
+    session.query(ElementWatchlist).filter(ElementWatchlist.actif_id == actif.id).delete()
+    session.delete(actif)
+    session.commit()
+    return {"supprime": isin.upper(), "nom": actif.nom}
+
+
 @router.get("/{isin}/sous-scores")
 def sous_scores_actif(isin: str, session: Session = Depends(get_session)):
     actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()

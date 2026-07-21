@@ -197,14 +197,36 @@ Ajouter/fiabiliser une source = ~15 lignes : une entrée dans `SCRAPERS` et,
 après examen d'une vraie page, une fonction `parser_page` dédiée (le chemin
 suivi pour Boursorama, cf. `tests/fixtures_boursorama.py`).
 
-## 3 quinquies. Confort du tableau Actions
+## 3 quinquies. Recherche, ventilation et tableaux de valeurs
 
-- **Tri par colonne** : clic sur un en-tête (indicateur ▴/▾), valeurs
-  manquantes en bas.
-- **Données de démonstration** : bouton « Charger » sur la ligne `seed` de
-  l'onglet Sources (verse le jeu `seed`), et bascule **« Masquer / Afficher
-  les données de démonstration (seed) »** dans les onglets Actions/ETF/OPCVM
-  pour ne voir que les valeurs réellement scrapées/importées.
+**Recherche (API indépendante `/api/recherche`)** — partagée par les onglets
+Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
+(un bouton par source). Le service :
+- **détecte le type d'instrument** (depuis le `<title>` Boursorama : « Cours
+  Action / Tracker / OPCVM ») et **ventile** la valeur dans le bon onglet ;
+- **vérifie l'éligibilité PEA** (marqueur `eligible-pea` de la fiche) ; si non
+  confirmée, la valeur est ajoutée mais **signalée** par un avertissement.
+
+**Champs Boursorama étendus** (parseur enrichi, `parser_page`) : ouverture,
++haut/+bas, clôture veille, 52 semaines haut/bas, volume, quantité échangée,
+valorisation, nombre de titres, PER, rendement, BNA, dividende, taux de
+distribution, dette nette, CA, objectif de cours, potentiel, consensus,
+nombre d'analystes, risque ESG. Le cours « live » (attribut vide en HTML
+statique) est lu dans le **texte** de l'élément, avec repli sur la clôture
+veille.
+
+**Tableaux (Actions / ETF / OPCVM, même composant)** :
+- **tri** par colonne (▴/▾) ; **suppression** d'une ligne (🗑, `DELETE
+  /api/actifs/{isin}`) ; **en-tête figé** au défilement ;
+- **couleur d'en-tête paramétrable par onglet** (Paramètres → Apparence) ;
+- **données de démonstration** : bouton « Charger » sur la ligne `seed`
+  (onglet Sources) et bascule « Masquer / Afficher (seed) ».
+
+**Test Yahoo** — bouton « Tester » sur la ligne Yahoo : récupère la page
+exemple (URL paramétrable dans Paramètres) et affiche un **extrait JSON** ;
+en cas d'échec, la **cause en texte**.
+
+**Barre latérale** redimensionnable (poignée à droite, largeur mémorisée).
 
 ## 4. Ajouter une source
 

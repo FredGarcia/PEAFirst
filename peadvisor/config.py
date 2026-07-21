@@ -44,6 +44,12 @@ PROFIL_DEFAUT: dict[str, Any] = {
     "niveau_risque": 4,
     "horizon_annees": 10,
     "algorithme_decision": "topsis",   # "weighted" | "topsis"
+    # Couleur d'en-tête de chaque tableau de valeurs (paramétrable).
+    "couleur_actions": "#2a78d6",
+    "couleur_etf": "#008300",
+    "couleur_opcvm": "#e87ba4",
+    # Page exemple renvoyée par le test de la source Yahoo (JSON).
+    "yahoo_exemple_url": "https://query1.finance.yahoo.com/v8/finance/chart/AI.PA?range=5d&interval=1d",
 }
 
 

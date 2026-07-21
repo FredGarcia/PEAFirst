@@ -57,6 +57,17 @@ body {
   top: 0;
   height: 100vh;
 }
+/* Poignée de redimensionnement de la barre latérale. */
+.sidebar-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+}
+.sidebar-resize:hover { background: var(--serie-1); opacity: 0.4; }
 .logo { font-size: 20px; font-weight: 700; padding: 6px 10px 18px; }
 .logo span { color: var(--serie-1); }
 .nav-link {
@@ -118,7 +129,20 @@ th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--gri
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 th { color: var(--muted); font-weight: 600; font-size: 12px; }
 th.triable { cursor: pointer; user-select: none; white-space: nowrap; }
-th.triable:hover { color: var(--ink); }
+th.triable:hover { filter: brightness(1.15); }
+
+/* Tableau de valeurs : en-tête figé au défilement + en-tête coloré. */
+.table-scroll.defilable { max-height: 68vh; overflow-y: auto; }
+table.valeurs thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--entete, var(--surface));
+  color: #fff;
+}
+table.valeurs thead th.triable:hover { filter: brightness(1.1); }
+.btn-suppr { color: var(--critique); border: none; background: none; cursor: pointer; font-size: 15px; }
+.btn-suppr:hover { filter: brightness(1.2); }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: color-mix(in srgb, var(--serie-1) 6%, transparent); }
 

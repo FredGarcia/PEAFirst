@@ -2,6 +2,29 @@
 
 const contenu = document.getElementById("contenu");
 
+// Barre latérale redimensionnable (largeur persistée dans localStorage).
+(function initRedimensionnement() {
+  const sidebar = document.querySelector(".sidebar");
+  const poignee = document.getElementById("sidebar-resize");
+  if (!sidebar || !poignee) return;
+  const sauvegardee = localStorage.getItem("peadvisor-sidebar");
+  if (sauvegardee) sidebar.style.width = sauvegardee + "px";
+  let actif = false;
+  poignee.addEventListener("mousedown", (e) => { actif = true; e.preventDefault();
+    document.body.style.userSelect = "none"; });
+  window.addEventListener("mousemove", (e) => {
+    if (!actif) return;
+    const largeur = Math.min(420, Math.max(140, e.clientX));
+    sidebar.style.width = largeur + "px";
+  });
+  window.addEventListener("mouseup", () => {
+    if (!actif) return;
+    actif = false;
+    document.body.style.userSelect = "";
+    localStorage.setItem("peadvisor-sidebar", parseInt(sidebar.style.width, 10));
+  });
+})();
+
 async function api(chemin, options) {
   const rep = await fetch(chemin, options);
   if (!rep.ok) throw new Error((await rep.json()).detail || rep.statusText);
@@ -113,6 +136,8 @@ const COLONNES_ACTIFS = [
     cell: (a) => `<span class="${a.variation_pct > 0 ? "hausse" : a.variation_pct < 0 ? "baisse" : ""}">${fmt(a.variation_pct, 2)}</span>` },
   { cle: "rendement", label: "Rdt %", num: true, val: (a) => a.rendement, cell: (a) => fmt(a.rendement, 1) },
   { cle: "per", label: "PER", num: true, val: (a) => a.per, cell: (a) => fmt(a.per, 1) },
+  { cle: "bna", label: "BNA", num: true, val: (a) => a.bna, cell: (a) => fmt(a.bna, 2) },
+  { cle: "dividende", label: "Div.", num: true, val: (a) => a.dividende, cell: (a) => fmt(a.dividende, 2) },
   { cle: "potentiel", label: "Potentiel %", num: true, val: (a) => a.potentiel,
     cell: (a) => `<span class="${a.potentiel > 0 ? "hausse" : "baisse"}">${fmt(a.potentiel, 1)}</span>` },
   { cle: "volume", label: "Volume", num: true, val: (a) => a.volume, cell: (a) => volumeCourt(a.volume) },
@@ -142,33 +167,38 @@ function trierActifs(liste) {
   });
 }
 
+const COULEUR_ONGLET = { ACTION: "couleur_actions", ETF: "couleur_etf", OPCVM: "couleur_opcvm" };
+
 async function vueActifs(type, titre) {
-  const [actifs, scrapers] = await Promise.all([
+  const [actifs, sources, profil] = await Promise.all([
     api(`/api/actifs?type=${type}`),
-    api("/api/sources/scrapers"),
+    api("/api/recherche/sources"),
+    api("/api/parametres/profil"),
   ]);
   const aDuSeed = actifs.some((a) => a.source === "seed");
+  const entete = profil[COULEUR_ONGLET[type]] || "var(--serie-1)";
 
-  const barreRecherche = type === "ACTION" ? `
+  // Barre de recherche : service partagé, présent sur les trois onglets de valeurs.
+  const barreRecherche = `
     <form class="panneau" id="form-scrap">
-      <label class="champ" style="display:block;margin-bottom:8px">Ajouter une valeur (nom, ISIN ou code) — choisir la source :
+      <label class="champ" style="display:block;margin-bottom:8px">Rechercher et ajouter une valeur (nom, ISIN ou code) — la source détecte le type et vérifie l'éligibilité PEA :
         <input type="text" id="scrap-requete" placeholder="ex. Air Liquide, FR0000120073 ou 1rPAI" style="width:340px"></label>
       <div class="champs">
-        ${scrapers.map((s) => `<button type="button" class="${s.valide ? "" : "secondaire"}"
+        ${sources.map((s) => `<button type="button" class="${s.valide ? "" : "secondaire"}"
           data-source="${s.nom}" title="${s.valide ? "Source validée" : "Source à valider — envoyer une page exemple"}">
           ${echap(s.libelle)}${s.valide ? "" : " *"}</button>`).join("")}
       </div>
-      <p class="note-bas" id="retour-scrap">« * » : source branchée mais parseur à fiabiliser (envoyer une page exemple).</p>
-    </form>` : "";
+      <p class="note-bas" id="retour-scrap">« * » : source branchée mais parseur à fiabiliser. La valeur est classée automatiquement dans l'onglet Actions / ETF / OPCVM selon son type.</p>
+    </form>`;
 
   const toggleSeed = aDuSeed ? `<button class="secondaire" id="toggle-seed">${
     masquerSeed ? "Afficher les données de démonstration" : "Masquer les données de démonstration (seed)"}</button>` : "";
 
   contenu.innerHTML = `
     <h1>${titre}</h1>
-    <p class="sous-titre">${actifs.length} valeur(s). Cliquer sur un en-tête de colonne pour trier. ${toggleSeed}</p>
+    <p class="sous-titre">${actifs.length} valeur(s). Cliquer sur un en-tête pour trier ; 🗑 pour retirer une ligne. ${toggleSeed}</p>
     ${barreRecherche}
-    <div class="carte"><div class="table-scroll"><table id="table-actifs">
+    <div class="carte"><div class="table-scroll defilable"><table class="valeurs" style="--entete:${entete}">
       <thead><tr>${COLONNES_ACTIFS.map((c) => `<th class="triable ${c.num ? "num" : ""}"
         data-cle="${c.cle}">${c.label}${triActifs.cle === c.cle ? (triActifs.sens < 0 ? " ▾" : " ▴") : ""}</th>`).join("")}
         <th></th></tr></thead>
@@ -178,17 +208,24 @@ async function vueActifs(type, titre) {
     const liste = masquerSeed ? actifs.filter((a) => a.source !== "seed") : actifs;
     document.getElementById("corps-actifs").innerHTML = trierActifs(liste).map((a) => `<tr>
       ${COLONNES_ACTIFS.map((c) => `<td class="${c.num ? "num" : ""}">${c.cell(a)}</td>`).join("")}
-      <td><button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button></td>
-    </tr>`).join("");
+      <td style="white-space:nowrap">
+        <button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button>
+        <button class="btn-suppr" data-suppr="${a.isin}" data-nom="${echap(a.nom)}" title="Retirer du référentiel">🗑</button>
+      </td></tr>`).join("");
     document.querySelectorAll("[data-watch]").forEach((b) =>
       b.addEventListener("click", async () => {
         await api(`/api/watchlist/${b.dataset.watch}`, { method: "POST" });
         b.textContent = "★";
       }));
+    document.querySelectorAll("[data-suppr]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        if (!confirm(`Retirer ${b.dataset.nom} (${b.dataset.suppr}) du référentiel ?`)) return;
+        await api(`/api/actifs/${b.dataset.suppr}`, { method: "DELETE" });
+        vueActifs(type, titre);
+      }));
   }
   dessinerLignes();
 
-  // Tri au clic sur les en-têtes.
   document.querySelectorAll("th.triable").forEach((th) =>
     th.addEventListener("click", () => {
       const cle = th.dataset.cle;
@@ -204,33 +241,34 @@ async function vueActifs(type, titre) {
     });
   }
 
-  const form = document.getElementById("form-scrap");
-  if (form) {
-    form.querySelectorAll("[data-source]").forEach((bouton) =>
-      bouton.addEventListener("click", async () => {
-        const requete = document.getElementById("scrap-requete").value.trim();
-        const retour = document.getElementById("retour-scrap");
-        if (!requete) { retour.textContent = "Saisir un nom, un ISIN ou un code."; return; }
-        retour.textContent = `Recherche sur ${bouton.textContent.trim()}…`;
-        try {
-          const r = await api(`/api/import/web/${bouton.dataset.source}/${encodeURIComponent(requete)}`,
-                              { method: "POST" });
-          const d = r.donnees_extraites || {};
-          const extra = [
-            d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
-            d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
-            d.consensus_bourso != null ? `consensus ${fmt(d.consensus_bourso, 2)}` : null,
-            d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
-          ].filter(Boolean).join(" · ");
-          retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
-            + `${echap(r.nom)} (${r.isin}) — cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`
-            + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "");
-          setTimeout(() => vueActifs(type, titre), 1200);
-        } catch (err) {
-          retour.innerHTML = `<span class="baisse">Échec (${echap(bouton.textContent.trim())})</span> — ${echap(err.message)}`;
-        }
-      }));
-  }
+  document.querySelectorAll("#form-scrap [data-source]").forEach((bouton) =>
+    bouton.addEventListener("click", async () => {
+      const requete = document.getElementById("scrap-requete").value.trim();
+      const retour = document.getElementById("retour-scrap");
+      if (!requete) { retour.textContent = "Saisir un nom, un ISIN ou un code."; return; }
+      retour.textContent = `Recherche sur ${bouton.textContent.trim()}…`;
+      try {
+        const r = await api(`/api/recherche/${bouton.dataset.source}/${encodeURIComponent(requete)}`,
+                            { method: "POST" });
+        const d = r.donnees_extraites || {};
+        const extra = [
+          d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
+          d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
+          d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
+        ].filter(Boolean).join(" · ");
+        const alerte = r.eligible_pea === false
+          ? `<br><span class="baisse">⚠ ${echap(r.avertissement || "Éligibilité PEA non confirmée")}</span>` : "";
+        const autreOnglet = r.type !== type
+          ? `<br><span class="hausse">Type ${r.type} → classé dans l'onglet ${echap(r.onglet)}.</span> `
+            + `<a href="#${r.onglet}">y aller</a>` : "";
+        retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
+          + `${echap(r.nom)} (${r.isin}) — ${r.type}, cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`
+          + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "") + alerte + autreOnglet;
+        if (r.type === type) setTimeout(() => vueActifs(type, titre), 1400);
+      } catch (err) {
+        retour.innerHTML = `<span class="baisse">Échec (${echap(bouton.textContent.trim())})</span> — ${echap(err.message)}`;
+      }
+    }));
 }
 
 async function vueAllocation() {
@@ -495,10 +533,17 @@ async function vueSources() {
       b.disabled = true;
       try {
         const r = await api(`/api/sources/${b.dataset.tester}/tester`, { method: "POST" });
-        cible.innerHTML = r.ok
-          ? `<span class="hausse">OK</span> — ${r.points_historique ?? 0} point(s) d'historique`
-            + (r.cotation?.cours ? `, cours ${r.cotation.cours}` : "")
-          : `<span class="baisse">Échec</span> — ${echap(r.erreur ?? r.info ?? "")}`;
+        if (r.exemple_json !== undefined) {
+          // Yahoo : afficher un extrait JSON de la page exemple.
+          cible.innerHTML = `<span class="hausse">OK</span> — exemple JSON `
+            + `(<a href="${echap(r.url)}" target="_blank" rel="noopener">page</a>) :`
+            + `<pre style="white-space:pre-wrap;font-size:11px;margin:4px 0">${echap(JSON.stringify(r.exemple_json, null, 2))}</pre>`;
+        } else if (r.ok) {
+          cible.innerHTML = `<span class="hausse">OK</span> — ${r.points_historique ?? 0} point(s) d'historique`
+            + (r.cotation?.cours ? `, cours ${r.cotation.cours}` : "");
+        } else {
+          cible.innerHTML = `<span class="baisse">Échec</span> — ${echap(r.erreur ?? r.info ?? "")}`;
+        }
       } catch (err) {
         cible.innerHTML = `<span class="baisse">Erreur</span> — ${echap(err.message)}`;
       }
@@ -563,7 +608,21 @@ async function vueParametres() {
       </div>
       <p class="note-bas" id="retour-poids">Somme actuelle :
         ${criteres.reduce((somme, [, p]) => somme + p, 0)}</p>
-    </form>`;
+    </form>
+    <h2>Apparence des tableaux &amp; sources</h2>
+    <div class="panneau" id="panneau-apparence">
+      <div class="champs">
+        <label class="champ">Couleur en-tête Actions
+          <input type="color" data-couleur="couleur_actions" value="${profil.couleur_actions}"></label>
+        <label class="champ">Couleur en-tête ETF
+          <input type="color" data-couleur="couleur_etf" value="${profil.couleur_etf}"></label>
+        <label class="champ">Couleur en-tête OPCVM
+          <input type="color" data-couleur="couleur_opcvm" value="${profil.couleur_opcvm}"></label>
+      </div>
+      <label class="champ" style="display:block;margin-top:12px">URL exemple pour le test de la source Yahoo (JSON)
+        <input type="text" id="yahoo-url" value="${echap(profil.yahoo_exemple_url)}" style="width:100%"></label>
+      <p class="note-bas" id="retour-apparence">Les couleurs s'appliquent à l'en-tête figé de chaque tableau de valeurs.</p>
+    </div>`;
   document.getElementById("form-poids").addEventListener("submit", async (e) => {
     e.preventDefault();
     const poids = Object.fromEntries(
@@ -598,6 +657,18 @@ async function vueParametres() {
     }));
   document.getElementById("profil-horizon").addEventListener("change", async (e) => {
     await enregistrerProfil({ horizon_annees: Number(e.target.value) });
+  });
+
+  // Apparence : couleurs des en-têtes + URL exemple Yahoo.
+  const retourApp = document.getElementById("retour-apparence");
+  document.querySelectorAll("#panneau-apparence [data-couleur]").forEach((inp) =>
+    inp.addEventListener("change", async () => {
+      await enregistrerProfil({ [inp.dataset.couleur]: inp.value });
+      retourApp.textContent = "Couleur enregistrée ✓";
+    }));
+  document.getElementById("yahoo-url").addEventListener("change", async (e) => {
+    await enregistrerProfil({ yahoo_exemple_url: e.target.value.trim() });
+    retourApp.textContent = "URL Yahoo enregistrée ✓";
   });
 }
 

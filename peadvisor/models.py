@@ -52,6 +52,24 @@ class Actif(Base):
     variation_pct: Mapped[float | None] = mapped_column(Float)    # variation du jour, en %
     volume: Mapped[float | None] = mapped_column(Float)           # volume échangé du jour
     per: Mapped[float | None] = mapped_column(Float)
+
+    # Fondamentaux et technique étendus (scraping Boursorama)
+    ouverture: Mapped[float | None] = mapped_column(Float)
+    plus_haut: Mapped[float | None] = mapped_column(Float)
+    plus_bas: Mapped[float | None] = mapped_column(Float)
+    cloture_veille: Mapped[float | None] = mapped_column(Float)
+    haut_52s: Mapped[float | None] = mapped_column(Float)
+    bas_52s: Mapped[float | None] = mapped_column(Float)
+    quantite_echangee: Mapped[float | None] = mapped_column(Float)
+    nb_titres: Mapped[float | None] = mapped_column(Float)
+    bna: Mapped[float | None] = mapped_column(Float)
+    dividende: Mapped[float | None] = mapped_column(Float)
+    taux_distribution: Mapped[float | None] = mapped_column(Float)
+    dette_nette: Mapped[float | None] = mapped_column(Float)      # M€
+    ca: Mapped[float | None] = mapped_column(Float)              # M€
+    nb_analystes: Mapped[float | None] = mapped_column(Float)
+    date_cotation: Mapped[str | None] = mapped_column(String(20))
+    heure_cotation: Mapped[str | None] = mapped_column(String(20))
     croissance: Mapped[float | None] = mapped_column(Float)       # en %
     volatilite: Mapped[float | None] = mapped_column(Float)       # annualisée, en %
     niveau_risque: Mapped[int | None] = mapped_column(Integer)    # 1 à 7 (SRI)
