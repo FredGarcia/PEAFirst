@@ -20,7 +20,9 @@ def test_profil_par_defaut(config_isolee):
     for cle, val in {"objectif": "equilibre", "niveau_risque": 4,
                      "horizon_annees": 10, "algorithme_decision": "topsis"}.items():
         assert profil[cle] == val
-    assert "couleur_actions" in profil and "yahoo_exemple_url" in profil
+    assert "couleur_actions" in profil and "largeur_barre" in profil
+    assert "yahoo" in profil["urls_exemple"]        # URL exemple par source
+    assert profil["colonnes_actions"] == []          # jeu par défaut du front
 
 
 def test_modification_et_persistance(config_isolee):

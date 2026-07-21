@@ -78,11 +78,14 @@ def lister_sources():
     from peadvisor.sources.http import SourceHTTPBase
 
     settings = charger_settings()
+    urls_exemple = charger_profil().get("urls_exemple", {})
     sources = []
     for nom, classe in REGISTRE.items():
-        # Yahoo n'est pas une source HTTP générique mais dispose d'un test dédié.
+        # Une source est testable si elle expose une page exemple (URL dans les
+        # paramètres) ou si c'est une source HTTP générique avec test dédié.
         info = {"nom": nom, "necessite_cle": False, "cle_configuree": None,
-                "testable": issubclass(classe, SourceHTTPBase) or nom == "yahoo"}
+                "testable": nom in urls_exemple or issubclass(classe, SourceHTTPBase),
+                "url_exemple": urls_exemple.get(nom)}
         if issubclass(classe, SourceHTTPBase):
             instance = classe()
             info["necessite_cle"] = instance.necessite_cle
@@ -106,35 +109,45 @@ def resoudre_figi(isin: str, place: str = "GR"):
 
 @router.post("/sources/{nom}/tester")
 def tester_source(nom: str):
-    """Teste une source sur un titre : présence de la clé, appel réel,
-    nombre de points d'historique reçus."""
+    """Teste une source : récupère la page exemple (URL paramétrable) et renvoie
+    un extrait en JSON ; en cas d'échec, la cause en texte. À défaut d'URL
+    exemple, replie sur le test HTTP dédié (présence de clé, appel réel)."""
     from peadvisor.sources.http import SourceHTTPBase
 
     if nom not in REGISTRE:
         raise HTTPException(404, f"Source inconnue : {nom}. Disponibles : {list(REGISTRE)}")
-    if nom == "yahoo":
-        return _tester_yahoo()
+    if charger_profil().get("urls_exemple", {}).get(nom):
+        return _tester_exemple(nom)
     classe = REGISTRE[nom]
     if not issubclass(classe, SourceHTTPBase):
-        return {"ok": True, "info": f"La source '{nom}' ne se teste pas par requête HTTP "
-                                    "(locale ou bibliothèque dédiée)."}
+        return {"ok": False, "erreur": f"Aucune URL exemple définie pour « {nom} » "
+                                       "(onglet Paramètres)."}
     return classe().tester()
 
 
-def _tester_yahoo() -> dict:
-    """Teste Yahoo en récupérant la page exemple (URL paramétrable) et en
-    renvoyant un extrait JSON ; en cas d'échec, la cause en texte."""
+def _tester_exemple(nom: str) -> dict:
+    """Teste une source en récupérant sa page exemple (URL paramétrable) et en
+    renvoyant un extrait JSON ; sinon un extrait texte (HTML/CSV) ; en cas
+    d'échec, la cause en texte."""
     import requests
 
-    url = charger_profil().get("yahoo_exemple_url", "")
+    url = charger_profil().get("urls_exemple", {}).get(nom, "")
     if not url:
-        return {"ok": False, "erreur": "Aucune URL exemple Yahoo définie (onglet Paramètres)."}
+        return {"ok": False, "erreur": f"Aucune URL exemple définie pour « {nom} » "
+                                       "(onglet Paramètres)."}
     try:
         rep = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (compatible; PEAdvisor/1.0)"},
                            timeout=20)
         rep.raise_for_status()
+    except Exception as exc:
+        return {"ok": False, "url": url, "erreur": f"{type(exc).__name__} : {exc}"}
+
+    # Réponse JSON → extrait résumé (métadonnées Yahoo si présentes, sinon brut).
+    try:
         data = rep.json()
-        # Extrait résumé : métadonnées de la série de cours Yahoo si présentes.
+    except ValueError:
+        data = None
+    if data is not None:
         try:
             meta = data["chart"]["result"][0]["meta"]
             extrait = {k: meta[k] for k in ("symbol", "currency", "exchangeName",
@@ -142,8 +155,11 @@ def _tester_yahoo() -> dict:
         except (KeyError, IndexError, TypeError):
             extrait = data
         return {"ok": True, "url": url, "exemple_json": extrait}
-    except Exception as exc:
-        return {"ok": False, "url": url, "erreur": f"{type(exc).__name__} : {exc}"}
+
+    # Réponse non-JSON (HTML, CSV…) → extrait texte tronqué.
+    texte = rep.text.strip()
+    return {"ok": True, "url": url,
+            "exemple_texte": texte[:2000] + ("…" if len(texte) > 2000 else "")}
 
 
 @router.get("/parametres/profil")

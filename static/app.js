@@ -2,13 +2,24 @@
 
 const contenu = document.getElementById("contenu");
 
-// Barre latérale redimensionnable (largeur persistée dans localStorage).
+// Barre latérale : largeur ajustable soit par glisser (double flèche), soit par
+// le paramètre « Largeur de la barre » (onglet Paramètres). Persistée en
+// localStorage (immédiat) et dans le profil (partagé entre postes).
+function appliquerLargeurBarre(px) {
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar || !px) return;
+  const largeur = Math.min(420, Math.max(140, Number(px)));
+  sidebar.style.width = largeur + "px";
+  localStorage.setItem("peadvisor-sidebar", largeur);
+}
+
 (function initRedimensionnement() {
   const sidebar = document.querySelector(".sidebar");
   const poignee = document.getElementById("sidebar-resize");
-  if (!sidebar || !poignee) return;
+  if (!sidebar) return;
   const sauvegardee = localStorage.getItem("peadvisor-sidebar");
   if (sauvegardee) sidebar.style.width = sauvegardee + "px";
+  if (!poignee) return;
   let actif = false;
   poignee.addEventListener("mousedown", (e) => { actif = true; e.preventDefault();
     document.body.style.userSelect = "none"; });
@@ -21,7 +32,13 @@ const contenu = document.getElementById("contenu");
     if (!actif) return;
     actif = false;
     document.body.style.userSelect = "";
-    localStorage.setItem("peadvisor-sidebar", parseInt(sidebar.style.width, 10));
+    const largeur = parseInt(sidebar.style.width, 10);
+    localStorage.setItem("peadvisor-sidebar", largeur);
+    // Persistance dans le profil (sans bloquer l'UI).
+    fetch("/api/parametres/profil", {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ largeur_barre: largeur }),
+    }).catch(() => {});
   });
 })();
 
@@ -123,39 +140,90 @@ const volumeCourt = (v) => v == null ? "—"
 const triActifs = { cle: "score_global", sens: -1 };
 let masquerSeed = false;
 
-// Colonnes du tableau : clé de tri, accès à la valeur, rendu de cellule.
-const COLONNES_ACTIFS = [
-  { cle: "nom", label: "Nom", num: false, val: (a) => a.nom || "",
+const txtCell = (s) => echap(s ?? "—");
+
+// Catalogue complet des colonnes, aligné sur CHAMPS_FICHE du scraper (même ordre
+// et mêmes clés) puis indicateurs calculés. Chaque entrée : libellé, tri, accès
+// à la valeur (val) et rendu de cellule (cell).
+const CATALOGUE_COLONNES = {
+  nom: { label: "Nom", num: false, val: (a) => a.nom || "",
     cell: (a) => `<span class="pastille ${a.type}"></span>${echap(a.nom)}` },
-  { cle: "isin", label: "ISIN", num: false, val: (a) => a.isin,
-    cell: (a) => `<span class="muted">${a.isin}</span>` },
-  { cle: "secteur", label: "Secteur", num: false, val: (a) => a.secteur || "",
-    cell: (a) => echap(a.secteur ?? "—") },
-  { cle: "cours", label: "Cours", num: true, val: (a) => a.cours, cell: (a) => fmt(a.cours, 2) },
-  { cle: "variation_pct", label: "Var. %", num: true, val: (a) => a.variation_pct,
+  isin: { label: "ISIN", num: false, val: (a) => a.isin, cell: (a) => `<span class="muted">${a.isin}</span>` },
+  secteur: { label: "Secteur", num: false, val: (a) => a.secteur || "", cell: (a) => txtCell(a.secteur) },
+  cours: { label: "Cours", num: true, val: (a) => a.cours, cell: (a) => fmt(a.cours, 2) },
+  devise: { label: "Devise", num: false, val: (a) => a.devise || "", cell: (a) => txtCell(a.devise) },
+  date_cotation: { label: "Date", num: false, val: (a) => a.date_cotation || "", cell: (a) => txtCell(a.date_cotation) },
+  heure_cotation: { label: "Heure", num: false, val: (a) => a.heure_cotation || "", cell: (a) => txtCell(a.heure_cotation) },
+  variation_pct: { label: "Var. %", num: true, val: (a) => a.variation_pct,
     cell: (a) => `<span class="${a.variation_pct > 0 ? "hausse" : a.variation_pct < 0 ? "baisse" : ""}">${fmt(a.variation_pct, 2)}</span>` },
-  { cle: "rendement", label: "Rdt %", num: true, val: (a) => a.rendement, cell: (a) => fmt(a.rendement, 1) },
-  { cle: "per", label: "PER", num: true, val: (a) => a.per, cell: (a) => fmt(a.per, 1) },
-  { cle: "bna", label: "BNA", num: true, val: (a) => a.bna, cell: (a) => fmt(a.bna, 2) },
-  { cle: "dividende", label: "Div.", num: true, val: (a) => a.dividende, cell: (a) => fmt(a.dividende, 2) },
-  { cle: "potentiel", label: "Potentiel %", num: true, val: (a) => a.potentiel,
-    cell: (a) => `<span class="${a.potentiel > 0 ? "hausse" : "baisse"}">${fmt(a.potentiel, 1)}</span>` },
-  { cle: "volume", label: "Volume", num: true, val: (a) => a.volume, cell: (a) => volumeCourt(a.volume) },
-  { cle: "volatilite", label: "Vol. %", num: true, val: (a) => a.indicateurs_quant?.volatilite_pct,
-    cell: (a) => fmt(a.indicateurs_quant?.volatilite_pct, 1) },
-  { cle: "sharpe", label: "Sharpe", num: true, val: (a) => a.indicateurs_quant?.sharpe,
-    cell: (a) => fmt(a.indicateurs_quant?.sharpe, 2) },
-  { cle: "score_esg", label: "ESG", num: true, val: (a) => a.score_esg, cell: (a) => fmt(a.score_esg, 0) },
-  { cle: "niveau_risque", label: "Risque", num: true, val: (a) => a.niveau_risque,
-    cell: (a) => `${a.niveau_risque ?? "—"}/7` },
-  { cle: "score_global", label: "Score", num: true, val: (a) => a.score_global,
+  ouverture: { label: "Ouv.", num: true, val: (a) => a.ouverture, cell: (a) => fmt(a.ouverture, 2) },
+  plus_haut: { label: "+ Haut", num: true, val: (a) => a.plus_haut, cell: (a) => fmt(a.plus_haut, 2) },
+  plus_bas: { label: "+ Bas", num: true, val: (a) => a.plus_bas, cell: (a) => fmt(a.plus_bas, 2) },
+  cloture_veille: { label: "Clôt. veille", num: true, val: (a) => a.cloture_veille, cell: (a) => fmt(a.cloture_veille, 2) },
+  haut_52s: { label: "52s + Haut", num: true, val: (a) => a.haut_52s, cell: (a) => fmt(a.haut_52s, 2) },
+  bas_52s: { label: "52s + Bas", num: true, val: (a) => a.bas_52s, cell: (a) => fmt(a.bas_52s, 2) },
+  volume: { label: "Volume", num: true, val: (a) => a.volume, cell: (a) => volumeCourt(a.volume) },
+  quantite_echangee: { label: "Qté échangée", num: true, val: (a) => a.quantite_echangee, cell: (a) => volumeCourt(a.quantite_echangee) },
+  capitalisation: { label: "Capi. (M€)", num: true, val: (a) => a.capitalisation, cell: (a) => fmt(a.capitalisation, 0) },
+  nb_titres: { label: "Nb titres", num: true, val: (a) => a.nb_titres, cell: (a) => volumeCourt(a.nb_titres) },
+  per: { label: "PER", num: true, val: (a) => a.per, cell: (a) => fmt(a.per, 1) },
+  rendement: { label: "Rdt %", num: true, val: (a) => a.rendement, cell: (a) => fmt(a.rendement, 1) },
+  bna: { label: "BNA", num: true, val: (a) => a.bna, cell: (a) => fmt(a.bna, 2) },
+  dividende: { label: "Div.", num: true, val: (a) => a.dividende, cell: (a) => fmt(a.dividende, 2) },
+  taux_distribution: { label: "Taux distrib. %", num: true, val: (a) => a.taux_distribution, cell: (a) => fmt(a.taux_distribution, 1) },
+  dette_nette: { label: "Dette nette (M€)", num: true, val: (a) => a.dette_nette, cell: (a) => fmt(a.dette_nette, 0) },
+  ca: { label: "CA (M€)", num: true, val: (a) => a.ca, cell: (a) => fmt(a.ca, 0) },
+  objectif_cours: { label: "Objectif", num: true, val: (a) => a.objectif_cours, cell: (a) => fmt(a.objectif_cours, 2) },
+  potentiel: { label: "Potentiel %", num: true, val: (a) => a.potentiel,
+    cell: (a) => `<span class="${a.potentiel > 0 ? "hausse" : a.potentiel < 0 ? "baisse" : ""}">${fmt(a.potentiel, 1)}</span>` },
+  consensus: { label: "Consensus", num: true, val: (a) => a.consensus, cell: (a) => fmt(a.consensus, 2) },
+  nb_analystes: { label: "Analystes", num: true, val: (a) => a.nb_analystes, cell: (a) => fmt(a.nb_analystes, 0) },
+  score_esg: { label: "ESG", num: true, val: (a) => a.score_esg, cell: (a) => fmt(a.score_esg, 0) },
+  risque_esg: { label: "Risque ESG", num: true, val: (a) => a.risque_esg, cell: (a) => fmt(a.risque_esg, 1) },
+  eligible_pea: { label: "PEA", num: false, val: (a) => (a.eligible_pea ? 1 : 0),
+    cell: (a) => (a.eligible_pea ? '<span class="hausse">✓</span>' : '<span class="baisse">✗</span>') },
+  // Indicateurs calculés (hors CHAMPS_FICHE).
+  niveau_risque: { label: "Risque", num: true, val: (a) => a.niveau_risque, cell: (a) => `${a.niveau_risque ?? "—"}/7` },
+  volatilite: { label: "Vol. %", num: true, val: (a) => a.indicateurs_quant?.volatilite_pct ?? a.volatilite,
+    cell: (a) => fmt(a.indicateurs_quant?.volatilite_pct ?? a.volatilite, 1) },
+  sharpe: { label: "Sharpe", num: true, val: (a) => a.indicateurs_quant?.sharpe, cell: (a) => fmt(a.indicateurs_quant?.sharpe, 2) },
+  score_global: { label: "Score", num: true, val: (a) => a.score_global,
     cell: (a) => `<span class="score-badge">${fmt(a.score_global, 0)}</span>` },
-  { cle: "source", label: "Source", num: false, val: (a) => a.source || "",
-    cell: (a) => `<span class="muted">${echap(a.source ?? "—")}</span>` },
+  source: { label: "Source", num: false, val: (a) => a.source || "", cell: (a) => `<span class="muted">${txtCell(a.source)}</span>` },
+};
+
+// Ordre exact de CHAMPS_FICHE (scraper Boursorama) + préfixes → clés du catalogue.
+const CHAMPS_FICHE_CLES = [
+  "nom", "isin", "secteur", "cours", "devise", "date_cotation", "heure_cotation",
+  "variation_pct", "ouverture", "plus_haut", "plus_bas", "cloture_veille",
+  "haut_52s", "bas_52s", "volume", "quantite_echangee", "capitalisation",
+  "nb_titres", "per", "rendement", "bna", "dividende", "taux_distribution",
+  "dette_nette", "ca", "objectif_cours", "potentiel", "consensus", "nb_analystes",
+  "score_esg", "risque_esg", "eligible_pea", "source",
 ];
+// Toutes les clés proposables dans les Paramètres (CHAMPS_FICHE + calculées).
+const ORDRE_COLONNES = [...CHAMPS_FICHE_CLES.slice(0, -1),
+  "niveau_risque", "volatilite", "sharpe", "score_global", "source"];
+
+// Jeu de colonnes par défaut de chaque onglet (« ses propres entêtes »).
+// Actions : aligné sur CHAMPS_FICHE, avec le score global inséré avant la source.
+const COLONNES_DEFAUT = {
+  ACTION: [...CHAMPS_FICHE_CLES.slice(0, -1), "score_global", "source"],
+  ETF: ["nom", "isin", "secteur", "cours", "variation_pct", "rendement", "volume",
+        "score_esg", "niveau_risque", "score_global", "source"],
+  OPCVM: ["nom", "isin", "secteur", "cours", "variation_pct", "rendement",
+          "score_esg", "niveau_risque", "score_global", "source"],
+};
+
+function colonnesVisibles(type, profil) {
+  const perso = profil["colonnes_" + type.toLowerCase()];
+  const cles = (perso && perso.length ? perso : COLONNES_DEFAUT[type])
+    .filter((c) => CATALOGUE_COLONNES[c]);
+  return cles.map((c) => ({ cle: c, ...CATALOGUE_COLONNES[c] }));
+}
 
 function trierActifs(liste) {
-  const col = COLONNES_ACTIFS.find((c) => c.cle === triActifs.cle) || COLONNES_ACTIFS[0];
+  const col = CATALOGUE_COLONNES[triActifs.cle] || CATALOGUE_COLONNES.nom;
   return [...liste].sort((a, b) => {
     const x = col.val(a), y = col.val(b);
     const vide = (v) => v == null || v === "";
@@ -177,6 +245,11 @@ async function vueActifs(type, titre) {
   ]);
   const aDuSeed = actifs.some((a) => a.source === "seed");
   const entete = profil[COULEUR_ONGLET[type]] || "var(--serie-1)";
+  const colonnes = colonnesVisibles(type, profil);
+  // Le tri courant doit porter sur une colonne visible.
+  if (!colonnes.some((c) => c.cle === triActifs.cle)) {
+    triActifs.cle = colonnes.some((c) => c.cle === "score_global") ? "score_global" : colonnes[0].cle;
+  }
 
   // Barre de recherche : service partagé, présent sur les trois onglets de valeurs.
   const barreRecherche = `
@@ -199,7 +272,7 @@ async function vueActifs(type, titre) {
     <p class="sous-titre">${actifs.length} valeur(s). Cliquer sur un en-tête pour trier ; 🗑 pour retirer une ligne. ${toggleSeed}</p>
     ${barreRecherche}
     <div class="carte"><div class="table-scroll defilable"><table class="valeurs" style="--entete:${entete}">
-      <thead><tr>${COLONNES_ACTIFS.map((c) => `<th class="triable ${c.num ? "num" : ""}"
+      <thead><tr>${colonnes.map((c) => `<th class="triable ${c.num ? "num" : ""}"
         data-cle="${c.cle}">${c.label}${triActifs.cle === c.cle ? (triActifs.sens < 0 ? " ▾" : " ▴") : ""}</th>`).join("")}
         <th></th></tr></thead>
       <tbody id="corps-actifs"></tbody></table></div></div>`;
@@ -207,7 +280,7 @@ async function vueActifs(type, titre) {
   function dessinerLignes() {
     const liste = masquerSeed ? actifs.filter((a) => a.source !== "seed") : actifs;
     document.getElementById("corps-actifs").innerHTML = trierActifs(liste).map((a) => `<tr>
-      ${COLONNES_ACTIFS.map((c) => `<td class="${c.num ? "num" : ""}">${c.cell(a)}</td>`).join("")}
+      ${colonnes.map((c) => `<td class="${c.num ? "num" : ""}">${c.cell(a)}</td>`).join("")}
       <td style="white-space:nowrap">
         <button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button>
         <button class="btn-suppr" data-suppr="${a.isin}" data-nom="${echap(a.nom)}" title="Retirer du référentiel">🗑</button>
@@ -230,7 +303,7 @@ async function vueActifs(type, titre) {
     th.addEventListener("click", () => {
       const cle = th.dataset.cle;
       if (triActifs.cle === cle) triActifs.sens *= -1;
-      else { triActifs.cle = cle; triActifs.sens = COLONNES_ACTIFS.find((c) => c.cle === cle).num ? -1 : 1; }
+      else { triActifs.cle = cle; triActifs.sens = CATALOGUE_COLONNES[cle].num ? -1 : 1; }
       vueActifs(type, titre);
     }));
 
@@ -522,9 +595,11 @@ async function vueSources() {
       </tr>`).join("")}</tbody></table></div>
       <p class="note-bas">Clés API : copier <code>config/cles_api.exemple.yaml</code> vers
       <code>config/cles_api.yaml</code> (jamais versionné) ou définir les variables
-      d'environnement, qui priment. Le test interroge un titre (TotalEnergies) et
-      indique le nombre de points d'historique reçus. Détails et comparatif des
-      sources : <code>docs/09-sources-donnees.md</code>.</p>
+      d'environnement, qui priment. Le test récupère la page exemple de la source
+      (URL paramétrable dans l'onglet Paramètres) et en affiche un extrait JSON ;
+      à défaut d'URL, il interroge un titre via l'API. En cas d'échec, la cause
+      est affichée en texte. Détails et comparatif des sources :
+      <code>docs/09-sources-donnees.md</code>.</p>
     </div>`;
   contenu.querySelectorAll("[data-tester]").forEach((b) =>
     b.addEventListener("click", async () => {
@@ -533,16 +608,21 @@ async function vueSources() {
       b.disabled = true;
       try {
         const r = await api(`/api/sources/${b.dataset.tester}/tester`, { method: "POST" });
+        const lienPage = r.url ? ` (<a href="${echap(r.url)}" target="_blank" rel="noopener">page</a>)` : "";
         if (r.exemple_json !== undefined) {
-          // Yahoo : afficher un extrait JSON de la page exemple.
-          cible.innerHTML = `<span class="hausse">OK</span> — exemple JSON `
-            + `(<a href="${echap(r.url)}" target="_blank" rel="noopener">page</a>) :`
+          // Succès : extrait JSON de la page exemple référencée dans les Paramètres.
+          cible.innerHTML = `<span class="hausse">OK</span> — exemple JSON${lienPage} :`
             + `<pre style="white-space:pre-wrap;font-size:11px;margin:4px 0">${echap(JSON.stringify(r.exemple_json, null, 2))}</pre>`;
+        } else if (r.exemple_texte !== undefined) {
+          // Succès mais réponse non-JSON (HTML/CSV) : extrait texte.
+          cible.innerHTML = `<span class="hausse">OK</span> — extrait texte${lienPage} :`
+            + `<pre style="white-space:pre-wrap;font-size:11px;margin:4px 0">${echap(r.exemple_texte)}</pre>`;
         } else if (r.ok) {
           cible.innerHTML = `<span class="hausse">OK</span> — ${r.points_historique ?? 0} point(s) d'historique`
             + (r.cotation?.cours ? `, cours ${r.cotation.cours}` : "");
         } else {
-          cible.innerHTML = `<span class="baisse">Échec</span> — ${echap(r.erreur ?? r.info ?? "")}`;
+          // Échec : cause affichée en texte.
+          cible.innerHTML = `<span class="baisse">Échec</span>${lienPage} — ${echap(r.erreur ?? r.info ?? "")}`;
         }
       } catch (err) {
         cible.innerHTML = `<span class="baisse">Erreur</span> — ${echap(err.message)}`;
@@ -582,6 +662,18 @@ async function vueParametres() {
   ]);
   const criteres = Object.entries(cfg.ponderations);
   const risques = Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [n, n]));
+  const TYPES_TABLEAU = [["ACTION", "Actions"], ["ETF", "ETF"], ["OPCVM", "OPCVM"]];
+  const casesColonnes = (type) => {
+    const cle = "colonnes_" + type.toLowerCase();
+    const actives = (profil[cle] && profil[cle].length ? profil[cle] : COLONNES_DEFAUT[type]);
+    return ORDRE_COLONNES.map((c) => `<label class="case-colonne">
+      <input type="checkbox" data-colonne="${type.toLowerCase()}" value="${c}"
+        ${actives.includes(c) ? "checked" : ""}> ${echap(CATALOGUE_COLONNES[c].label)}</label>`).join("");
+  };
+  const urlsExemple = profil.urls_exemple || {};
+  const champsUrls = Object.keys(urlsExemple).sort().map((nom) =>
+    `<label class="champ" style="display:block;margin-bottom:6px">${echap(nom)}
+      <input type="text" data-url-source="${echap(nom)}" value="${echap(urlsExemple[nom])}" style="width:100%"></label>`).join("");
   contenu.innerHTML = `
     <h1>Paramètres</h1>
     <h2>Profil investisseur</h2>
@@ -609,8 +701,10 @@ async function vueParametres() {
       <p class="note-bas" id="retour-poids">Somme actuelle :
         ${criteres.reduce((somme, [, p]) => somme + p, 0)}</p>
     </form>
-    <h2>Apparence des tableaux &amp; sources</h2>
+    <h2>Apparence &amp; disposition</h2>
     <div class="panneau" id="panneau-apparence">
+      <div class="reglage"><span class="libelle-reglage">Largeur de la barre latérale (px)</span>
+        <input type="number" id="largeur-barre" value="${profil.largeur_barre}" min="140" max="420" step="10" style="width:90px"></div>
       <div class="champs">
         <label class="champ">Couleur en-tête Actions
           <input type="color" data-couleur="couleur_actions" value="${profil.couleur_actions}"></label>
@@ -619,9 +713,22 @@ async function vueParametres() {
         <label class="champ">Couleur en-tête OPCVM
           <input type="color" data-couleur="couleur_opcvm" value="${profil.couleur_opcvm}"></label>
       </div>
-      <label class="champ" style="display:block;margin-top:12px">URL exemple pour le test de la source Yahoo (JSON)
-        <input type="text" id="yahoo-url" value="${echap(profil.yahoo_exemple_url)}" style="width:100%"></label>
-      <p class="note-bas" id="retour-apparence">Les couleurs s'appliquent à l'en-tête figé de chaque tableau de valeurs.</p>
+      <p class="note-bas" id="retour-apparence">La largeur s'applique aussi au glisser de la
+        double flèche ; les couleurs à l'en-tête figé de chaque tableau de valeurs.</p>
+    </div>
+    <h2>Colonnes — chaque tableau a ses propres entêtes</h2>
+    <div class="panneau" id="panneau-colonnes">
+      ${TYPES_TABLEAU.map(([type, lib]) => `<div class="groupe-colonnes">
+        <div class="libelle-reglage">${lib}</div>
+        <div class="cases-colonnes">${casesColonnes(type)}</div></div>`).join("")}
+      <p class="note-bas" id="retour-colonnes">Chaque onglet (Actions, ETF, OPCVM) a son propre
+        jeu de colonnes. Le tableau des Actions est aligné par défaut sur CHAMPS_FICHE et ses préfixes.</p>
+    </div>
+    <h2>Sources — URL de la page exemple (bouton « Tester »)</h2>
+    <div class="panneau" id="panneau-urls">
+      <div class="champs" style="flex-direction:column;align-items:stretch">${champsUrls}</div>
+      <p class="note-bas" id="retour-urls">Le test d'une source récupère cette page : réponse JSON
+        affichée en exemple, sinon extrait texte ; en cas d'échec, la cause en texte.</p>
     </div>`;
   document.getElementById("form-poids").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -659,17 +766,43 @@ async function vueParametres() {
     await enregistrerProfil({ horizon_annees: Number(e.target.value) });
   });
 
-  // Apparence : couleurs des en-têtes + URL exemple Yahoo.
+  // Apparence : largeur de barre + couleurs des en-têtes.
   const retourApp = document.getElementById("retour-apparence");
+  document.getElementById("largeur-barre").addEventListener("change", async (e) => {
+    const px = Number(e.target.value);
+    appliquerLargeurBarre(px);
+    await enregistrerProfil({ largeur_barre: px });
+    retourApp.textContent = "Largeur enregistrée ✓";
+  });
   document.querySelectorAll("#panneau-apparence [data-couleur]").forEach((inp) =>
     inp.addEventListener("change", async () => {
       await enregistrerProfil({ [inp.dataset.couleur]: inp.value });
       retourApp.textContent = "Couleur enregistrée ✓";
     }));
-  document.getElementById("yahoo-url").addEventListener("change", async (e) => {
-    await enregistrerProfil({ yahoo_exemple_url: e.target.value.trim() });
-    retourApp.textContent = "URL Yahoo enregistrée ✓";
-  });
+
+  // Colonnes : chaque tableau (Actions/ETF/OPCVM) a son propre jeu d'entêtes.
+  const retourCol = document.getElementById("retour-colonnes");
+  document.querySelectorAll("#panneau-colonnes [data-colonne]").forEach((inp) =>
+    inp.addEventListener("change", async () => {
+      const type = inp.dataset.colonne;
+      // Ordre = ordre du DOM (= ORDRE_COLONNES).
+      const cles = [...document.querySelectorAll(`[data-colonne="${type}"]`)]
+        .filter((c) => c.checked).map((c) => c.value);
+      await enregistrerProfil({ ["colonnes_" + type]: cles });
+      retourCol.textContent = "Colonnes enregistrées ✓";
+    }));
+
+  // URL de page exemple par source (utilisée par le bouton « Tester »).
+  const retourUrls = document.getElementById("retour-urls");
+  document.querySelectorAll("#panneau-urls [data-url-source]").forEach((inp) =>
+    inp.addEventListener("change", async () => {
+      const urls = {};
+      document.querySelectorAll("#panneau-urls [data-url-source]").forEach((i) => {
+        urls[i.dataset.urlSource] = i.value.trim();
+      });
+      await enregistrerProfil({ urls_exemple: urls });
+      retourUrls.textContent = "URL enregistrée ✓";
+    }));
 }
 
 async function vueSysteme() {
@@ -798,4 +931,8 @@ async function router() {
 }
 
 window.addEventListener("hashchange", router);
+// Largeur de barre du profil appliquée au démarrage (peut différer du localStorage).
+api("/api/parametres/profil")
+  .then((p) => { if (p.largeur_barre) appliquerLargeurBarre(p.largeur_barre); })
+  .catch(() => {});
 router();

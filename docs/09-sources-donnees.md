@@ -218,15 +218,28 @@ veille.
 **Tableaux (Actions / ETF / OPCVM, même composant)** :
 - **tri** par colonne (▴/▾) ; **suppression** d'une ligne (🗑, `DELETE
   /api/actifs/{isin}`) ; **en-tête figé** au défilement ;
+- **entêtes propres à chaque tableau** : le jeu de colonnes visibles se choisit
+  par onglet (Paramètres → « Colonnes »). Le tableau **Actions** est aligné par
+  défaut sur `CHAMPS_FICHE` (et ses préfixes) : nom, ISIN, secteur, cours,
+  devise, date/heure, variation, ouverture, +haut/+bas, clôture veille, 52 s
+  haut/bas, volume, quantité échangée, capitalisation, nombre de titres, PER,
+  rendement, BNA, dividende, taux de distribution, dette nette, CA, objectif,
+  potentiel, consensus, nombre d'analystes, ESG, risque ESG, éligibilité PEA,
+  source (+ score global). ETF / OPCVM ont un jeu par défaut plus resserré ;
 - **couleur d'en-tête paramétrable par onglet** (Paramètres → Apparence) ;
 - **données de démonstration** : bouton « Charger » sur la ligne `seed`
   (onglet Sources) et bascule « Masquer / Afficher (seed) ».
 
-**Test Yahoo** — bouton « Tester » sur la ligne Yahoo : récupère la page
-exemple (URL paramétrable dans Paramètres) et affiche un **extrait JSON** ;
-en cas d'échec, la **cause en texte**.
+**Test des sources** — bouton « Tester » sur chaque ligne (onglet Sources) :
+récupère la **page exemple** de la source (URL paramétrable par source dans
+Paramètres → « Sources ») et affiche un **extrait JSON** ; si la réponse n'est
+pas du JSON (HTML, CSV), un **extrait texte** ; en cas d'échec, la **cause en
+texte**. À défaut d'URL exemple, une source HTTP est testée via son API
+(présence de clé, appel réel).
 
-**Barre latérale** redimensionnable (poignée à droite, largeur mémorisée).
+**Barre latérale** ajustable : glisser la poignée (double flèche) à droite, ou
+régler la **largeur en pixels** dans Paramètres → Apparence (persistée dans le
+profil, `largeur_barre`).
 
 ## 4. Ajouter une source
 

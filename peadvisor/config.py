@@ -44,12 +44,27 @@ PROFIL_DEFAUT: dict[str, Any] = {
     "niveau_risque": 4,
     "horizon_annees": 10,
     "algorithme_decision": "topsis",   # "weighted" | "topsis"
+    # Largeur de la barre latérale (px), paramétrable.
+    "largeur_barre": 210,
     # Couleur d'en-tête de chaque tableau de valeurs (paramétrable).
     "couleur_actions": "#2a78d6",
     "couleur_etf": "#008300",
     "couleur_opcvm": "#e87ba4",
-    # Page exemple renvoyée par le test de la source Yahoo (JSON).
-    "yahoo_exemple_url": "https://query1.finance.yahoo.com/v8/finance/chart/AI.PA?range=5d&interval=1d",
+    # Colonnes visibles par onglet (liste de clés ; vide = jeu par défaut du front).
+    "colonnes_actions": [],
+    "colonnes_etf": [],
+    "colonnes_opcvm": [],
+    # URL d'une page exemple par source, renvoyée (en JSON) par le bouton « Tester ».
+    "urls_exemple": {
+        "yahoo": "https://query1.finance.yahoo.com/v8/finance/chart/AI.PA?range=5d&interval=1d",
+        "stooq": "https://stooq.com/q/d/l/?s=tte.fr&i=d",
+        "alphavantage": "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=TTE.PAR&apikey=demo",
+        "twelvedata": "https://api.twelvedata.com/quote?symbol=TTE&mic_code=XPAR&apikey=demo",
+        "financialmodelingprep": "https://financialmodelingprep.com/api/v3/quote/TTE.PA?apikey=demo",
+        "eodhd": "https://eodhd.com/api/real-time/TTE.PA?api_token=demo&fmt=json",
+        "marketstack": "https://api.marketstack.com/v1/eod/latest?access_key=demo&symbols=TTE.XPAR",
+        "boursorama": "https://www.boursorama.com/cours/1rPAI/",
+    },
 }
 
 

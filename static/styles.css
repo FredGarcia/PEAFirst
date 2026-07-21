@@ -195,3 +195,10 @@ button.secondaire { background: var(--grid); color: var(--ink); }
 }
 .segments button:last-child { border-right: none; }
 .segments button.actif { background: var(--serie-1); color: #fff; }
+
+/* --- Sélecteur de colonnes par tableau (Paramètres) ------------------- */
+.groupe-colonnes { margin-bottom: 14px; }
+.groupe-colonnes .libelle-reglage { display: block; margin-bottom: 6px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.cases-colonnes { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.case-colonne { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.case-colonne input { padding: 0; margin: 0; width: auto; }
