@@ -25,23 +25,33 @@ def test_recherche_ventile_selon_le_type(monkeypatch, session):
     import peadvisor.sources.web as web
     from peadvisor.services.scraping import importer_valeur
 
-    # Un ETF scrapé doit être créé avec le type ETF (onglet ETF).
+    # Un ETF scrapé (non éligible PEA ici) doit être créé avec le type ETF si
+    # l'ajout est confirmé (confirmer=True).
     monkeypatch.setattr(web.SCRAPERS["boursorama"], "recuperer_custom",
                         lambda requete: parser_page(PAGE_ETF))
-    r = importer_valeur(session, "boursorama", "Lyxor CAC 40")
+    r = importer_valeur(session, "boursorama", "Lyxor CAC 40", confirmer=True)
     assert r["type"] == "ETF" and r["onglet"] == "etf"
     etf = session.query(Actif).filter(Actif.isin == "FR0007052782").one()
     assert etf.type == TypeActif.ETF
 
 
-def test_recherche_signale_non_eligibilite(monkeypatch, session):
+def test_recherche_demande_confirmation_si_non_eligible(monkeypatch, session):
     import peadvisor.sources.web as web
     from peadvisor.services.scraping import importer_valeur
 
     monkeypatch.setattr(web.SCRAPERS["boursorama"], "recuperer_custom",
                         lambda requete: parser_page(PAGE_ETF))  # eligible_pea False
+
+    # Sans confirmation : rien n'est enregistré, une confirmation est demandée.
     r = importer_valeur(session, "boursorama", "x")
-    assert r["eligible_pea"] is False and r["avertissement"]
+    assert r["confirmation_requise"] is True
+    assert r["eligible_pea"] is False and r["raison"]
+    assert session.query(Actif).filter(Actif.isin == "FR0007052782").count() == 0
+
+    # Avec confirmation : la valeur est ajoutée et signalée par un avertissement.
+    r2 = importer_valeur(session, "boursorama", "x", confirmer=True)
+    assert r2["confirmation_requise"] is False and r2["avertissement"]
+    assert session.query(Actif).filter(Actif.isin == "FR0007052782").count() == 1
 
 
 def test_suppression_actif(session):

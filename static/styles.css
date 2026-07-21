@@ -146,6 +146,44 @@ table.valeurs thead th.triable:hover { filter: brightness(1.1); }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: color-mix(in srgb, var(--serie-1) 6%, transparent); }
 
+/* Colonnes figées au défilement horizontal (Nom / ISIN / Secteur). */
+table.valeurs td.col-fixe, table.valeurs th.col-fixe {
+  position: sticky;
+  z-index: 3;
+  background: var(--surface);
+  border-right: 1px solid var(--grid);
+}
+table.valeurs thead th.col-fixe { z-index: 5; background: var(--entete, var(--surface)); }
+tr:hover td.col-fixe { background: color-mix(in srgb, var(--serie-1) 6%, var(--surface)); }
+
+/* Fenêtre modale (confirmations / erreurs). */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000; padding: 20px;
+  background: rgba(0, 0, 0, .45);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal {
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px 22px; max-width: 460px; width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .3);
+}
+.modal h3 { margin: 0 0 10px; }
+.modal-corps { font-size: 14px; margin-bottom: 16px; }
+.modal-corps ul { margin: 6px 0 0; padding-left: 18px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+.lien-source { color: var(--serie-1); text-decoration: none; }
+.lien-source:hover { text-decoration: underline; }
+
+/* Groupes de colonnes (Paramètres) : entête + boutons tout/réinit. */
+.groupe-colonnes .entete-groupe {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.actions-groupe { display: inline-flex; gap: 8px; }
+.actions-groupe button { padding: 4px 10px; font-size: 12px; }
+
 .pastille { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: baseline; }
 .pastille.ACTION { background: var(--serie-1); }
 .pastille.ETF { background: var(--serie-2); }

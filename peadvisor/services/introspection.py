@@ -31,8 +31,20 @@ from peadvisor.models import Actif, Anomalie, JournalMaj, RapportSysteme
 from peadvisor.services.decision import CRITERES
 from peadvisor.services.scoring import calculer_score_global
 
-CHAMPS_SUIVIS = ["cours", "per", "rendement", "croissance", "volatilite",
-                 "score_esg", "objectif_cours", "consensus", "capitalisation", "secteur"]
+# Liste complète des champs de données suivis pour la complétude (onglet Système).
+CHAMPS_SUIVIS = [
+    "nom", "isin", "type", "secteur", "devise", "pays", "eligible_pea",
+    "cours", "variation_pct", "ouverture", "plus_haut", "plus_bas",
+    "cloture_veille", "haut_52s", "bas_52s", "volume", "quantite_echangee",
+    "capitalisation", "nb_titres", "per", "rendement", "bna", "dividende",
+    "taux_distribution", "dette_nette", "ca", "croissance", "volatilite",
+    "niveau_risque", "score_esg", "risque_esg", "objectif_cours", "potentiel",
+    "consensus", "nb_analystes", "date_cotation", "score_global", "source",
+]
+# Sous-ensemble « cœur » : seuls ces champs déclenchent une recommandation si
+# faiblement renseignés (les fondamentaux étendus restent souvent partiels).
+CHAMPS_CRITIQUES = {"cours", "per", "rendement", "score_esg", "objectif_cours",
+                    "consensus", "capitalisation", "secteur"}
 
 # Règles de cohérence unitaires : (type, gravité, prédicat, message)
 REGLES_COHERENCE = [
@@ -207,7 +219,7 @@ def observer(session: Session) -> dict:
     for champ in CHAMPS_SUIVIS:
         renseignes = sum(1 for a in actifs if getattr(a, champ) is not None)
         completude[champ] = round(renseignes / len(actifs) * 100, 1) if actifs else 0.0
-        if actifs and completude[champ] < 60:
+        if actifs and champ in CHAMPS_CRITIQUES and completude[champ] < 60:
             recommandations.append(
                 f"Le champ « {champ} » n'est renseigné que pour {completude[champ]:.0f} % des actifs : "
                 "compléter la source de données ou en brancher une plus riche.")

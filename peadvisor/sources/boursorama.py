@@ -55,6 +55,7 @@ PREFIXES = [
     ("+ haut", "plus_haut"), ("+haut", "plus_haut"), ("plus haut", "plus_haut"),
     ("+ bas", "plus_bas"), ("+bas", "plus_bas"), ("plus bas", "plus_bas"),
     ("cloture veille", "cloture_veille"),
+    ("dernier echange", "date_cotation"),   # « 21/07/2026 15:55:06 » → date + heure
     ("dernier dividende", "dividende"),
     ("volume", "volume"),
     ("quantite", "quantite_echangee"),
@@ -63,7 +64,6 @@ PREFIXES = [
     ("rendement", "rendement"),
     ("dividende", "dividende"),
     ("secteur", "secteur"),
-    ("date ", "date_cotation"),
     ("heure", "heure_cotation"),
 ]
 
@@ -127,6 +127,31 @@ def _type_depuis_titre(html: str) -> str:
     return "ACTION"
 
 
+# Champs cherchés dans la table « chiffres clés / estimations » (hors c-list-info).
+_CHAMPS_TABLE = ("bna", "dividende", "rendement", "per", "taux_distribution",
+                 "dette_nette", "ca", "nb_titres")
+
+
+def _parser_table_cles(html: str, resultat: dict[str, Any]) -> None:
+    """Table des chiffres clés (lignes « libellé | valeur[s] »). On retient la
+    première valeur numérique de chaque ligne, sans écraser une donnée déjà
+    extraite de la fiche principale (setdefault)."""
+    for ligne in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        cellules = re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", ligne, re.S)
+        if len(cellules) < 2:
+            continue
+        champ = _champ_pour(_texte(cellules[0]))
+        if champ not in _CHAMPS_TABLE:
+            continue
+        for cellule in cellules[1:]:
+            valeur_txt = _texte(cellule)
+            v = (_valeur_avec_unite(valeur_txt) if champ in ("dette_nette", "ca")
+                 else _nombre(valeur_txt))
+            if v is not None:
+                resultat.setdefault(champ, v)
+                break
+
+
 def parser_page(html: str) -> dict[str, Any]:
     """Extrait les données d'une page « cours » Boursorama (fonction pure)."""
     resultat: dict[str, Any] = {"source": "boursorama"}
@@ -167,21 +192,32 @@ def parser_page(html: str) -> dict[str, Any]:
         valeur_txt = _texte(valeur_html)
         if champ == "secteur":
             resultat["secteur"] = valeur_txt or None
-        elif champ in ("date_cotation", "heure_cotation"):
+        elif champ == "date_cotation":
+            # « 21/07/2026 15:55:06 » → date + heure de cotation séparées.
+            if d := re.search(r"\d{2}/\d{2}/\d{4}", valeur_txt):
+                resultat["date_cotation"] = d.group()
+            if h := re.search(r"\d{1,2}:\d{2}(?::\d{2})?", valeur_txt):
+                resultat.setdefault("heure_cotation", h.group())
+        elif champ == "heure_cotation":
             resultat.setdefault(champ, valeur_txt or None)
         elif champ in ("capitalisation", "dette_nette", "ca"):
             resultat[champ] = _valeur_avec_unite(valeur_txt)
         elif (v := _nombre(valeur_txt)) is not None:
             resultat.setdefault(champ, v)
 
+    # Table « chiffres clés » (BNA, dividende, rendement, PER, CA, dette, titres…),
+    # hors c-list-info : on prend la première valeur numérique de chaque ligne.
+    _parser_table_cles(html, resultat)
+
     if "cours" not in resultat and "cloture_veille" in resultat:
         resultat["cours"] = resultat["cloture_veille"]
 
-    if m := re.search(r"Objectif de cours[^<]*<span[^>]*>\s*([\d.,]+)", html):
+    # Objectif de cours 3 mois : « 1 366,50 EUR » (espace = séparateur de milliers).
+    if m := re.search(r"Objectif de cours[^:<]*:\s*(?:<[^>]*>\s*)*([\d][\d.,  ]*?)\s*(?:EUR|€)", html):
         resultat["objectif_cours"] = _nombre(m.group(1))
-    if m := re.search(r"Potentiel\s*:?\s*<span[^>]*>\s*(-?[\d.,]+)\s*%", html):
+    if m := re.search(r"Potentiel\s*:?\s*(?:<[^>]*>\s*)*(-?[\d][\d.,  ]*?)\s*%", html):
         resultat["potentiel"] = _nombre(m.group(1))
-    if m := re.search(r"Nombre d'analystes[^<]*<span[^>]*>\s*(\d+)", html):
+    if m := re.search(r"Nombre d'analystes[^<0-9]*(\d+)", html):
         resultat["nb_analystes"] = int(m.group(1))
 
     # Risque ESG (Sustainalytics, bas = mieux) → score ESG PEAdvisor (100 − risque).

@@ -27,11 +27,15 @@ def sources_de_recherche():
 
 
 @router.post("/{source}/{requete:path}")
-def rechercher(source: str, requete: str, session: Session = Depends(get_session)):
+def rechercher(source: str, requete: str, confirmer: bool = False,
+               session: Session = Depends(get_session)):
     """Recherche et ajoute une valeur. Renvoie le type détecté (onglet cible),
-    l'éligibilité PEA et un éventuel avertissement."""
+    l'éligibilité PEA et un éventuel avertissement.
+
+    Si la valeur n'est pas éligible au PEA, l'ajout n'est pas effectué tant que
+    `confirmer=true` n'est pas transmis (l'interface affiche une confirmation)."""
     try:
-        return importer_valeur(session, source, requete)
+        return importer_valeur(session, source, requete, confirmer=confirmer)
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     except Exception as exc:

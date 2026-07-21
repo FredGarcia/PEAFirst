@@ -54,6 +54,67 @@ const euros = (v) => new Intl.NumberFormat("fr-FR", { style: "currency", currenc
 const echap = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+/* --- Fenêtre modale (confirmations, erreurs) -------------------------- */
+
+function fermerModal() {
+  const m = document.getElementById("modal-overlay");
+  if (m) m.remove();
+}
+
+function ouvrirModal(titre, corpsHTML, actions) {
+  fermerModal();
+  const ov = document.createElement("div");
+  ov.id = "modal-overlay";
+  ov.className = "modal-overlay";
+  ov.innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+    <h3>${echap(titre)}</h3>
+    <div class="modal-corps">${corpsHTML}</div>
+    <div class="modal-actions"></div></div>`;
+  const zone = ov.querySelector(".modal-actions");
+  (actions || [{ libelle: "Fermer", secondaire: true }]).forEach((a) => {
+    const b = document.createElement("button");
+    b.textContent = a.libelle;
+    if (a.secondaire) b.className = "secondaire";
+    b.addEventListener("click", () => { if (a.ferme !== false) fermerModal(); if (a.onClick) a.onClick(); });
+    zone.appendChild(b);
+  });
+  ov.addEventListener("click", (e) => { if (e.target === ov) fermerModal(); });
+  document.addEventListener("keydown", function esc(e) {
+    if (e.key === "Escape") { fermerModal(); document.removeEventListener("keydown", esc); }
+  });
+  document.body.appendChild(ov);
+}
+
+// Lien vers la fiche d'une valeur sur sa source, par ISIN (repli : Boursorama).
+const FICHE_SOURCE = {
+  boursorama: (isin) => `https://www.boursorama.com/recherche/${isin}`,
+  boursier: (isin) => `https://www.boursier.com/recherche/rapide?q=${isin}`,
+  zonebourse: (isin) => `https://www.zonebourse.com/recherche/?q=${isin}`,
+  boursedirect: (isin) => `https://www.boursedirect.fr/fr/recherche/${isin}`,
+  ouestfrance: (isin) => `https://bourse.ouest-france.fr/recherche/?q=${isin}`,
+  euronext: (isin) => `https://live.euronext.com/en/search_instruments/${isin}`,
+};
+function lienFiche(source, isin) {
+  const f = FICHE_SOURCE[source] || FICHE_SOURCE.boursorama;
+  return f(encodeURIComponent(isin || ""));
+}
+
+// Fige les `nbFixes` premières colonnes au défilement horizontal : calcule le
+// décalage gauche cumulé de chaque colonne figée (largeurs variables).
+function figerColonnes(nbFixes) {
+  const table = document.querySelector("table.valeurs");
+  if (!table || !nbFixes) return;
+  const entetes = [...table.querySelectorAll("thead th")];
+  let gauche = 0;
+  for (let i = 0; i < nbFixes; i++) {
+    const largeur = entetes[i].getBoundingClientRect().width;
+    table.querySelectorAll(`tr > *:nth-child(${i + 1})`).forEach((cel) => {
+      cel.style.left = gauche + "px";
+    });
+    gauche += largeur;
+  }
+}
+
 /* --- Composants ------------------------------------------------------- */
 
 function tuile(libelle, valeur, unite = "") {
@@ -189,7 +250,10 @@ const CATALOGUE_COLONNES = {
   sharpe: { label: "Sharpe", num: true, val: (a) => a.indicateurs_quant?.sharpe, cell: (a) => fmt(a.indicateurs_quant?.sharpe, 2) },
   score_global: { label: "Score", num: true, val: (a) => a.score_global,
     cell: (a) => `<span class="score-badge">${fmt(a.score_global, 0)}</span>` },
-  source: { label: "Source", num: false, val: (a) => a.source || "", cell: (a) => `<span class="muted">${txtCell(a.source)}</span>` },
+  source: { label: "Source", num: false, val: (a) => a.source || "",
+    cell: (a) => a.source
+      ? `<a href="${lienFiche(a.source, a.isin)}" target="_blank" rel="noopener" class="lien-source" title="Ouvrir la fiche ${echap(a.isin)} sur ${echap(a.source)}">${echap(a.source)}</a>`
+      : "—" },
 };
 
 // Ordre exact de CHAMPS_FICHE (scraper Boursorama) + préfixes → clés du catalogue.
@@ -250,6 +314,10 @@ async function vueActifs(type, titre) {
   if (!colonnes.some((c) => c.cle === triActifs.cle)) {
     triActifs.cle = colonnes.some((c) => c.cle === "score_global") ? "score_global" : colonnes[0].cle;
   }
+  // Colonnes figées au défilement horizontal : Nom, ISIN, Secteur en tête.
+  const CLES_FIXES = ["nom", "isin", "secteur"];
+  let nbFixes = 0;
+  while (nbFixes < colonnes.length && CLES_FIXES.includes(colonnes[nbFixes].cle)) nbFixes++;
 
   // Barre de recherche : service partagé, présent sur les trois onglets de valeurs.
   const barreRecherche = `
@@ -260,8 +328,10 @@ async function vueActifs(type, titre) {
         ${sources.map((s) => `<button type="button" class="${s.valide ? "" : "secondaire"}"
           data-source="${s.nom}" title="${s.valide ? "Source validée" : "Source à valider — envoyer une page exemple"}">
           ${echap(s.libelle)}${s.valide ? "" : " *"}</button>`).join("")}
+        <button type="button" id="btn-reactualiser" class="secondaire"
+          title="Re-scraper et mettre à jour toutes les valeurs de ce tableau">↻ Réactualiser le tableau</button>
       </div>
-      <p class="note-bas" id="retour-scrap">« * » : source branchée mais parseur à fiabiliser. La valeur est classée automatiquement dans l'onglet Actions / ETF / OPCVM selon son type.</p>
+      <p class="note-bas" id="retour-scrap">« * » : source branchée mais parseur à fiabiliser. La valeur est classée automatiquement dans l'onglet Actions / ETF / OPCVM selon son type. « ↻ Réactualiser » met à jour toutes les lignes depuis leur source.</p>
     </form>`;
 
   const toggleSeed = aDuSeed ? `<button class="secondaire" id="toggle-seed">${
@@ -272,15 +342,15 @@ async function vueActifs(type, titre) {
     <p class="sous-titre">${actifs.length} valeur(s). Cliquer sur un en-tête pour trier ; 🗑 pour retirer une ligne. ${toggleSeed}</p>
     ${barreRecherche}
     <div class="carte"><div class="table-scroll defilable"><table class="valeurs" style="--entete:${entete}">
-      <thead><tr>${colonnes.map((c) => `<th class="triable ${c.num ? "num" : ""}"
+      <thead><tr>${colonnes.map((c, i) => `<th class="triable ${c.num ? "num" : ""} ${i < nbFixes ? "col-fixe" : ""}"
         data-cle="${c.cle}">${c.label}${triActifs.cle === c.cle ? (triActifs.sens < 0 ? " ▾" : " ▴") : ""}</th>`).join("")}
-        <th></th></tr></thead>
+        <th class="col-actions"></th></tr></thead>
       <tbody id="corps-actifs"></tbody></table></div></div>`;
 
   function dessinerLignes() {
     const liste = masquerSeed ? actifs.filter((a) => a.source !== "seed") : actifs;
     document.getElementById("corps-actifs").innerHTML = trierActifs(liste).map((a) => `<tr>
-      ${colonnes.map((c) => `<td class="${c.num ? "num" : ""}">${c.cell(a)}</td>`).join("")}
+      ${colonnes.map((c, i) => `<td class="${c.num ? "num" : ""} ${i < nbFixes ? "col-fixe" : ""}">${c.cell(a)}</td>`).join("")}
       <td style="white-space:nowrap">
         <button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button>
         <button class="btn-suppr" data-suppr="${a.isin}" data-nom="${echap(a.nom)}" title="Retirer du référentiel">🗑</button>
@@ -296,6 +366,7 @@ async function vueActifs(type, titre) {
         await api(`/api/actifs/${b.dataset.suppr}`, { method: "DELETE" });
         vueActifs(type, titre);
       }));
+    figerColonnes(nbFixes);
   }
   dessinerLignes();
 
@@ -314,34 +385,80 @@ async function vueActifs(type, titre) {
     });
   }
 
+  // Recherche/ajout : gère l'éligibilité PEA (confirmation via modale) et les
+  // erreurs (modale décrivant la cause).
+  async function lancerRecherche(source, libelle, requete, retour, confirmer) {
+    retour.textContent = `Recherche sur ${libelle}…`;
+    const url = `/api/recherche/${source}/${encodeURIComponent(requete)}`
+      + (confirmer ? "?confirmer=true" : "");
+    try {
+      const r = await api(url, { method: "POST" });
+      if (r.confirmation_requise) {
+        ouvrirModal("Ajout à confirmer", `
+          <p class="baisse">⚠ ${echap(r.raison)}</p>
+          <p>${echap(r.nom)} (${echap(r.isin)}) — type ${echap(r.type)},
+             cours ${fmt(r.cours, 2)}, onglet ${echap(r.onglet)}.</p>`, [
+          { libelle: "Ajouter quand même",
+            onClick: () => lancerRecherche(source, libelle, requete, retour, true) },
+          { libelle: "Annuler", secondaire: true },
+        ]);
+        retour.textContent = "Ajout en attente de confirmation.";
+        return;
+      }
+      const d = r.donnees_extraites || {};
+      const extra = [
+        d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
+        d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
+        d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
+      ].filter(Boolean).join(" · ");
+      const alerte = r.eligible_pea === false
+        ? `<br><span class="baisse">⚠ ${echap(r.avertissement || "Éligibilité PEA non confirmée")}</span>` : "";
+      const autreOnglet = r.type !== type
+        ? `<br><span class="hausse">Type ${r.type} → classé dans l'onglet ${echap(r.onglet)}.</span> `
+          + `<a href="#${r.onglet}">y aller</a>` : "";
+      retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
+        + `${echap(r.nom)} (${r.isin}) — ${r.type}, cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`
+        + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "") + alerte + autreOnglet;
+      if (r.type === type) setTimeout(() => vueActifs(type, titre), 1400);
+    } catch (err) {
+      ouvrirModal("Erreur lors de la recherche", `
+        <p>La recherche « ${echap(requete)} » sur ${echap(libelle)} a échoué :</p>
+        <p class="baisse">${echap(err.message)}</p>`, [{ libelle: "Fermer", secondaire: true }]);
+      retour.innerHTML = `<span class="baisse">Échec (${echap(libelle)})</span> — ${echap(err.message)}`;
+    }
+  }
+
   document.querySelectorAll("#form-scrap [data-source]").forEach((bouton) =>
-    bouton.addEventListener("click", async () => {
+    bouton.addEventListener("click", () => {
       const requete = document.getElementById("scrap-requete").value.trim();
       const retour = document.getElementById("retour-scrap");
       if (!requete) { retour.textContent = "Saisir un nom, un ISIN ou un code."; return; }
-      retour.textContent = `Recherche sur ${bouton.textContent.trim()}…`;
-      try {
-        const r = await api(`/api/recherche/${bouton.dataset.source}/${encodeURIComponent(requete)}`,
-                            { method: "POST" });
-        const d = r.donnees_extraites || {};
-        const extra = [
-          d.objectif_cours != null ? `objectif ${fmt(d.objectif_cours, 2)}` : null,
-          d.potentiel != null ? `potentiel ${fmt(d.potentiel, 1)} %` : null,
-          d.risque_esg != null ? `risque ESG ${fmt(d.risque_esg, 1)}` : null,
-        ].filter(Boolean).join(" · ");
-        const alerte = r.eligible_pea === false
-          ? `<br><span class="baisse">⚠ ${echap(r.avertissement || "Éligibilité PEA non confirmée")}</span>` : "";
-        const autreOnglet = r.type !== type
-          ? `<br><span class="hausse">Type ${r.type} → classé dans l'onglet ${echap(r.onglet)}.</span> `
-            + `<a href="#${r.onglet}">y aller</a>` : "";
-        retour.innerHTML = `<span class="hausse">${r.cree ? "Ajouté" : "Mis à jour"}</span> : `
-          + `${echap(r.nom)} (${r.isin}) — ${r.type}, cours ${fmt(r.cours, 2)}, source ${echap(r.source)}`
-          + (extra ? `<br><span class="muted">${echap(extra)}</span>` : "") + alerte + autreOnglet;
-        if (r.type === type) setTimeout(() => vueActifs(type, titre), 1400);
-      } catch (err) {
-        retour.innerHTML = `<span class="baisse">Échec (${echap(bouton.textContent.trim())})</span> — ${echap(err.message)}`;
-      }
+      lancerRecherche(bouton.dataset.source, bouton.textContent.trim(), requete, retour, false);
     }));
+
+  // Réactualisation : re-scrape toutes les valeurs du tableau depuis leur source.
+  document.getElementById("btn-reactualiser").addEventListener("click", async (e) => {
+    const retour = document.getElementById("retour-scrap");
+    e.target.disabled = true;
+    retour.textContent = "Réactualisation de toutes les valeurs en cours…";
+    try {
+      const r = await api(`/api/actifs/reactualiser?type=${type}`, { method: "POST" });
+      retour.innerHTML = `<span class="hausse">Réactualisé</span> — ${r.actifs_maj} valeur(s) mise(s) à jour`
+        + (r.echecs ? `, <span class="baisse">${r.echecs} échec(s)</span>` : "")
+        + `, scores recalculés (${r.actifs_recalcules}).`;
+      if (r.echecs && r.details?.length) {
+        ouvrirModal("Détail des échecs de réactualisation",
+          `<ul>${r.details.map((x) => `<li>${echap(x)}</li>`).join("")}</ul>`,
+          [{ libelle: "Fermer", secondaire: true }]);
+      }
+      setTimeout(() => vueActifs(type, titre), 1400);
+    } catch (err) {
+      ouvrirModal("Erreur de réactualisation", `<p class="baisse">${echap(err.message)}</p>`,
+        [{ libelle: "Fermer", secondaire: true }]);
+      retour.innerHTML = `<span class="baisse">Échec</span> — ${echap(err.message)}`;
+      e.target.disabled = false;
+    }
+  });
 }
 
 async function vueAllocation() {
@@ -719,8 +836,14 @@ async function vueParametres() {
     <h2>Colonnes — chaque tableau a ses propres entêtes</h2>
     <div class="panneau" id="panneau-colonnes">
       ${TYPES_TABLEAU.map(([type, lib]) => `<div class="groupe-colonnes">
-        <div class="libelle-reglage">${lib}</div>
-        <div class="cases-colonnes">${casesColonnes(type)}</div></div>`).join("")}
+        <div class="entete-groupe">
+          <span class="libelle-reglage">${lib}</span>
+          <span class="actions-groupe">
+            <button type="button" class="secondaire" data-tout="${type.toLowerCase()}">Tout sélectionner</button>
+            <button type="button" class="secondaire" data-reinit="${type.toLowerCase()}">Réinitialiser</button>
+          </span>
+        </div>
+        <div class="cases-colonnes" data-groupe="${type.toLowerCase()}">${casesColonnes(type)}</div></div>`).join("")}
       <p class="note-bas" id="retour-colonnes">Chaque onglet (Actions, ETF, OPCVM) a son propre
         jeu de colonnes. Le tableau des Actions est aligné par défaut sur CHAMPS_FICHE et ses préfixes.</p>
     </div>
@@ -782,14 +905,31 @@ async function vueParametres() {
 
   // Colonnes : chaque tableau (Actions/ETF/OPCVM) a son propre jeu d'entêtes.
   const retourCol = document.getElementById("retour-colonnes");
+  const enregistrerColonnes = async (type) => {
+    // Ordre = ordre du DOM (= ORDRE_COLONNES).
+    const cles = [...document.querySelectorAll(`[data-colonne="${type}"]`)]
+      .filter((c) => c.checked).map((c) => c.value);
+    await enregistrerProfil({ ["colonnes_" + type]: cles });
+    retourCol.textContent = "Colonnes enregistrées ✓";
+  };
   document.querySelectorAll("#panneau-colonnes [data-colonne]").forEach((inp) =>
-    inp.addEventListener("change", async () => {
-      const type = inp.dataset.colonne;
-      // Ordre = ordre du DOM (= ORDRE_COLONNES).
-      const cles = [...document.querySelectorAll(`[data-colonne="${type}"]`)]
-        .filter((c) => c.checked).map((c) => c.value);
-      await enregistrerProfil({ ["colonnes_" + type]: cles });
-      retourCol.textContent = "Colonnes enregistrées ✓";
+    inp.addEventListener("change", () => enregistrerColonnes(inp.dataset.colonne)));
+  // « Tout sélectionner » : coche toutes les colonnes du groupe.
+  document.querySelectorAll("#panneau-colonnes [data-tout]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const type = b.dataset.tout;
+      document.querySelectorAll(`[data-colonne="${type}"]`).forEach((c) => { c.checked = true; });
+      await enregistrerColonnes(type);
+    }));
+  // « Réinitialiser » : rétablit le jeu de colonnes par défaut de l'onglet.
+  document.querySelectorAll("#panneau-colonnes [data-reinit]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const type = b.dataset.reinit;
+      const defaut = COLONNES_DEFAUT[type.toUpperCase()] || [];
+      document.querySelectorAll(`[data-colonne="${type}"]`).forEach((c) => {
+        c.checked = defaut.includes(c.value);
+      });
+      await enregistrerColonnes(type);
     }));
 
   // URL de page exemple par source (utilisée par le bouton « Tester »).
@@ -808,11 +948,12 @@ async function vueParametres() {
 async function vueSysteme() {
   const [rapport, anomalies, suggestions] = await Promise.all([
     api("/api/meta/sante"),
-    api("/api/meta/anomalies?statut=ouverte"),
+    api("/api/meta/anomalies?statut=toutes"),
     api("/api/meta/suggestions"),
   ]);
   const predictif = rapport?.pouvoir_predictif;
   const completude = rapport ? Object.entries(rapport.completude_par_champ) : [];
+  const STATUT_ANOMALIE = { ouverte: "ouverte", ignoree: "ignorée", resolue: "résolue" };
   contenu.innerHTML = `
     <h1>Système — auto-observation &amp; auto-amélioration</h1>
     <p class="sous-titre">Le système s'observe (qualité des données, anomalies, pouvoir prédictif du score)
@@ -840,21 +981,31 @@ async function vueSysteme() {
       ${predictif?.correlation === null
         ? `<p class="note-bas">${echap(predictif.detail)}</p>` : ""}
     </div>
-    <h2>Complétude par champ</h2>
-    <div class="cartes">${grapheBarres("Champs renseignés (%)",
-      Object.fromEntries(completude))}</div>`
+    <h2>Complétude par champ (${completude.length} champs suivis)</h2>
+    <div class="carte"><div class="table-scroll"><table>
+      <thead><tr><th>Champ</th><th class="num">Renseigné (%)</th><th>Remplissage</th></tr></thead>
+      <tbody>${completude.map(([champ, pct]) => `<tr>
+        <td>${echap(champ)}</td>
+        <td class="num ${pct < 60 ? "baisse" : "hausse"}">${fmt(pct, 0)} %</td>
+        <td><span class="barre-piste" style="display:inline-block;width:180px">
+          <span class="barre" style="width:${pct}%"></span></span></td>
+      </tr>`).join("")}</tbody></table></div></div>`
     : `<div class="carte"><p class="muted">Aucun diagnostic encore. Cliquer sur
        « Lancer l'auto-diagnostic ».</p></div>`}
-    <h2>Anomalies ouvertes (${anomalies.length})</h2>
+    <h2>Anomalies (${anomalies.length}) — toutes gravités et statuts</h2>
     <div class="carte"><div class="table-scroll"><table>
-      <thead><tr><th>Date (UTC)</th><th>Gravité</th><th>Type</th><th>Message</th><th></th></tr></thead>
+      <thead><tr><th>Date (UTC)</th><th>Gravité</th><th>Type</th><th>ISIN</th>
+        <th>Message</th><th>Statut</th><th></th></tr></thead>
       <tbody>${anomalies.map((a) => `<tr>
         <td class="muted">${a.date.replace("T", " ").slice(0, 16)}</td>
         <td class="${a.gravite === "critique" ? "baisse" : ""}">${a.gravite}</td>
         <td>${echap(a.type)}</td>
+        <td class="muted">${echap(a.isin ?? "—")}</td>
         <td>${echap(a.message)}</td>
-        <td><button class="secondaire" data-anomalie="${a.id}">Ignorer</button></td>
-      </tr>`).join("") || `<tr><td colspan="5" class="muted">Aucune anomalie ouverte.</td></tr>`}
+        <td class="${a.statut === "ouverte" ? "" : "muted"}">${echap(STATUT_ANOMALIE[a.statut] ?? a.statut)}</td>
+        <td>${a.statut === "ouverte"
+          ? `<button class="secondaire" data-anomalie="${a.id}">Ignorer</button>` : ""}</td>
+      </tr>`).join("") || `<tr><td colspan="7" class="muted">Aucune anomalie.</td></tr>`}
       </tbody></table></div></div>
     <h2>Suggestions de pondérations</h2>
     <div class="carte"><div class="table-scroll"><table>

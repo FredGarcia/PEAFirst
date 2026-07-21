@@ -38,6 +38,42 @@ def lister_actifs(
     return requete.limit(limite).all()
 
 
+@router.post("/reactualiser")
+def reactualiser_actifs(type: TypeActif | None = None, session: Session = Depends(get_session)):
+    """Réactualise toutes les valeurs du tableau : re-scrape chaque valeur depuis
+    sa source (repli Boursorama) par mnémonique/ISIN, met à jour la fiche, puis
+    recalcule tous les scores. Best-effort : les échecs unitaires sont comptés."""
+    from datetime import datetime
+
+    from peadvisor.services.scoring import scorer_tous
+    from peadvisor.sources.web import CHAMPS_FICHE, SCRAPERS
+
+    requete = session.query(Actif)
+    if type:
+        requete = requete.filter(Actif.type == type)
+    actifs = requete.all()
+
+    maj, echecs, details = 0, 0, []
+    for actif in actifs:
+        source = actif.source if actif.source in SCRAPERS else "boursorama"
+        scraper = SCRAPERS.get(source) or SCRAPERS["boursorama"]
+        cle = actif.mnemonique or actif.isin
+        try:
+            donnees = scraper.recuperer(cle)
+            for champ in CHAMPS_FICHE:
+                if champ in donnees and champ != "source":
+                    setattr(actif, champ, donnees[champ])
+            actif.date_cours = datetime.utcnow()
+            maj += 1
+        except Exception as exc:                     # best-effort par valeur
+            echecs += 1
+            details.append(f"{actif.nom or actif.isin} : {exc}")
+    session.commit()
+    nb_scores = scorer_tous(session)
+    return {"actifs_maj": maj, "echecs": echecs, "actifs_recalcules": nb_scores,
+            "details": details[:20]}
+
+
 @router.get("/{isin}", response_model=ActifOut)
 def detail_actif(isin: str, session: Session = Depends(get_session)):
     actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()

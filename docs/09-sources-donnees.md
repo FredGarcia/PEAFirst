@@ -205,27 +205,39 @@ Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
 - **détecte le type d'instrument** (depuis le `<title>` Boursorama : « Cours
   Action / Tracker / OPCVM ») et **ventile** la valeur dans le bon onglet ;
 - **vérifie l'éligibilité PEA** (marqueur `eligible-pea` de la fiche) ; si non
-  confirmée, la valeur est ajoutée mais **signalée** par un avertissement.
+  confirmée, **rien n'est enregistré** : une **fenêtre modale** décrit la cause
+  et propose « Ajouter quand même » (`?confirmer=true`). Toute autre erreur
+  (ISIN introuvable, réseau…) ouvre aussi une modale décrivant la cause ;
+- un bouton **« ↻ Réactualiser le tableau »** re-scrape toutes les valeurs de
+  l'onglet depuis leur source et recalcule les scores
+  (`POST /api/actifs/reactualiser`).
 
 **Champs Boursorama étendus** (parseur enrichi, `parser_page`) : ouverture,
 +haut/+bas, clôture veille, 52 semaines haut/bas, volume, quantité échangée,
 valorisation, nombre de titres, PER, rendement, BNA, dividende, taux de
 distribution, dette nette, CA, objectif de cours, potentiel, consensus,
-nombre d'analystes, risque ESG. Le cours « live » (attribut vide en HTML
-statique) est lu dans le **texte** de l'élément, avec repli sur la clôture
-veille.
+nombre d'analystes, risque ESG. L'**objectif de cours** gère le séparateur de
+milliers (« 1 366,50 EUR »), le champ « dernier échange » est scindé en
+**date + heure de cotation**, et les fondamentaux d'une **table « chiffres
+clés »** (BNA, rendement…) sont récupérés hors de la liste principale. Le cours
+« live » (attribut vide en HTML statique) est lu dans le **texte** de
+l'élément, avec repli sur la clôture veille.
 
 **Tableaux (Actions / ETF / OPCVM, même composant)** :
 - **tri** par colonne (▴/▾) ; **suppression** d'une ligne (🗑, `DELETE
-  /api/actifs/{isin}`) ; **en-tête figé** au défilement ;
+  /api/actifs/{isin}`) ; **en-tête figé** au défilement vertical ;
+- **pleine largeur** disponible (colonnes ajustées) et **colonnes Nom / ISIN /
+  Secteur figées** au défilement **horizontal** ;
+- la colonne **Source** est un **lien** (nom de la source → fiche de l'ISIN) ;
 - **entêtes propres à chaque tableau** : le jeu de colonnes visibles se choisit
-  par onglet (Paramètres → « Colonnes »). Le tableau **Actions** est aligné par
-  défaut sur `CHAMPS_FICHE` (et ses préfixes) : nom, ISIN, secteur, cours,
-  devise, date/heure, variation, ouverture, +haut/+bas, clôture veille, 52 s
-  haut/bas, volume, quantité échangée, capitalisation, nombre de titres, PER,
-  rendement, BNA, dividende, taux de distribution, dette nette, CA, objectif,
-  potentiel, consensus, nombre d'analystes, ESG, risque ESG, éligibilité PEA,
-  source (+ score global). ETF / OPCVM ont un jeu par défaut plus resserré ;
+  par onglet (Paramètres → « Colonnes », avec **« Tout sélectionner »** et
+  **« Réinitialiser »**). Le tableau **Actions** est aligné par défaut sur
+  `CHAMPS_FICHE` (et ses préfixes) : nom, ISIN, secteur, cours, devise,
+  date/heure, variation, ouverture, +haut/+bas, clôture veille, 52 s haut/bas,
+  volume, quantité échangée, capitalisation, nombre de titres, PER, rendement,
+  BNA, dividende, taux de distribution, dette nette, CA, objectif, potentiel,
+  consensus, nombre d'analystes, ESG, risque ESG, éligibilité PEA, source
+  (+ score global). ETF / OPCVM ont un jeu par défaut plus resserré ;
 - **couleur d'en-tête paramétrable par onglet** (Paramètres → Apparence) ;
 - **données de démonstration** : bouton « Charger » sur la ligne `seed`
   (onglet Sources) et bascule « Masquer / Afficher (seed) ».

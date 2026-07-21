@@ -7,7 +7,7 @@ from tests.fixtures_boursorama import PAGE_REELLE
 
 # Fragment représentatif d'une page « cours » Boursorama (structure réelle).
 PAGE = """
-<html><head><title>AIR LIQUIDE Cours Action AI</title></head><body>
+<html><head><title>AIR LIQUIDE Cours Action AI</title></head><body class="eligible-pea">
   <h2 class="c-faceplate__company-title">Air Liquide</h2>
   <div class="c-faceplate__isin">FR0000120073 - Euronext Paris</div>
   <span class="c-instrument c-instrument--last" data-ist-last="184.52">184,52</span>
@@ -73,6 +73,38 @@ def test_parser_page_reelle_indicateurs_riches():
     assert d["consensus"] == 4.45             # converti : 6 - 1,55 (5 = achat)
     # Cours indisponible en direct (JS) → repli sur la clôture veille.
     assert d["cours"] == 176.46
+
+
+# Structures propres à la fiche ADYEN : objectif avec séparateur de milliers,
+# « dernier échange » (date + heure), et table « chiffres clés » (BNA/rendement).
+PAGE_ADYEN = """
+<html><head><title>ADYEN Cours Action ADYEN, Cotation Bourse - Boursorama</title></head>
+<body> NL0012969182 eligible-pea
+  <span class="c-instrument c-instrument--last" data-ist-last="809.30">809,30</span>
+  <ul class="c-list-info">
+    <li><p class="c-list-info__heading">Ouverture</p><p class="c-list-info__value">812,0000</p></li>
+    <li><p class="c-list-info__heading">Dernier échange</p><p class="c-list-info__value">21/07/2026 15:55:06</p></li>
+    <li><p class="c-list-info__heading">Valorisation</p><p class="c-list-info__value">25 642 MEUR</p></li>
+  </ul>
+  <p> Objectif de cours 3 mois : <span class="u-text-bold"> 1 366,50 EUR </span> - Potentiel: 69,14% </p>
+  <table><tr><th></th><th>2025</th><th>Estim. 2026</th></tr>
+    <tr><td>Bénéfice net par action</td><td>33,62 EUR</td><td>38,56 EUR</td></tr>
+    <tr><td>Rendement</td><td>0,00%</td><td>0,00%</td></tr>
+  </table>
+</body></html>
+"""
+
+
+def test_parser_adyen_objectif_date_et_table():
+    d = parser_page(PAGE_ADYEN)
+    assert d["isin"] == "NL0012969182"
+    assert d["objectif_cours"] == 1366.5           # « 1 366,50 » (espace = milliers)
+    assert d["potentiel"] == 69.14
+    assert d["date_cotation"] == "21/07/2026"       # « dernier échange » scindé
+    assert d["heure_cotation"] == "15:55:06"
+    assert d["capitalisation"] == 25642.0
+    assert d["bna"] == 33.62                        # table chiffres clés (1re valeur)
+    assert d["rendement"] == 0.0
 
 
 def test_parser_page_vide():
