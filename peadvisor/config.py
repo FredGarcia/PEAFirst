@@ -53,7 +53,8 @@ PROFIL_DEFAUT: dict[str, Any] = {
     "couleur_etf": "#008300",
     "couleur_opcvm": "#e87ba4",
     # Colonnes visibles par onglet (liste de clés ; vide = jeu par défaut du front).
-    "colonnes_actions": [],
+    # Clés dérivées côté front de type.toLowerCase() : colonnes_action / _etf / _opcvm.
+    "colonnes_action": [],
     "colonnes_etf": [],
     "colonnes_opcvm": [],
     # URL d'une page exemple par source, renvoyée (en JSON) par le bouton « Tester ».

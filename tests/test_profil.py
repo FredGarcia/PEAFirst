@@ -22,7 +22,7 @@ def test_profil_par_defaut(config_isolee):
         assert profil[cle] == val
     assert "couleur_actions" in profil and "largeur_barre" in profil
     assert "yahoo" in profil["urls_exemple"]        # URL exemple par source
-    assert profil["colonnes_actions"] == []          # jeu par défaut du front
+    assert profil["colonnes_action"] == []           # jeu par défaut du front
 
 
 def test_modification_et_persistance(config_isolee):

@@ -977,7 +977,7 @@ async function vueParametres() {
           <span class="libelle-reglage">${lib}</span>
           <span class="actions-groupe">
             <button type="button" class="secondaire" data-tout="${type.toLowerCase()}">Tout sélectionner</button>
-            <button type="button" data-enreg="${type.toLowerCase()}">Enregistrer</button>
+            <button type="button" class="secondaire" data-enreg="${type.toLowerCase()}">Enregistrer</button>
             <button type="button" class="secondaire" data-reinit="${type.toLowerCase()}">Réinitialiser</button>
           </span>
         </div>
@@ -1133,11 +1133,23 @@ async function vueParametres() {
   });
   const appliquerCases = (type, cles) => casesDe(type).forEach(
     (c) => { c.checked = cles.includes(c.value); });
+  // Comparaison indépendante de l'ordre (on compare des ensembles de colonnes).
+  const memeSelection = (a, b) =>
+    a.length === b.length && [...a].sort().join(",") === [...b].sort().join(",");
+  // « Enregistrer » n'est en bleu (actif) que si la sélection diffère de l'état enregistré.
+  const majEtatBouton = (type) => {
+    const btn = document.querySelector(`#panneau-colonnes [data-enreg="${type}"]`);
+    if (!btn) return;
+    const modifie = !memeSelection(cochees(type), etatSauve[type]);
+    btn.classList.toggle("secondaire", !modifie);   // gris si aucun changement
+    btn.disabled = !modifie;
+  };
   const marquerModifie = (type) => {
-    const modifie = JSON.stringify(cochees(type)) !== JSON.stringify(etatSauve[type]);
+    const modifie = !memeSelection(cochees(type), etatSauve[type]);
     retourCol.textContent = modifie
       ? `Modifications non enregistrées (${type}). « Enregistrer » ou « Réinitialiser ».`
       : "Colonnes à jour.";
+    majEtatBouton(type);
   };
   document.querySelectorAll("#panneau-colonnes [data-colonne]").forEach((inp) =>
     inp.addEventListener("change", () => marquerModifie(inp.dataset.colonne)));
@@ -1155,6 +1167,7 @@ async function vueParametres() {
       await enregistrerProfil({ ["colonnes_" + type]: cles });
       etatSauve[type] = cles.slice();
       retourCol.textContent = `Colonnes ${type} enregistrées ✓`;
+      majEtatBouton(type);                          // repasse en gris (état à jour)
     }));
   // « Réinitialiser » : revient au dernier état enregistré (annule les modifs).
   document.querySelectorAll("#panneau-colonnes [data-reinit]").forEach((b) =>
@@ -1162,7 +1175,10 @@ async function vueParametres() {
       const type = b.dataset.reinit;
       appliquerCases(type, etatSauve[type]);
       retourCol.textContent = `Colonnes ${type} réinitialisées à l'état enregistré.`;
+      majEtatBouton(type);
     }));
+  // État initial des boutons (gris tant que rien n'a changé).
+  TYPES_TABLEAU.forEach(([TYPE, ]) => majEtatBouton(TYPE.toLowerCase()));
 
   // URL de page exemple par source (utilisée par le bouton « Tester »).
   const retourUrls = document.getElementById("retour-urls");
