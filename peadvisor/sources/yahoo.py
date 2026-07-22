@@ -1,32 +1,40 @@
-"""Source Yahoo Finance (via la bibliothèque yfinance, optionnelle).
+"""Source Yahoo Finance.
 
-Met à jour cours, capitalisation, PER, rendement, objectif de cours et
-consensus pour les actifs dont le mnémonique Yahoo est connu. La liste des
-tickers interrogés est celle du jeu de données seed (champ `mnemonique`,
-suffixé ".PA" pour Euronext Paris le cas échéant).
+Deux chemins d'accès, du plus riche au plus robuste :
+1. la bibliothèque **yfinance** (si installée) : cours, capitalisation, PER,
+   rendement, objectif de cours, consensus et historique ~3 ans ;
+2. à défaut, un **repli HTTP direct** sur l'API *chart* publique de Yahoo
+   (`query1.finance.yahoo.com/v8/finance/chart/<symbole>`) qui renvoie du JSON
+   sans dépendance : cours courant, devise et historique de clôtures.
 
-yfinance n'étant pas une API officielle, cette source est fournie comme
-connecteur de départ : quotas et robustesse sont gérés au mieux (voir
-docs/02-architecture.md pour brancher une source de données payante).
+La liste des tickers interrogés est celle du jeu seed (champ `mnemonique`,
+suffixé « .PA » pour Euronext Paris le cas échéant).
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+import requests
+
 from peadvisor.sources.base import SourceDonnees
+
+CHART = "https://query1.finance.yahoo.com/v8/finance/chart/"
+ENTETES = {"User-Agent": "Mozilla/5.0 (compatible; PEAdvisor/1.0)"}
 
 
 class SourceYahoo(SourceDonnees):
     nom = "yahoo"
 
+    def symbole(self, ticker: str) -> str:
+        return ticker if "." in ticker else f"{ticker}.PA"
+
     def recuperer(self) -> list[dict[str, Any]]:
         try:
             import yfinance as yf  # dépendance optionnelle
-        except ImportError as exc:
-            raise RuntimeError(
-                "La source 'yahoo' nécessite la bibliothèque yfinance : pip install yfinance"
-            ) from exc
+        except ImportError:
+            # yfinance absent : repli HTTP direct (au moins cours + historique).
+            return self._recuperer_http()
 
         from peadvisor.sources.http import univers_de_base
 
@@ -68,4 +76,45 @@ class SourceYahoo(SourceDonnees):
             except Exception:
                 # Erreur réseau/quota sur un titre : on retombe sur la fiche locale.
                 resultats.append(actif)
+        return resultats
+
+    def cotation_http(self, symbole: str) -> dict[str, Any]:
+        """Cours + historique via l'API chart de Yahoo (JSON, sans yfinance)."""
+        rep = requests.get(f"{CHART}{symbole}", params={"range": "3y", "interval": "1d"},
+                           headers=ENTETES, timeout=20)
+        rep.raise_for_status()
+        resultat = rep.json()["chart"]["result"][0]
+        meta = resultat.get("meta", {})
+        donnees: dict[str, Any] = {}
+        if meta.get("regularMarketPrice") is not None:
+            donnees["cours"] = round(float(meta["regularMarketPrice"]), 4)
+        if meta.get("currency"):
+            donnees["devise"] = meta["currency"]
+        horodatages = resultat.get("timestamp") or []
+        clotures = (resultat.get("indicators", {}).get("quote", [{}])[0].get("close") or [])
+        from datetime import datetime, timezone
+        historique = [
+            {"date": datetime.fromtimestamp(t, tz=timezone.utc).date().isoformat(),
+             "cours": round(float(c), 4)}
+            for t, c in zip(horodatages, clotures) if c is not None
+        ]
+        if historique:
+            donnees["historique"] = historique
+        return donnees
+
+    def _recuperer_http(self) -> list[dict[str, Any]]:
+        from peadvisor.sources.http import univers_de_base
+
+        resultats: list[dict[str, Any]] = []
+        for actif in univers_de_base():
+            ticker = actif.get("mnemonique")
+            if not ticker or actif.get("type") == "OPCVM":
+                resultats.append(actif)
+                continue
+            maj = dict(actif)
+            try:
+                maj.update(self.cotation_http(self.symbole(ticker)))
+            except Exception:
+                pass  # réseau/quota : on conserve la fiche locale
+            resultats.append(maj)
         return resultats

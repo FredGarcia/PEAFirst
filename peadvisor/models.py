@@ -89,6 +89,7 @@ class Actif(Base):
 
     # Traçabilité
     source: Mapped[str | None] = mapped_column(String(40))
+    source_url: Mapped[str | None] = mapped_column(String(400))  # lien d'acquisition
     cree_le: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     maj_le: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

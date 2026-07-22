@@ -54,6 +54,7 @@ def reactualiser_actifs(type: TypeActif | None = None, session: Session = Depend
     actifs = requete.all()
 
     maj, echecs, details = 0, 0, []
+    sources_ko: dict[str, int] = {}
     for actif in actifs:
         source = actif.source if actif.source in SCRAPERS else "boursorama"
         scraper = SCRAPERS.get(source) or SCRAPERS["boursorama"]
@@ -63,15 +64,49 @@ def reactualiser_actifs(type: TypeActif | None = None, session: Session = Depend
             for champ in CHAMPS_FICHE:
                 if champ in donnees and champ != "source":
                     setattr(actif, champ, donnees[champ])
+            if donnees.get("source_url"):
+                actif.source_url = donnees["source_url"]
             actif.date_cours = datetime.utcnow()
             maj += 1
         except Exception as exc:                     # best-effort par valeur
             echecs += 1
+            sources_ko[source] = sources_ko.get(source, 0) + 1
             details.append(f"{actif.nom or actif.isin} : {exc}")
     session.commit()
     nb_scores = scorer_tous(session)
+
+    suggestions = _suggestions_reactualisation(actifs, echecs, sources_ko)
     return {"actifs_maj": maj, "echecs": echecs, "actifs_recalcules": nb_scores,
-            "details": details[:20]}
+            "details": details[:20], "suggestions": suggestions}
+
+
+def _suggestions_reactualisation(actifs, echecs, sources_ko) -> list[str]:
+    """Rapport technique de fin de réactualisation (pistes d'amélioration)."""
+    suggestions: list[str] = []
+    if echecs:
+        pires = sorted(sources_ko.items(), key=lambda kv: kv[1], reverse=True)
+        detail = ", ".join(f"{s} ({n})" for s, n in pires)
+        suggestions.append(
+            f"{echecs} valeur(s) non réactualisée(s) — sources en échec : {detail}. "
+            "Vérifier la connectivité et la structure des pages (onglet Sources → Tester).")
+    # Champs critiques peu renseignés sur l'ensemble du tableau.
+    if actifs:
+        for champ, libelle in (("cours", "cours"), ("score_global", "score global"),
+                               ("secteur", "secteur"), ("per", "PER"),
+                               ("objectif_cours", "objectif de cours")):
+            manquants = sum(1 for a in actifs if getattr(a, champ, None) is None)
+            if manquants > len(actifs) * 0.4:
+                suggestions.append(
+                    f"Le champ « {libelle} » manque pour {manquants}/{len(actifs)} valeurs : "
+                    "brancher une source plus riche ou compléter le scraping.")
+    sans_url = [a for a in actifs if not a.source_url]
+    if sans_url:
+        suggestions.append(
+            f"{len(sans_url)} valeur(s) sans lien d'acquisition (données de démonstration ou "
+            "source non tracée) : ré-acquérir depuis une source pour renseigner la colonne Source.")
+    if not suggestions:
+        suggestions.append("Aucune anomalie détectée : toutes les valeurs sont à jour.")
+    return suggestions
 
 
 @router.get("/{isin}", response_model=ActifOut)

@@ -42,6 +42,7 @@ def creer_tables() -> None:
             ("dividende", "FLOAT"), ("taux_distribution", "FLOAT"),
             ("dette_nette", "FLOAT"), ("ca", "FLOAT"), ("nb_analystes", "FLOAT"),
             ("date_cotation", "VARCHAR(20)"), ("heure_cotation", "VARCHAR(20)"),
+            ("source_url", "VARCHAR(400)"),
         ]
         for nom, type_sql in nouvelles:
             if nom not in colonnes:

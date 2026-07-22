@@ -99,6 +99,50 @@ def lister_sources():
     }
 
 
+@router.get("/sources/etats")
+def etats_des_sources():
+    """État d'acquisition de chaque source (pour colorer les boutons de la barre
+    de recherche) : « disponible » (bleu, des données arrivent), « vide »
+    (orange, le test passe mais aucune donnée), « indisponible » (gris, échec).
+
+    ⚠️ Interroge réellement chaque source : à déclencher à la demande."""
+    from peadvisor.sources.http import SourceHTTPBase
+    from peadvisor.sources.web import SCRAPERS
+
+    TICKER_TEST = "TTE"          # TotalEnergies, largement coté
+    etats = []
+    noms = list(dict.fromkeys(list(SCRAPERS) + list(REGISTRE)))  # union, ordre stable
+    for nom in noms:
+        # Catégorie : recherche par valeur (scrapers) ou import global (sources HTTP).
+        categorie = "recherche" if nom in SCRAPERS and nom != "seed" else "import"
+        libelle = SCRAPERS[nom].libelle if nom in SCRAPERS else nom
+        etat, detail = "indisponible", ""
+        try:
+            if nom == "seed":
+                etat, categorie = "disponible", "import"
+            elif nom in SCRAPERS:
+                donnees = SCRAPERS[nom].recuperer(TICKER_TEST)
+                etat = "disponible" if (donnees.get("isin") or donnees.get("cours")) else "vide"
+            elif nom in REGISTRE and issubclass(REGISTRE[nom], SourceHTTPBase):
+                r = REGISTRE[nom]().tester()
+                if not r.get("ok"):
+                    etat, detail = "indisponible", r.get("erreur", "")
+                elif r.get("points_historique") or (r.get("cotation") or {}).get("cours"):
+                    etat = "disponible"
+                else:
+                    etat, detail = "vide", "test OK mais aucune donnée"
+            elif nom == "yahoo":
+                r = _tester_exemple("yahoo")
+                etat = "disponible" if r.get("ok") and r.get("exemple_json") else (
+                    "vide" if r.get("ok") else "indisponible")
+                detail = r.get("erreur", "")
+        except Exception as exc:
+            etat, detail = "indisponible", f"{type(exc).__name__} : {exc}"
+        etats.append({"nom": nom, "libelle": libelle, "categorie": categorie,
+                      "etat": etat, "detail": detail[:200]})
+    return etats
+
+
 @router.get("/reference/figi/{isin}")
 def resoudre_figi(isin: str, place: str = "GR"):
     """Résout un ISIN en ticker/place via OpenFIGI (annuaire, pas des cours)."""

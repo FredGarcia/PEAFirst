@@ -57,6 +57,7 @@ class ActifOut(BaseModel):
     score_global: float | None = None
     indicateurs_quant: dict | None = None
     source: str | None = None
+    source_url: str | None = None
     maj_le: datetime | None = None
 
     @field_validator("indicateurs_quant", mode="before")
@@ -82,6 +83,14 @@ class LigneAllocation(BaseModel):
     score_global: float | None
     niveau_risque: int | None
     justification: str
+    informations_manquantes: list[str] = []   # données absentes pour cette ligne
+
+
+class ValeurIncomplete(BaseModel):
+    isin: str
+    nom: str
+    type: str
+    informations_manquantes: list[str]
 
 
 class ReponseAllocation(BaseModel):
@@ -91,6 +100,8 @@ class ReponseAllocation(BaseModel):
     objectif: str
     repartition_types: dict[str, float]
     lignes: list[LigneAllocation]
+    criteres: list[str] = []                   # critères de sélection appliqués
+    valeurs_incompletes: list[ValeurIncomplete] = []  # écartées faute de données
     commentaire: str
 
 

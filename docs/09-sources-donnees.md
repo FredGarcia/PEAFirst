@@ -208,9 +208,19 @@ Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
   confirmée, **rien n'est enregistré** : une **fenêtre modale** décrit la cause
   et propose « Ajouter quand même » (`?confirmer=true`). Toute autre erreur
   (ISIN introuvable, réseau…) ouvre aussi une modale décrivant la cause ;
+- un bouton **par source** (recherche par valeur *et* import global depuis
+  l'onglet Sources) pilote l'acquisition. **« 🩺 Diagnostiquer les sources »**
+  teste chaque source (`GET /api/sources/etats`) et **colore** les boutons :
+  **bleu** = données disponibles, **orange clair** = test OK mais aucune donnée,
+  **gris** = indisponible ;
 - un bouton **« ↻ Réactualiser le tableau »** re-scrape toutes les valeurs de
   l'onglet depuis leur source et recalcule les scores
-  (`POST /api/actifs/reactualiser`).
+  (`POST /api/actifs/reactualiser`). Il est **bleu quand disponible**, **gris**
+  pendant le **délai mini paramétrable** (Paramètres → `reactualisation_minutes`).
+  À la fin, un **rapport technique** (suggestions) s'ouvre en fenêtre à valider ;
+- **Yahoo** fonctionne même sans la bibliothèque `yfinance` : repli HTTP direct
+  sur l'API *chart* (`query1.finance.yahoo.com/v8/finance/chart/<symbole>`),
+  qui renvoie cours, devise et historique de clôtures.
 
 **Champs Boursorama étendus** (parseur enrichi, `parser_page`) : ouverture,
 +haut/+bas, clôture veille, 52 semaines haut/bas, volume, quantité échangée,
@@ -224,14 +234,18 @@ clés »** (BNA, rendement…) sont récupérés hors de la liste principale. Le
 l'élément, avec repli sur la clôture veille.
 
 **Tableaux (Actions / ETF / OPCVM, même composant)** :
+- une **première colonne « # »** indique le **rang dans l'ordre d'acquisition** ;
 - **tri** par colonne (▴/▾) ; **suppression** d'une ligne (🗑, `DELETE
   /api/actifs/{isin}`) ; **en-tête figé** au défilement vertical ;
-- **pleine largeur** disponible (colonnes ajustées) et **colonnes Nom / ISIN /
+- **pleine largeur** disponible (colonnes ajustées) et **colonnes #, Nom, ISIN,
   Secteur figées** au défilement **horizontal** ;
-- la colonne **Source** est un **lien** (nom de la source → fiche de l'ISIN) ;
+- la colonne **Source** est le **lien d'acquisition** (`source_url`), avec le
+  **nom de la source** comme étiquette (repli : recherche par ISIN) ;
 - **entêtes propres à chaque tableau** : le jeu de colonnes visibles se choisit
-  par onglet (Paramètres → « Colonnes », avec **« Tout sélectionner »** et
-  **« Réinitialiser »**). Le tableau **Actions** est aligné par défaut sur
+  par onglet (Paramètres → « Colonnes »). Les cases ne s'enregistrent pas
+  automatiquement : **« Tout sélectionner »**, **« Enregistrer »** (conserve les
+  choix) et **« Réinitialiser »** (revient au dernier état enregistré). Le
+  tableau **Actions** est aligné par défaut sur
   `CHAMPS_FICHE` (et ses préfixes) : nom, ISIN, secteur, cours, devise,
   date/heure, variation, ouverture, +haut/+bas, clôture veille, 52 s haut/bas,
   volume, quantité échangée, capitalisation, nombre de titres, PER, rendement,

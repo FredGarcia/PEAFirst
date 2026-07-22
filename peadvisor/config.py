@@ -46,6 +46,8 @@ PROFIL_DEFAUT: dict[str, Any] = {
     "algorithme_decision": "topsis",   # "weighted" | "topsis"
     # Largeur de la barre latérale (px), paramétrable.
     "largeur_barre": 210,
+    # Délai minimal (minutes) entre deux réactualisations du tableau.
+    "reactualisation_minutes": 5,
     # Couleur d'en-tête de chaque tableau de valeurs (paramétrable).
     "couleur_actions": "#2a78d6",
     "couleur_etf": "#008300",

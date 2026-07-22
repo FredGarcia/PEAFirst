@@ -18,9 +18,12 @@ import math
 
 from sqlalchemy.orm import Session
 
+from datetime import datetime, timedelta
+
 from peadvisor.config import charger_settings
 from peadvisor.models import Actif, TypeActif
-from peadvisor.schemas import DemandeAllocation, LigneAllocation, ReponseAllocation
+from peadvisor.schemas import (DemandeAllocation, LigneAllocation, ReponseAllocation,
+                               ValeurIncomplete)
 
 # Répartition (défensive, cœur, dynamique) en % pour chaque profil 1-7.
 MIX_PROFILS: dict[int, tuple[int, int, int]] = {
@@ -46,14 +49,51 @@ def _poche(actif: Actif) -> int:
 
 
 def _metrique(actif: Actif, objectif: str) -> float:
-    """Note de sélection selon l'objectif, à partir des sous-scores."""
+    """Note de sélection selon l'objectif, à partir des sous-scores.
+
+    Critères pondérés (0-100) : au socle du score global s'ajoutent, selon
+    l'objectif, le dividende / la croissance / le potentiel, plus un bonus
+    transversal de qualité (ESG) et de liquidité, et une pénalité si des
+    données clés manquent (la sélection privilégie les valeurs documentées)."""
     sous = json.loads(actif.sous_scores) if actif.sous_scores else {}
     score = actif.score_global or 0.0
+    esg = (actif.score_esg or 0.0)
+    liquidite = sous.get("liquidite") or 0.0
     if objectif == "dividendes":
-        return 0.5 * (sous.get("dividende") or 0) + 0.2 * (sous.get("volatilite") or 0) + 0.3 * score
-    if objectif == "croissance":
-        return 0.35 * (sous.get("croissance") or 0) + 0.25 * (sous.get("potentiel") or 0) + 0.4 * score
-    return score  # équilibré : score global
+        base = 0.45 * (sous.get("dividende") or 0) + 0.15 * (sous.get("volatilite") or 0) + 0.30 * score
+    elif objectif == "croissance":
+        base = 0.30 * (sous.get("croissance") or 0) + 0.25 * (sous.get("potentiel") or 0) + 0.35 * score
+    else:  # équilibré
+        base = 0.80 * score
+    note = base + 0.06 * esg + 0.04 * liquidite
+    # Pénalité de complétude : chaque donnée clé absente retire des points.
+    note -= 6.0 * len(_infos_manquantes(actif))
+    return max(note, 0.0)
+
+
+# Données clés attendues pour sélectionner une valeur en confiance.
+_CHAMPS_CLES = [
+    ("cours", "cours indisponible"),
+    ("score_global", "score non calculé"),
+    ("niveau_risque", "niveau de risque (SRI) manquant"),
+    ("secteur", "secteur non renseigné"),
+    ("score_esg", "score ESG manquant"),
+]
+
+
+def _infos_manquantes(actif: Actif) -> list[str]:
+    """Liste lisible des informations manquantes d'une valeur."""
+    manquantes = [libelle for champ, libelle in _CHAMPS_CLES
+                  if getattr(actif, champ, None) is None]
+    # Cours périmé = information de marché à rafraîchir.
+    if actif.date_cours and actif.date_cours < datetime.utcnow() - timedelta(days=7):
+        manquantes.append("cours périmé (> 7 jours)")
+    return manquantes
+
+
+def _allouable(actif: Actif) -> bool:
+    """Une valeur n'est allouable que si le cours et le score sont connus."""
+    return actif.cours is not None and actif.score_global is not None
 
 
 def _ajuster_horizon(mix: tuple[int, int, int], horizon: int) -> tuple[int, int, int]:
@@ -76,7 +116,16 @@ def proposer_allocation(session: Session, demande: DemandeAllocation) -> Reponse
     lignes_max = int(params.get("lignes_max", 25))
     part_min_fonds = float(params.get("part_min_etf_opcvm", 0.30))
 
-    actifs = session.query(Actif).filter(Actif.eligible_pea.is_(True)).all()
+    eligibles = session.query(Actif).filter(Actif.eligible_pea.is_(True)).all()
+    # Seules les valeurs suffisamment documentées sont allouables ; les autres
+    # sont signalées (informations manquantes) sans être noyées dans le portefeuille.
+    actifs = [a for a in eligibles if _allouable(a)]
+    valeurs_incompletes = [
+        ValeurIncomplete(isin=a.isin, nom=a.nom,
+                         type=a.type.value if hasattr(a.type, "value") else str(a.type),
+                         informations_manquantes=_infos_manquantes(a))
+        for a in eligibles if not _allouable(a)
+    ]
     mix = _ajuster_horizon(MIX_PROFILS[demande.niveau_risque], demande.horizon_annees)
 
     # Poches triées par la métrique liée à l'objectif.
@@ -142,6 +191,11 @@ def proposer_allocation(session: Session, demande: DemandeAllocation) -> Reponse
             poids_final[j] += exces / len(non_plafonnees) if non_plafonnees else 0.0
 
         for a, p in zip(selection, poids_final):
+            manquantes = _infos_manquantes(a)
+            justification = (f"Poche {LIBELLES_POCHES[i]} — objectif {demande.objectif}, "
+                             f"score {a.score_global or 0:.0f}/100")
+            if manquantes:
+                justification += f" ⚠ à compléter : {', '.join(manquantes)}"
             lignes.append(LigneAllocation(
                 isin=a.isin,
                 nom=a.nom,
@@ -151,8 +205,8 @@ def proposer_allocation(session: Session, demande: DemandeAllocation) -> Reponse
                 montant=round(p * demande.capital, 2),
                 score_global=a.score_global,
                 niveau_risque=a.niveau_risque,
-                justification=f"Poche {LIBELLES_POCHES[i]} — objectif {demande.objectif}, "
-                              f"score {a.score_global or 0:.0f}/100",
+                justification=justification,
+                informations_manquantes=manquantes,
             ))
 
     # Renormalisation finale (les arrondis et plafonds peuvent dévier de 100 %).
@@ -165,13 +219,31 @@ def proposer_allocation(session: Session, demande: DemandeAllocation) -> Reponse
     for l in lignes:
         repartition_types[l.type] = round(repartition_types.get(l.type, 0.0) + l.poids, 4)
 
+    criteres_objectif = {
+        "dividendes": "dividende (45 %) · score global (30 %) · faible volatilité (15 %)",
+        "croissance": "croissance (30 %) · potentiel (25 %) · score global (35 %)",
+        "equilibre": "score global (80 %)",
+    }
+    criteres = [
+        f"Sélection {demande.objectif} : {criteres_objectif.get(demande.objectif, 'score global')}, "
+        "+ bonus ESG (6 %) et liquidité (4 %).",
+        "Pénalité de complétude : les valeurs aux données clés manquantes sont défavorisées.",
+        f"Diversification : ≤ {poids_max_ligne:.0%} par ligne, ≤ {poids_max_secteur:.0%} par secteur, "
+        f"part minimale de fonds (ETF/OPCVM) dans la poche cœur.",
+        f"Répartition par risque défensive/cœur/dynamique = {mix[0]}/{mix[1]}/{mix[2]} % "
+        f"(profil {demande.niveau_risque}/7, horizon {demande.horizon_annees} ans).",
+    ]
+
     commentaire = (
         f"Profil {demande.niveau_risque}/7, horizon {demande.horizon_annees} ans, objectif "
         f"« {demande.objectif} » : répartition cible défensive/cœur/dynamique = "
         f"{mix[0]}/{mix[1]}/{mix[2]} %. {len(lignes)} lignes proposées, plafond "
         f"{poids_max_ligne:.0%} par ligne et {poids_max_secteur:.0%} par secteur. "
-        "Proposition indicative : ceci n'est pas un conseil en investissement."
     )
+    if valeurs_incompletes:
+        commentaire += (f"{len(valeurs_incompletes)} valeur(s) éligible(s) écartée(s) faute de "
+                        "données suffisantes (voir « informations manquantes »). ")
+    commentaire += "Proposition indicative : ceci n'est pas un conseil en investissement."
 
     return ReponseAllocation(
         capital=demande.capital,
@@ -180,5 +252,7 @@ def proposer_allocation(session: Session, demande: DemandeAllocation) -> Reponse
         objectif=demande.objectif,
         repartition_types=repartition_types,
         lignes=sorted(lignes, key=lambda l: l.poids, reverse=True),
+        criteres=criteres,
+        valeurs_incompletes=valeurs_incompletes,
         commentaire=commentaire,
     )

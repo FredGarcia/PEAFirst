@@ -165,13 +165,15 @@ tr:hover td.col-fixe { background: color-mix(in srgb, var(--serie-1) 6%, var(--s
 .modal {
   background: var(--surface); color: var(--ink);
   border: 1px solid var(--border); border-radius: 12px;
-  padding: 20px 22px; max-width: 460px; width: 100%;
+  padding: 20px 22px; max-width: 520px; width: 100%; max-height: 84vh;
+  display: flex; flex-direction: column;
   box-shadow: 0 12px 40px rgba(0, 0, 0, .3);
 }
-.modal h3 { margin: 0 0 10px; }
-.modal-corps { font-size: 14px; margin-bottom: 16px; }
+.modal h3 { margin: 0 0 10px; flex: 0 0 auto; }
+.modal-corps { font-size: 14px; margin-bottom: 16px; overflow-y: auto; flex: 1 1 auto; }
 .modal-corps ul { margin: 6px 0 0; padding-left: 18px; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-corps li { margin-bottom: 4px; word-break: break-word; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex: 0 0 auto; }
 
 .lien-source { color: var(--serie-1); text-decoration: none; }
 .lien-source:hover { text-decoration: underline; }
@@ -183,6 +185,14 @@ tr:hover td.col-fixe { background: color-mix(in srgb, var(--serie-1) 6%, var(--s
 }
 .actions-groupe { display: inline-flex; gap: 8px; }
 .actions-groupe button { padding: 4px 10px; font-size: 12px; }
+
+/* Boutons de source de la barre de recherche : état d'acquisition (diagnostic).
+   Bleu (défaut) = données disponibles · orange clair = test OK sans donnée ·
+   gris = indisponible. */
+.btn-source.src-disponible { background: var(--serie-1); color: #fff; }
+.btn-source.src-vide { background: #eba94f; color: #3a2a0e; }
+.btn-source.src-indispo { background: var(--grid); color: var(--muted); }
+.btn-source:disabled { cursor: default; filter: none; opacity: .8; }
 
 .pastille { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: baseline; }
 .pastille.ACTION { background: var(--serie-1); }

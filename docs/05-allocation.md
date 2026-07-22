@@ -51,6 +51,25 @@ sans actif disponible reverse son poids à la poche cœur.
 Les poids intra-poche sont proportionnels à la métrique de sélection, plafonnés
 par ligne, puis l'ensemble est renormalisé à 100 % du capital.
 
+## 4 bis. Critères de sélection et complétude des données
+
+La métrique de sélection combine, selon l'objectif, le score global, le
+dividende / la croissance / le potentiel, plus un **bonus transversal** de
+qualité **ESG** et de **liquidité**, et une **pénalité de complétude** : une
+valeur aux données clés manquantes est défavorisée.
+
+Deux garde-fous de qualité de données :
+
+- une valeur n'est **allouable** que si son **cours** et son **score** sont
+  connus ; les autres valeurs éligibles sont **écartées** et listées à part
+  (`valeurs_incompletes`, avec le détail des informations manquantes) ;
+- chaque ligne retenue porte ses éventuelles **informations manquantes**
+  (`informations_manquantes` : secteur, ESG, niveau de risque, cours périmé…),
+  signalées par ⚠ dans l'écran Allocation.
+
+La réponse expose aussi la liste des **critères appliqués** (`criteres`) pour
+la transparence de la proposition.
+
 ## 5. Limites et évolutions
 
 Le moteur actuel est **par règles** : transparent, explicable (chaque ligne

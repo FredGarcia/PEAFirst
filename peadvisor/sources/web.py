@@ -90,6 +90,7 @@ class Scraper:
         rep = requests.get(url, headers=ENTETES, timeout=20)
         rep.raise_for_status()
         donnees = parser_generique(rep.text, self.nom)
+        donnees.setdefault("source_url", url)   # lien d'acquisition
         if not donnees.get("isin") and not donnees.get("cours"):
             raise ValueError(
                 f"{self.libelle} : rien d'exploitable extrait — parseur à fiabiliser "
@@ -103,7 +104,9 @@ def _boursorama(requete: str) -> dict[str, Any]:
     code = boursorama.code_ou_recherche(requete)
     if not code:
         raise ValueError(f"Aucune valeur Boursorama pour « {requete} »")
-    return boursorama.recuperer_un(code)
+    donnees = boursorama.recuperer_un(code)
+    donnees.setdefault("source_url", f"{boursorama.BASE}{code}/")  # lien d'acquisition
+    return donnees
 
 
 # Registre des sources. Boursorama = validé ; les autres sont best-effort

@@ -60,6 +60,8 @@ def importer_valeur(session: Session, source: str, requete: str,
         setattr(actif, champ, valeur)
     if not actif.nom:
         actif.nom = donnees.get("nom") or requete
+    if donnees.get("source_url"):
+        actif.source_url = donnees["source_url"]
     actif.date_cours = datetime.utcnow()
     session.commit()
 

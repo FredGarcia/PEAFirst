@@ -99,6 +99,20 @@ function lienFiche(source, isin) {
   return f(encodeURIComponent(isin || ""));
 }
 
+// Cache (durée de session) du dernier diagnostic des sources, pour recolorer
+// les boutons à chaque rendu sans re-tester le réseau.
+let etatsSourcesCache = null;
+function appliquerEtatsSources() {
+  if (!etatsSourcesCache) return;
+  document.querySelectorAll(".btn-source").forEach((b) => {
+    const etat = etatsSourcesCache.parNom[b.dataset.source];
+    b.classList.remove("src-disponible", "src-vide", "src-indispo");
+    if (etat === "disponible") b.classList.add("src-disponible");
+    else if (etat === "vide") b.classList.add("src-vide");
+    else if (etat === "indisponible") b.classList.add("src-indispo");
+  });
+}
+
 // Fige les `nbFixes` premières colonnes au défilement horizontal : calcule le
 // décalage gauche cumulé de chaque colonne figée (largeurs variables).
 function figerColonnes(nbFixes) {
@@ -207,6 +221,8 @@ const txtCell = (s) => echap(s ?? "—");
 // et mêmes clés) puis indicateurs calculés. Chaque entrée : libellé, tri, accès
 // à la valeur (val) et rendu de cellule (cell).
 const CATALOGUE_COLONNES = {
+  rang: { label: "#", num: true, val: (a) => a._rang,
+    cell: (a) => `<span class="muted">${a._rang ?? "—"}</span>` },
   nom: { label: "Nom", num: false, val: (a) => a.nom || "",
     cell: (a) => `<span class="pastille ${a.type}"></span>${echap(a.nom)}` },
   isin: { label: "ISIN", num: false, val: (a) => a.isin, cell: (a) => `<span class="muted">${a.isin}</span>` },
@@ -251,9 +267,12 @@ const CATALOGUE_COLONNES = {
   score_global: { label: "Score", num: true, val: (a) => a.score_global,
     cell: (a) => `<span class="score-badge">${fmt(a.score_global, 0)}</span>` },
   source: { label: "Source", num: false, val: (a) => a.source || "",
-    cell: (a) => a.source
-      ? `<a href="${lienFiche(a.source, a.isin)}" target="_blank" rel="noopener" class="lien-source" title="Ouvrir la fiche ${echap(a.isin)} sur ${echap(a.source)}">${echap(a.source)}</a>`
-      : "—" },
+    cell: (a) => {
+      if (!a.source) return "—";
+      // Lien = URL d'acquisition si connue, sinon recherche par ISIN sur la source.
+      const href = a.source_url || lienFiche(a.source, a.isin);
+      return `<a href="${echap(href)}" target="_blank" rel="noopener" class="lien-source" title="Lien d'acquisition (${echap(a.isin)}) sur ${echap(a.source)}">${echap(a.source)}</a>`;
+    } },
 };
 
 // Ordre exact de CHAMPS_FICHE (scraper Boursorama) + préfixes → clés du catalogue.
@@ -302,36 +321,60 @@ function trierActifs(liste) {
 const COULEUR_ONGLET = { ACTION: "couleur_actions", ETF: "couleur_etf", OPCVM: "couleur_opcvm" };
 
 async function vueActifs(type, titre) {
-  const [actifs, sources, profil] = await Promise.all([
+  const [actifs, sources, sourcesGlobales, profil] = await Promise.all([
     api(`/api/actifs?type=${type}`),
     api("/api/recherche/sources"),
+    api("/api/sources"),
     api("/api/parametres/profil"),
   ]);
   const aDuSeed = actifs.some((a) => a.source === "seed");
   const entete = profil[COULEUR_ONGLET[type]] || "var(--serie-1)";
-  const colonnes = colonnesVisibles(type, profil);
+  // Rang dans l'ordre d'acquisition (id croissant), figé quel que soit le tri.
+  [...actifs].sort((a, b) => a.id - b.id).forEach((a, i) => { a._rang = i + 1; });
+  // Colonne « # » (rang) toujours en tête, puis les colonnes visibles de l'onglet.
+  const colonnes = [{ cle: "rang", ...CATALOGUE_COLONNES.rang }, ...colonnesVisibles(type, profil)];
   // Le tri courant doit porter sur une colonne visible.
   if (!colonnes.some((c) => c.cle === triActifs.cle)) {
     triActifs.cle = colonnes.some((c) => c.cle === "score_global") ? "score_global" : colonnes[0].cle;
   }
-  // Colonnes figées au défilement horizontal : Nom, ISIN, Secteur en tête.
-  const CLES_FIXES = ["nom", "isin", "secteur"];
+  // Colonnes figées au défilement horizontal : rang, Nom, ISIN, Secteur en tête.
+  const CLES_FIXES = ["rang", "nom", "isin", "secteur"];
   let nbFixes = 0;
   while (nbFixes < colonnes.length && CLES_FIXES.includes(colonnes[nbFixes].cle)) nbFixes++;
+
+  // Sources d'import global (onglet Sources) hors scrapers déjà présents et hors seed.
+  const nomsScrapers = new Set(sources.map((s) => s.nom));
+  const sourcesImport = sourcesGlobales.sources.filter(
+    (s) => s.nom !== "seed" && !nomsScrapers.has(s.nom));
+
+  // Réactualisation : délai minimal paramétrable (bleu = disponible, gris = en attente).
+  const minutesCd = Number(profil.reactualisation_minutes) || 0;
+  const derniereReactu = Number(localStorage.getItem("peadvisor-reactu-" + type) || 0);
+  const restantMs = Math.max(0, derniereReactu + minutesCd * 60000 - Date.now());
 
   // Barre de recherche : service partagé, présent sur les trois onglets de valeurs.
   const barreRecherche = `
     <form class="panneau" id="form-scrap">
       <label class="champ" style="display:block;margin-bottom:8px">Rechercher et ajouter une valeur (nom, ISIN ou code) — la source détecte le type et vérifie l'éligibilité PEA :
         <input type="text" id="scrap-requete" placeholder="ex. Air Liquide, FR0000120073 ou 1rPAI" style="width:340px"></label>
-      <div class="champs">
-        ${sources.map((s) => `<button type="button" class="${s.valide ? "" : "secondaire"}"
-          data-source="${s.nom}" title="${s.valide ? "Source validée" : "Source à valider — envoyer une page exemple"}">
+      <div class="champs" id="boutons-recherche">
+        ${sources.map((s) => `<button type="button" class="btn-source" data-source="${s.nom}"
+          data-cat="recherche" title="Recherche par valeur — ${s.valide ? "source validée" : "parseur à fiabiliser"}">
           ${echap(s.libelle)}${s.valide ? "" : " *"}</button>`).join("")}
-        <button type="button" id="btn-reactualiser" class="secondaire"
+      </div>
+      <div class="champs" id="boutons-import" style="margin-top:8px">
+        <span class="libelle-reglage" style="min-width:auto">Import global :</span>
+        ${sourcesImport.map((s) => `<button type="button" class="btn-source" data-source="${s.nom}"
+          data-cat="import" title="Import global depuis ${echap(s.nom)}">${echap(s.nom)}</button>`).join("")}
+        <button type="button" id="btn-diagnostic" class="secondaire"
+          title="Tester chaque source et colorer les boutons">🩺 Diagnostiquer les sources</button>
+      </div>
+      <div class="champs" style="margin-top:8px">
+        <button type="button" id="btn-reactualiser" class="${restantMs ? "secondaire" : ""}"
+          ${restantMs ? "disabled" : ""} data-restant="${restantMs}"
           title="Re-scraper et mettre à jour toutes les valeurs de ce tableau">↻ Réactualiser le tableau</button>
       </div>
-      <p class="note-bas" id="retour-scrap">« * » : source branchée mais parseur à fiabiliser. La valeur est classée automatiquement dans l'onglet Actions / ETF / OPCVM selon son type. « ↻ Réactualiser » met à jour toutes les lignes depuis leur source.</p>
+      <p class="note-bas" id="retour-scrap">Boutons <b>bleus</b> : données disponibles · <b>orange</b> : test OK mais aucune donnée · <b>gris</b> : indisponible (lancer « Diagnostiquer »). « * » : parseur à fiabiliser. « ↻ Réactualiser » met à jour toutes les lignes (délai mini ${minutesCd} min, réglable dans Paramètres).</p>
     </form>`;
 
   const toggleSeed = aDuSeed ? `<button class="secondaire" id="toggle-seed">${
@@ -428,37 +471,87 @@ async function vueActifs(type, titre) {
     }
   }
 
-  document.querySelectorAll("#form-scrap [data-source]").forEach((bouton) =>
+  // Import global depuis une source (Yahoo, AlphaVantage, Stooq…).
+  async function lancerImport(source, retour) {
+    retour.textContent = `Import global depuis ${source}…`;
+    try {
+      const r = await api(`/api/import?source=${encodeURIComponent(source)}`, { method: "POST" });
+      retour.innerHTML = `<span class="hausse">Import ${echap(source)}</span> — `
+        + `${r.nb_crees ?? 0} créé(s), ${r.nb_maj ?? 0} mis à jour`
+        + (r.nb_erreurs ? `, <span class="baisse">${r.nb_erreurs} erreur(s)</span>` : "")
+        + (r.detail ? `<br><span class="muted">${echap(r.detail)}</span>` : "");
+      setTimeout(() => vueActifs(type, titre), 1400);
+    } catch (err) {
+      ouvrirModal(`Import ${source} impossible`, `<p class="baisse">${echap(err.message)}</p>`,
+        [{ libelle: "Fermer", secondaire: true }]);
+      retour.innerHTML = `<span class="baisse">Échec import ${echap(source)}</span> — ${echap(err.message)}`;
+    }
+  }
+
+  document.querySelectorAll("#form-scrap .btn-source").forEach((bouton) =>
     bouton.addEventListener("click", () => {
-      const requete = document.getElementById("scrap-requete").value.trim();
       const retour = document.getElementById("retour-scrap");
+      if (bouton.dataset.cat === "import") { lancerImport(bouton.dataset.source, retour); return; }
+      const requete = document.getElementById("scrap-requete").value.trim();
       if (!requete) { retour.textContent = "Saisir un nom, un ISIN ou un code."; return; }
       lancerRecherche(bouton.dataset.source, bouton.textContent.trim(), requete, retour, false);
     }));
 
-  // Réactualisation : re-scrape toutes les valeurs du tableau depuis leur source.
-  document.getElementById("btn-reactualiser").addEventListener("click", async (e) => {
+  // Diagnostic : teste chaque source et colore les boutons (bleu/orange/gris).
+  document.getElementById("btn-diagnostic").addEventListener("click", async (e) => {
     const retour = document.getElementById("retour-scrap");
     e.target.disabled = true;
+    retour.textContent = "Diagnostic des sources en cours (interrogation réelle)…";
+    try {
+      const etats = await api("/api/sources/etats");
+      etatsSourcesCache = { ts: Date.now(), parNom: {} };
+      etats.forEach((s) => { etatsSourcesCache.parNom[s.nom] = s.etat; });
+      appliquerEtatsSources();
+      const n = (etat) => etats.filter((s) => s.etat === etat).length;
+      retour.innerHTML = `<span class="hausse">Diagnostic terminé</span> — `
+        + `${n("disponible")} disponible(s), ${n("vide")} vide(s), ${n("indisponible")} indisponible(s).`;
+    } catch (err) {
+      retour.innerHTML = `<span class="baisse">Diagnostic impossible</span> — ${echap(err.message)}`;
+    }
+    e.target.disabled = false;
+  });
+
+  // Réactualisation : re-scrape toutes les valeurs + rapport technique à valider.
+  const btnReactu = document.getElementById("btn-reactualiser");
+  if (restantMs > 0) {
+    // Ré-affiche l'onglet à la fin du délai pour réactiver le bouton (bleu).
+    setTimeout(() => { if (location.hash.slice(1) === type.toLowerCase()) vueActifs(type, titre); },
+      restantMs + 200);
+  }
+  btnReactu.addEventListener("click", async (e) => {
+    const retour = document.getElementById("retour-scrap");
+    e.target.disabled = true;
+    e.target.classList.add("secondaire");
     retour.textContent = "Réactualisation de toutes les valeurs en cours…";
     try {
       const r = await api(`/api/actifs/reactualiser?type=${type}`, { method: "POST" });
+      localStorage.setItem("peadvisor-reactu-" + type, Date.now());
       retour.innerHTML = `<span class="hausse">Réactualisé</span> — ${r.actifs_maj} valeur(s) mise(s) à jour`
         + (r.echecs ? `, <span class="baisse">${r.echecs} échec(s)</span>` : "")
         + `, scores recalculés (${r.actifs_recalcules}).`;
-      if (r.echecs && r.details?.length) {
-        ouvrirModal("Détail des échecs de réactualisation",
-          `<ul>${r.details.map((x) => `<li>${echap(x)}</li>`).join("")}</ul>`,
-          [{ libelle: "Fermer", secondaire: true }]);
-      }
-      setTimeout(() => vueActifs(type, titre), 1400);
+      // Rapport de fin : suggestions techniques, à valider.
+      const listeSug = (r.suggestions || []).map((x) => `<li>${echap(x)}</li>`).join("");
+      const listeDet = (r.echecs && r.details?.length)
+        ? `<p class="muted">Détails :</p><ul>${r.details.map((x) => `<li>${echap(x)}</li>`).join("")}</ul>` : "";
+      ouvrirModal("Rapport de réactualisation", `
+        <p>${r.actifs_maj} valeur(s) mise(s) à jour, ${r.echecs} échec(s).</p>
+        <p><b>Suggestions techniques :</b></p><ul>${listeSug}</ul>${listeDet}`,
+        [{ libelle: "Valider", onClick: () => vueActifs(type, titre) }]);
     } catch (err) {
       ouvrirModal("Erreur de réactualisation", `<p class="baisse">${echap(err.message)}</p>`,
         [{ libelle: "Fermer", secondaire: true }]);
       retour.innerHTML = `<span class="baisse">Échec</span> — ${echap(err.message)}`;
       e.target.disabled = false;
+      e.target.classList.remove("secondaire");
     }
   });
+
+  appliquerEtatsSources();   // recolore selon le dernier diagnostic (cache session)
 }
 
 async function vueAllocation() {
@@ -502,21 +595,38 @@ async function vueAllocation() {
     });
     const repartition = Object.fromEntries(
       Object.entries(r.repartition_types).map(([t, p]) => [t, Math.round(p * 100)]));
+    const criteres = (r.criteres || []).length
+      ? `<div class="carte"><h3>Critères de sélection</h3>
+         <ul>${r.criteres.map((c) => `<li>${echap(c)}</li>`).join("")}</ul></div>` : "";
+    const incompletes = (r.valeurs_incompletes || []).length
+      ? `<h2>Valeurs éligibles écartées — informations manquantes (${r.valeurs_incompletes.length})</h2>
+         <div class="carte"><div class="table-scroll"><table>
+           <thead><tr><th>Valeur</th><th>Type</th><th>Informations manquantes</th></tr></thead>
+           <tbody>${r.valeurs_incompletes.map((v) => `<tr>
+             <td><span class="pastille ${v.type}"></span>${echap(v.nom)} <span class="muted">${echap(v.isin)}</span></td>
+             <td>${echap(v.type)}</td>
+             <td class="baisse">${echap(v.informations_manquantes.join(" · "))}</td></tr>`).join("")}
+           </tbody></table></div>
+           <p class="note-bas">Ces valeurs sont exclues de l'allocation tant que leurs données clés
+             (cours, score…) ne sont pas renseignées — réactualiser ou changer de source.</p></div>` : "";
     document.getElementById("resultat-allocation").innerHTML = `
       <div class="cartes">${grapheBarres("Répartition par type (%)", repartition)}</div>
+      ${criteres}
       <h2>${r.lignes.length} lignes proposées</h2>
       <div class="carte"><div class="table-scroll"><table>
         <thead><tr><th>Valeur</th><th>Secteur</th><th class="num">Poids</th>
           <th class="num">Montant</th><th class="num">Score</th><th>Justification</th></tr></thead>
         <tbody>${r.lignes.map((l) => `<tr>
-          <td><span class="pastille ${l.type}"></span>${echap(l.nom)}</td>
+          <td><span class="pastille ${l.type}"></span>${echap(l.nom)}${
+            l.informations_manquantes?.length ? ' <span class="baisse" title="Informations manquantes">⚠</span>' : ""}</td>
           <td>${echap(l.secteur ?? "—")}</td>
           <td class="num">${(l.poids * 100).toFixed(1)} %</td>
           <td class="num">${euros(l.montant)}</td>
           <td class="num score-badge">${fmt(l.score_global, 0)}</td>
           <td class="muted">${echap(l.justification)}</td></tr>`).join("")}
         </tbody></table></div>
-        <p class="note-bas">${echap(r.commentaire)}</p></div>`;
+        <p class="note-bas">${echap(r.commentaire)}</p></div>
+      ${incompletes}`;
   });
 }
 
@@ -822,6 +932,8 @@ async function vueParametres() {
     <div class="panneau" id="panneau-apparence">
       <div class="reglage"><span class="libelle-reglage">Largeur de la barre latérale (px)</span>
         <input type="number" id="largeur-barre" value="${profil.largeur_barre}" min="140" max="420" step="10" style="width:90px"></div>
+      <div class="reglage"><span class="libelle-reglage">Délai mini de réactualisation (min)</span>
+        <input type="number" id="reactu-minutes" value="${profil.reactualisation_minutes}" min="0" max="1440" step="1" style="width:90px"></div>
       <div class="champs">
         <label class="champ">Couleur en-tête Actions
           <input type="color" data-couleur="couleur_actions" value="${profil.couleur_actions}"></label>
@@ -840,12 +952,14 @@ async function vueParametres() {
           <span class="libelle-reglage">${lib}</span>
           <span class="actions-groupe">
             <button type="button" class="secondaire" data-tout="${type.toLowerCase()}">Tout sélectionner</button>
+            <button type="button" data-enreg="${type.toLowerCase()}">Enregistrer</button>
             <button type="button" class="secondaire" data-reinit="${type.toLowerCase()}">Réinitialiser</button>
           </span>
         </div>
         <div class="cases-colonnes" data-groupe="${type.toLowerCase()}">${casesColonnes(type)}</div></div>`).join("")}
-      <p class="note-bas" id="retour-colonnes">Chaque onglet (Actions, ETF, OPCVM) a son propre
-        jeu de colonnes. Le tableau des Actions est aligné par défaut sur CHAMPS_FICHE et ses préfixes.</p>
+      <p class="note-bas" id="retour-colonnes">Chaque onglet a son propre jeu de colonnes (Actions
+        aligné par défaut sur CHAMPS_FICHE). Les cases ne s'enregistrent pas automatiquement :
+        « Enregistrer » conserve les choix, « Réinitialiser » revient au dernier état enregistré.</p>
     </div>
     <h2>Sources — URL de la page exemple (bouton « Tester »)</h2>
     <div class="panneau" id="panneau-urls">
@@ -897,6 +1011,10 @@ async function vueParametres() {
     await enregistrerProfil({ largeur_barre: px });
     retourApp.textContent = "Largeur enregistrée ✓";
   });
+  document.getElementById("reactu-minutes").addEventListener("change", async (e) => {
+    await enregistrerProfil({ reactualisation_minutes: Number(e.target.value) });
+    retourApp.textContent = "Délai de réactualisation enregistré ✓";
+  });
   document.querySelectorAll("#panneau-apparence [data-couleur]").forEach((inp) =>
     inp.addEventListener("change", async () => {
       await enregistrerProfil({ [inp.dataset.couleur]: inp.value });
@@ -904,32 +1022,49 @@ async function vueParametres() {
     }));
 
   // Colonnes : chaque tableau (Actions/ETF/OPCVM) a son propre jeu d'entêtes.
+  // Les modifications ne sont PAS enregistrées automatiquement : « Enregistrer »
+  // conserve les choix, « Réinitialiser » revient au dernier état enregistré.
   const retourCol = document.getElementById("retour-colonnes");
-  const enregistrerColonnes = async (type) => {
-    // Ordre = ordre du DOM (= ORDRE_COLONNES).
-    const cles = [...document.querySelectorAll(`[data-colonne="${type}"]`)]
-      .filter((c) => c.checked).map((c) => c.value);
-    await enregistrerProfil({ ["colonnes_" + type]: cles });
-    retourCol.textContent = "Colonnes enregistrées ✓";
+  const casesDe = (type) => [...document.querySelectorAll(`[data-colonne="${type}"]`)];
+  const cochees = (type) => casesDe(type).filter((c) => c.checked).map((c) => c.value);
+  // Snapshot du dernier état enregistré, par onglet (état de départ = profil).
+  const etatSauve = {};
+  TYPES_TABLEAU.forEach(([TYPE, ]) => {
+    const t = TYPE.toLowerCase();
+    const p = profil["colonnes_" + t];
+    etatSauve[t] = (p && p.length ? p : COLONNES_DEFAUT[TYPE]).slice();
+  });
+  const appliquerCases = (type, cles) => casesDe(type).forEach(
+    (c) => { c.checked = cles.includes(c.value); });
+  const marquerModifie = (type) => {
+    const modifie = JSON.stringify(cochees(type)) !== JSON.stringify(etatSauve[type]);
+    retourCol.textContent = modifie
+      ? `Modifications non enregistrées (${type}). « Enregistrer » ou « Réinitialiser ».`
+      : "Colonnes à jour.";
   };
   document.querySelectorAll("#panneau-colonnes [data-colonne]").forEach((inp) =>
-    inp.addEventListener("change", () => enregistrerColonnes(inp.dataset.colonne)));
-  // « Tout sélectionner » : coche toutes les colonnes du groupe.
+    inp.addEventListener("change", () => marquerModifie(inp.dataset.colonne)));
+  // « Tout sélectionner » : coche toutes les colonnes (sans enregistrer).
   document.querySelectorAll("#panneau-colonnes [data-tout]").forEach((b) =>
-    b.addEventListener("click", async () => {
-      const type = b.dataset.tout;
-      document.querySelectorAll(`[data-colonne="${type}"]`).forEach((c) => { c.checked = true; });
-      await enregistrerColonnes(type);
+    b.addEventListener("click", () => {
+      casesDe(b.dataset.tout).forEach((c) => { c.checked = true; });
+      marquerModifie(b.dataset.tout);
     }));
-  // « Réinitialiser » : rétablit le jeu de colonnes par défaut de l'onglet.
-  document.querySelectorAll("#panneau-colonnes [data-reinit]").forEach((b) =>
+  // « Enregistrer » : conserve les choix et met à jour l'état de référence.
+  document.querySelectorAll("#panneau-colonnes [data-enreg]").forEach((b) =>
     b.addEventListener("click", async () => {
+      const type = b.dataset.enreg;
+      const cles = cochees(type);
+      await enregistrerProfil({ ["colonnes_" + type]: cles });
+      etatSauve[type] = cles.slice();
+      retourCol.textContent = `Colonnes ${type} enregistrées ✓`;
+    }));
+  // « Réinitialiser » : revient au dernier état enregistré (annule les modifs).
+  document.querySelectorAll("#panneau-colonnes [data-reinit]").forEach((b) =>
+    b.addEventListener("click", () => {
       const type = b.dataset.reinit;
-      const defaut = COLONNES_DEFAUT[type.toUpperCase()] || [];
-      document.querySelectorAll(`[data-colonne="${type}"]`).forEach((c) => {
-        c.checked = defaut.includes(c.value);
-      });
-      await enregistrerColonnes(type);
+      appliquerCases(type, etatSauve[type]);
+      retourCol.textContent = `Colonnes ${type} réinitialisées à l'état enregistré.`;
     }));
 
   // URL de page exemple par source (utilisée par le bouton « Tester »).

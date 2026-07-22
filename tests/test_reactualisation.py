@@ -26,3 +26,5 @@ def test_reactualiser_met_a_jour_les_valeurs(monkeypatch, session):
     # La fiche TotalEnergies porte le nouveau cours issu du scrape.
     tte = session.query(Actif).filter(Actif.isin == "FR0000120271").one()
     assert tte.cours == 61.50 and tte.variation_pct == 0.80
+    # Un rapport technique (suggestions) est renvoyé pour la fenêtre de validation.
+    assert isinstance(r["suggestions"], list) and r["suggestions"]
