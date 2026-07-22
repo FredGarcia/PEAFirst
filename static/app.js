@@ -883,12 +883,18 @@ function segments(champ, options, valeurActive) {
 }
 
 async function vueParametres() {
-  const [cfg, profil] = await Promise.all([
+  const [cfg, profil, meta, profilsScore] = await Promise.all([
     api("/api/parametres/scoring"),
     api("/api/parametres/profil"),
+    api("/api/scoring/criteres"),
+    api("/api/scoring/profils"),
   ]);
-  const criteres = Object.entries(cfg.ponderations);
   const risques = Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [n, n]));
+  // Familles de critères (ordre + libellés) et pondérations actives.
+  const CRITERES = meta.criteres;
+  const ordreCriteres = Object.keys(CRITERES);
+  const sommeCriteres = () => ordreCriteres.reduce(
+    (s, c) => s + (Number(cfg.ponderations[c]) || 0), 0);
   const TYPES_TABLEAU = [["ACTION", "Actions"], ["ETF", "ETF"], ["OPCVM", "OPCVM"]];
   const casesColonnes = (type) => {
     const cle = "colonnes_" + type.toLowerCase();
@@ -917,16 +923,35 @@ async function vueParametres() {
       <p class="note-bas" id="retour-profil">Ce profil pilote l'algorithme du classement
         du tableau de bord et pré-remplit le formulaire d'allocation.</p>
     </div>
-    <h2>Pondérations du score</h2>
-    <p class="sous-titre">Score propriétaire (0-100). La somme est renormalisée automatiquement.</p>
+    <h2>Score — 10 familles de critères &amp; profils de pondération</h2>
+    <p class="sous-titre">Score propriétaire (0-100). La somme est renormalisée automatiquement ;
+      un critère sans donnée voit son poids redistribué sur les autres.</p>
+    <div class="panneau" id="panneau-profils-score">
+      <div class="reglage">
+        <span class="libelle-reglage">Profil de pondération</span>
+        <select id="select-profil-score">
+          ${Object.keys(profilsScore).map((n) => `<option value="${echap(n)}">${echap(n)}</option>`).join("")}
+        </select>
+        <button type="button" id="btn-charger-profil" class="secondaire">Charger dans l'éditeur</button>
+        <button type="button" id="btn-appliquer-profil">Appliquer &amp; recalculer</button>
+        <button type="button" id="btn-maj-profil" class="secondaire">Mettre à jour</button>
+        <button type="button" id="btn-suppr-profil" class="secondaire">Supprimer</button>
+      </div>
+      <p class="note-bas" id="retour-profil-score">Profils préenregistrés (Value, Growth, Dividend,
+        Quality, Momentum, IA) modifiables. « Appliquer » remplace les pondérations actives et rescore.</p>
+    </div>
     <form class="panneau" id="form-poids">
       <div class="champs">
-        ${criteres.map(([c, p]) => `<label class="champ">${c}
-          <input type="number" name="${c}" value="${p}" min="0" max="100" step="1"></label>`).join("")}
-        <button type="submit">Enregistrer et recalculer</button>
+        ${ordreCriteres.map((c) => `<label class="champ" title="${echap(CRITERES[c].variables)}">
+          ${echap(CRITERES[c].libelle)}
+          <input type="number" name="${c}" value="${cfg.ponderations[c] ?? 0}" min="0" max="100" step="1"></label>`).join("")}
       </div>
-      <p class="note-bas" id="retour-poids">Somme actuelle :
-        ${criteres.reduce((somme, [, p]) => somme + p, 0)}</p>
+      <div class="champs" style="margin-top:10px">
+        <button type="submit">Enregistrer &amp; recalculer (pondérations actives)</button>
+        <button type="button" id="btn-nouveau-profil" class="secondaire">Enregistrer comme nouveau profil…</button>
+      </div>
+      <p class="note-bas" id="retour-poids">Somme actuelle : <b id="somme-poids">${sommeCriteres()}</b>
+        (renormalisée à 100). Survolez un critère pour voir les variables couvertes.</p>
     </form>
     <h2>Apparence &amp; disposition</h2>
     <div class="panneau" id="panneau-apparence">
@@ -967,17 +992,89 @@ async function vueParametres() {
       <p class="note-bas" id="retour-urls">Le test d'une source récupère cette page : réponse JSON
         affichée en exemple, sinon extrait texte ; en cas d'échec, la cause en texte.</p>
     </div>`;
+  // Lecture des pondérations saisies dans l'éditeur (10 familles).
+  const lirePoidsEditeur = () => Object.fromEntries(
+    ordreCriteres.map((c) => [c, Number(document.querySelector(`#form-poids [name="${c}"]`).value) || 0]));
+  const ecrirePoidsEditeur = (poids) => ordreCriteres.forEach((c) => {
+    document.querySelector(`#form-poids [name="${c}"]`).value = poids[c] ?? 0;
+  });
+  const majSomme = () => {
+    document.getElementById("somme-poids").textContent =
+      ordreCriteres.reduce((s, c) => s + (Number(document.querySelector(`#form-poids [name="${c}"]`).value) || 0), 0);
+  };
+  document.querySelectorAll("#form-poids input[type=number]").forEach((i) =>
+    i.addEventListener("input", majSomme));
+
+  // Pondérations actives : enregistrer + recalculer.
   document.getElementById("form-poids").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const poids = Object.fromEntries(
-      [...new FormData(e.target)].map(([c, v]) => [c, Number(v)]));
     const r = await api("/api/parametres/scoring", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(poids),
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lirePoidsEditeur()),
     });
-    document.getElementById("retour-poids").textContent =
-      `Enregistré — scores recalculés pour ${r.actifs_recalcules} actifs.`;
+    document.getElementById("retour-poids").innerHTML =
+      `<span class="hausse">Enregistré</span> — scores recalculés pour ${r.actifs_recalcules} actifs.`;
+  });
+
+  // --- Profils de pondération (CRUD) ---
+  const retourProfilScore = document.getElementById("retour-profil-score");
+  const selProfil = document.getElementById("select-profil-score");
+  const rechargerListe = async (selection) => {
+    const profils = await api("/api/scoring/profils");
+    selProfil.innerHTML = Object.keys(profils).map((n) =>
+      `<option value="${echap(n)}">${echap(n)}</option>`).join("");
+    if (selection && profils[selection]) selProfil.value = selection;
+    return profils;
+  };
+  // Charger un profil dans l'éditeur (sans l'appliquer).
+  document.getElementById("btn-charger-profil").addEventListener("click", async () => {
+    const profils = await api("/api/scoring/profils");
+    ecrirePoidsEditeur(profils[selProfil.value] || {});
+    majSomme();
+    retourProfilScore.textContent = `Profil « ${selProfil.value} » chargé dans l'éditeur (non appliqué).`;
+  });
+  // Appliquer un profil : devient actif + rescore.
+  document.getElementById("btn-appliquer-profil").addEventListener("click", async () => {
+    try {
+      const r = await api(`/api/scoring/profils/${encodeURIComponent(selProfil.value)}/appliquer`,
+        { method: "POST" });
+      ecrirePoidsEditeur(r.ponderations); majSomme();
+      retourProfilScore.innerHTML = `<span class="hausse">Profil « ${echap(selProfil.value)} » appliqué</span>`
+        + ` — ${r.actifs_recalcules} actifs recalculés.`;
+    } catch (err) { retourProfilScore.innerHTML = `<span class="baisse">${echap(err.message)}</span>`; }
+  });
+  // Mettre à jour le profil sélectionné avec les poids de l'éditeur.
+  document.getElementById("btn-maj-profil").addEventListener("click", async () => {
+    try {
+      await api(`/api/scoring/profils/${encodeURIComponent(selProfil.value)}`,
+        { method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(lirePoidsEditeur()) });
+      retourProfilScore.innerHTML = `<span class="hausse">Profil « ${echap(selProfil.value)} » mis à jour.</span>`;
+    } catch (err) { retourProfilScore.innerHTML = `<span class="baisse">${echap(err.message)}</span>`; }
+  });
+  // Supprimer le profil sélectionné (avec confirmation).
+  document.getElementById("btn-suppr-profil").addEventListener("click", () => {
+    const nom = selProfil.value;
+    ouvrirModal("Supprimer le profil", `<p>Supprimer le profil de pondération « ${echap(nom)} » ?</p>`, [
+      { libelle: "Supprimer", onClick: async () => {
+          try {
+            await api(`/api/scoring/profils/${encodeURIComponent(nom)}`, { method: "DELETE" });
+            await rechargerListe();
+            retourProfilScore.textContent = `Profil « ${nom} » supprimé.`;
+          } catch (err) { retourProfilScore.innerHTML = `<span class="baisse">${echap(err.message)}</span>`; }
+        } },
+      { libelle: "Annuler", secondaire: true },
+    ]);
+  });
+  // Créer un nouveau profil à partir des poids de l'éditeur.
+  document.getElementById("btn-nouveau-profil").addEventListener("click", () => {
+    const nom = prompt("Nom du nouveau profil de pondération :");
+    if (!nom || !nom.trim()) return;
+    api("/api/scoring/profils", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nom: nom.trim(), ponderations: lirePoidsEditeur() }) })
+      .then(() => rechargerListe(nom.trim()))
+      .then(() => { retourProfilScore.innerHTML = `<span class="hausse">Profil « ${echap(nom.trim())} » créé.</span>`; })
+      .catch((err) => { retourProfilScore.innerHTML = `<span class="baisse">${echap(err.message)}</span>`; });
   });
 
   // Interrupteurs du profil : chaque clic enregistre immédiatement.

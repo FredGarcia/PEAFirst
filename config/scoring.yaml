@@ -1,18 +1,22 @@
 # ============================================================
 # PEAdvisor — Paramétrage du score propriétaire (sur 100)
-# Les pondérations sont librement modifiables ; elles sont
-# renormalisées automatiquement si leur somme diffère de 100
-# ou si certaines données sont absentes pour un actif.
+# 10 familles de critères. Les pondérations sont librement
+# modifiables (panneau Paramètres → Score, profils enregistrés) ;
+# elles sont renormalisées automatiquement si leur somme diffère
+# de 100 ou si certaines données sont absentes pour un actif.
 # ============================================================
 
 ponderations:
-  potentiel: 25      # écart entre objectif de cours et cours actuel
+  potentiel: 12      # upside : écart entre objectif de cours et cours actuel
   valorisation: 15   # PER (plus il est bas, meilleure est la note)
   croissance: 15     # croissance estimée des résultats / du CA
-  esg: 15            # score ESG (0-100)
-  dividende: 10      # rendement du dividende
-  volatilite: 10     # volatilité annualisée (plus elle est basse, meilleure est la note)
-  consensus: 10      # consensus analystes (1 = vente forte, 5 = achat fort)
+  qualite: 12        # qualité financière : marge nette (proxy ROE/ROIC)
+  solidite: 8        # solidité : dette nette rapportée à la capitalisation
+  momentum: 10       # tendance : performance ~12 mois
+  dividende: 8       # rendement du dividende
+  volatilite: 10     # risque : volatilité annualisée (basse = mieux)
+  consensus: 6       # consensus analystes (1 = vente forte, 5 = achat fort)
+  esg: 4             # score ESG (0-100)
 
 # Bornes de normalisation : chaque indicateur brut est projeté sur 0-100
 # entre [min, max]. Valeurs au-delà des bornes : note plancher/plafond.
@@ -20,6 +24,9 @@ bornes:
   potentiel:    { min: -20.0, max: 50.0 }   # en %
   per:          { min: 5.0,   max: 40.0 }   # note inversée
   croissance:   { min: -10.0, max: 30.0 }   # en %
+  qualite:      { min: 0.0,   max: 25.0 }   # marge nette en %
+  solidite:     { min: -0.5,  max: 2.0 }    # dette nette / capitalisation, note inversée
+  momentum:     { min: -30.0, max: 40.0 }   # perf ~12 mois en %
   dividende:    { min: 0.0,   max: 8.0 }    # rendement en %
   volatilite:   { min: 5.0,   max: 40.0 }   # en %, note inversée
   consensus:    { min: 1.0,   max: 5.0 }

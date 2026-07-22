@@ -6,6 +6,7 @@ venv/
 *.sqlite3
 config/cles_api.yaml
 config/profil.yaml
+config/profils_scoring.yaml
 .pytest_cache/
 .coverage
 dist/

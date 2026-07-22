@@ -89,6 +89,64 @@ def sauvegarder_profil(maj: dict[str, Any]) -> dict[str, Any]:
     return profil
 
 
+# --- Profils de pondération du score (10 familles de critères) --------------
+
+# Familles de critères : clé → (libellé, variables couvertes).
+CRITERES_SCORE: dict[str, dict[str, str]] = {
+    "potentiel":    {"libelle": "Potentiel", "variables": "Upside calculé (objectif / cours)"},
+    "valorisation": {"libelle": "Valorisation", "variables": "PER (EV/EBITDA, P/B, PEG à venir)"},
+    "croissance":   {"libelle": "Croissance", "variables": "CA, EPS, FCF"},
+    "qualite":      {"libelle": "Qualité financière", "variables": "Marge nette (proxy ROE/ROIC)"},
+    "solidite":     {"libelle": "Solidité", "variables": "Dette nette / capitalisation"},
+    "momentum":     {"libelle": "Momentum", "variables": "Performance ~12 mois"},
+    "dividende":    {"libelle": "Dividende", "variables": "Rendement (croissance, payout à venir)"},
+    "volatilite":   {"libelle": "Volatilité / Risque", "variables": "Volatilité annualisée (bêta à venir)"},
+    "consensus":    {"libelle": "Consensus", "variables": "Objectif et recommandations analystes"},
+    "esg":          {"libelle": "ESG", "variables": "Note ESG globale"},
+}
+
+# Profils de pondération préenregistrés (modifiables via le CRUD).
+PROFILS_SCORING_DEFAUT: dict[str, dict[str, float]] = {
+    "Value":    {"potentiel": 15, "valorisation": 30, "croissance": 10, "qualite": 10,
+                 "solidite": 10, "momentum": 5, "dividende": 5, "volatilite": 10,
+                 "consensus": 3, "esg": 2},
+    "Growth":   {"potentiel": 20, "valorisation": 10, "croissance": 30, "qualite": 10,
+                 "solidite": 5, "momentum": 10, "dividende": 0, "volatilite": 5,
+                 "consensus": 5, "esg": 5},
+    "Dividend": {"potentiel": 10, "valorisation": 15, "croissance": 5, "qualite": 10,
+                 "solidite": 15, "momentum": 5, "dividende": 30, "volatilite": 10,
+                 "consensus": 5, "esg": 5},
+    "Quality":  {"potentiel": 10, "valorisation": 15, "croissance": 15, "qualite": 25,
+                 "solidite": 15, "momentum": 0, "dividende": 10, "volatilite": 5,
+                 "consensus": 3, "esg": 2},
+    "Momentum": {"potentiel": 15, "valorisation": 5, "croissance": 20, "qualite": 10,
+                 "solidite": 5, "momentum": 30, "dividende": 0, "volatilite": 5,
+                 "consensus": 5, "esg": 5},
+    # IA : profil équilibré orienté facteurs empiriquement robustes (qualité,
+    # momentum, valorisation) ; affinable par l'auto-amélioration (onglet Système).
+    "IA":       {"potentiel": 10, "valorisation": 15, "croissance": 15, "qualite": 15,
+                 "solidite": 10, "momentum": 12, "dividende": 5, "volatilite": 10,
+                 "consensus": 4, "esg": 4},
+}
+
+
+def charger_profils_scoring() -> dict[str, dict[str, float]]:
+    """Profils de pondération (config/profils_scoring.yaml). Initialisé avec les
+    profils préenregistrés au premier accès."""
+    chemin = DOSSIER_CONFIG / "profils_scoring.yaml"
+    if not chemin.exists():
+        sauvegarder_profils_scoring(PROFILS_SCORING_DEFAUT)
+        return {k: dict(v) for k, v in PROFILS_SCORING_DEFAUT.items()}
+    with open(chemin, encoding="utf-8") as f:
+        contenu = yaml.safe_load(f) or {}
+    return contenu.get("profils", {})
+
+
+def sauvegarder_profils_scoring(profils: dict[str, dict[str, float]]) -> None:
+    with open(DOSSIER_CONFIG / "profils_scoring.yaml", "w", encoding="utf-8") as f:
+        yaml.safe_dump({"profils": profils}, f, allow_unicode=True, sort_keys=False)
+
+
 def charger_cles() -> dict[str, str]:
     """Clés API des sources de données (config/cles_api.yaml, jamais versionné)."""
     chemin = DOSSIER_CONFIG / "cles_api.yaml"

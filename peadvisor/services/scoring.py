@@ -31,26 +31,56 @@ def _normaliser(valeur: float | None, borne_min: float, borne_max: float, invers
 
 
 def calculer_sous_scores(actif: dict[str, Any] | Actif, config: dict | None = None) -> dict[str, float | None]:
-    """Calcule les sous-notes 0-100 d'un actif (dict ou modèle ORM)."""
+    """Calcule les sous-notes 0-100 d'un actif (dict ou modèle ORM), pour les
+    10 familles de critères (valorisation, croissance, qualité, solidité,
+    momentum, dividende, volatilité, consensus, ESG, potentiel)."""
     cfg = config or charger_scoring()
     bornes = cfg["bornes"]
 
     def val(champ: str):
         return actif.get(champ) if isinstance(actif, dict) else getattr(actif, champ, None)
 
+    def borne(nom: str, valeur, inverser=False):
+        b = bornes.get(nom)
+        return _normaliser(valeur, b["min"], b["max"], inverser) if b else None
+
     # Potentiel : recalculé depuis l'objectif de cours si disponible.
     potentiel = val("potentiel")
     if potentiel is None and val("objectif_cours") and val("cours"):
         potentiel = round((val("objectif_cours") / val("cours") - 1) * 100, 2)
 
+    # Qualité financière : marge nette = (BNA × nb titres) / CA, proxy de ROE/ROIC.
+    marge = None
+    if val("bna") and val("nb_titres") and val("ca"):
+        chiffre_affaires = val("ca") * 1e6            # CA stocké en M€
+        if chiffre_affaires:
+            marge = val("bna") * val("nb_titres") / chiffre_affaires * 100
+
+    # Solidité : dette nette rapportée à la capitalisation (négatif = trésorerie nette).
+    levier = None
+    if val("dette_nette") is not None and val("capitalisation"):
+        levier = val("dette_nette") / val("capitalisation")
+
+    # Momentum : performance ~12 mois issue du moteur quantitatif.
+    quant = val("indicateurs_quant")
+    if isinstance(quant, str):
+        try:
+            quant = json.loads(quant)
+        except (ValueError, TypeError):
+            quant = None
+    momentum = quant.get("perf_1an_pct") if isinstance(quant, dict) else None
+
     return {
-        "potentiel": _normaliser(potentiel, bornes["potentiel"]["min"], bornes["potentiel"]["max"]),
+        "potentiel": borne("potentiel", potentiel),
         "valorisation": _normaliser(val("per"), bornes["per"]["min"], bornes["per"]["max"], inverser=True),
-        "croissance": _normaliser(val("croissance"), bornes["croissance"]["min"], bornes["croissance"]["max"]),
-        "esg": val("score_esg"),
+        "croissance": borne("croissance", val("croissance")),
+        "qualite": borne("qualite", marge),
+        "solidite": borne("solidite", levier, inverser=True),
+        "momentum": borne("momentum", momentum),
         "dividende": _normaliser(val("rendement"), bornes["dividende"]["min"], bornes["dividende"]["max"]),
         "volatilite": _normaliser(val("volatilite"), bornes["volatilite"]["min"], bornes["volatilite"]["max"], inverser=True),
         "consensus": _normaliser(val("consensus"), bornes["consensus"]["min"], bornes["consensus"]["max"]),
+        "esg": val("score_esg"),
     }
 
 

@@ -5,8 +5,9 @@ from __future__ import annotations
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from peadvisor.config import (charger_profil, charger_scoring, charger_settings,
-                              sauvegarder_profil, sauvegarder_scoring)
+from peadvisor.config import (CRITERES_SCORE, charger_profil, charger_profils_scoring,
+                              charger_scoring, charger_settings, sauvegarder_profil,
+                              sauvegarder_profils_scoring, sauvegarder_scoring)
 from datetime import datetime
 
 from peadvisor.database import get_session
@@ -240,15 +241,91 @@ def consulter_ponderations():
 @router.put("/parametres/scoring")
 def modifier_ponderations(ponderations: dict[str, float] = Body(...),
                           session: Session = Depends(get_session)):
-    """Modifie les pondérations du score puis recalcule tous les scores."""
+    """Modifie les pondérations actives du score puis recalcule tous les scores."""
     cfg = charger_scoring()
-    inconnues = set(ponderations) - set(cfg["ponderations"])
+    inconnues = set(ponderations) - set(CRITERES_SCORE)
     if inconnues:
         raise HTTPException(400, f"Critères inconnus : {sorted(inconnues)}")
     cfg["ponderations"].update({c: float(v) for c, v in ponderations.items()})
     sauvegarder_scoring(cfg)
     nb = scorer_tous(session)
     return {"ponderations": cfg["ponderations"], "actifs_recalcules": nb}
+
+
+# --- Profils de pondération du score (CRUD) ------------------------------
+
+def _valider_ponderations(ponderations: dict) -> dict[str, float]:
+    inconnues = set(ponderations) - set(CRITERES_SCORE)
+    if inconnues:
+        raise HTTPException(400, f"Critères inconnus : {sorted(inconnues)}. "
+                                 f"Attendus : {sorted(CRITERES_SCORE)}")
+    try:
+        valeurs = {c: float(v) for c, v in ponderations.items()}
+    except (TypeError, ValueError):
+        raise HTTPException(400, "Les pondérations doivent être numériques.")
+    if any(v < 0 for v in valeurs.values()):
+        raise HTTPException(400, "Les pondérations doivent être positives ou nulles.")
+    if sum(valeurs.values()) <= 0:
+        raise HTTPException(400, "Au moins une pondération doit être supérieure à 0.")
+    return valeurs
+
+
+@router.get("/scoring/criteres")
+def criteres_du_score():
+    """Familles de critères (libellés, variables) et pondérations actives."""
+    return {"criteres": CRITERES_SCORE, "ponderations": charger_scoring()["ponderations"]}
+
+
+@router.get("/scoring/profils")
+def lister_profils_scoring():
+    """Profils de pondération enregistrés (préenregistrés + créés par l'utilisateur)."""
+    return charger_profils_scoring()
+
+
+@router.post("/scoring/profils")
+def creer_profil_scoring(corps: dict = Body(...)):
+    nom = (corps.get("nom") or "").strip()
+    if not nom:
+        raise HTTPException(400, "Nom de profil requis.")
+    profils = charger_profils_scoring()
+    if nom in profils:
+        raise HTTPException(409, f"Le profil « {nom} » existe déjà.")
+    profils[nom] = _valider_ponderations(corps.get("ponderations") or {})
+    sauvegarder_profils_scoring(profils)
+    return {"nom": nom, "ponderations": profils[nom]}
+
+
+@router.put("/scoring/profils/{nom}")
+def modifier_profil_scoring(nom: str, ponderations: dict = Body(...)):
+    profils = charger_profils_scoring()
+    if nom not in profils:
+        raise HTTPException(404, f"Profil inconnu : {nom}")
+    profils[nom] = _valider_ponderations(ponderations)
+    sauvegarder_profils_scoring(profils)
+    return {"nom": nom, "ponderations": profils[nom]}
+
+
+@router.delete("/scoring/profils/{nom}")
+def supprimer_profil_scoring(nom: str):
+    profils = charger_profils_scoring()
+    if nom not in profils:
+        raise HTTPException(404, f"Profil inconnu : {nom}")
+    del profils[nom]
+    sauvegarder_profils_scoring(profils)
+    return {"supprime": nom}
+
+
+@router.post("/scoring/profils/{nom}/appliquer")
+def appliquer_profil_scoring(nom: str, session: Session = Depends(get_session)):
+    """Applique un profil : ses pondérations deviennent actives, puis rescore."""
+    profils = charger_profils_scoring()
+    if nom not in profils:
+        raise HTTPException(404, f"Profil inconnu : {nom}")
+    cfg = charger_scoring()
+    cfg["ponderations"] = {c: float(v) for c, v in profils[nom].items()}
+    sauvegarder_scoring(cfg)
+    nb = scorer_tous(session)
+    return {"profil": nom, "ponderations": cfg["ponderations"], "actifs_recalcules": nb}
 
 
 # --- Watchlist (M9) -------------------------------------------------------

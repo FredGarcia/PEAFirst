@@ -53,6 +53,17 @@ app = FastAPI(
     lifespan=cycle_de_vie,
 )
 
+@app.middleware("http")
+async def revalidation_des_assets(request, call_next):
+    """Force la revalidation des fichiers statiques (JS/CSS/HTML) pour éviter que
+    le navigateur ne serve une ancienne version en cache après une mise à jour."""
+    reponse = await call_next(request)
+    chemin = request.url.path
+    if chemin == "/" or chemin.endswith((".js", ".css", ".html")):
+        reponse.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return reponse
+
+
 app.include_router(dashboard.router)
 app.include_router(actifs.router)
 app.include_router(allocation.router)
