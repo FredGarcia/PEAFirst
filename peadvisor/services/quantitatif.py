@@ -115,7 +115,8 @@ def correlations(session: Session, isins: list[str]) -> dict:
     alignés sur les dates communes aux séries."""
     series: dict[str, dict[date, float]] = {}
     for isin in isins:
-        actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+        actif = (session.query(Actif).filter(Actif.isin == isin.upper())
+                 .order_by(Actif.score_global.desc().nulls_last()).first())
         if actif is None:
             continue
         serie = _serie(session, actif.id)

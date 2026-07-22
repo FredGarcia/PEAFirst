@@ -29,6 +29,25 @@ def creer_tables() -> None:
 
     Base.metadata.create_all(engine)
 
+    # Migration : identité métier (ISIN, source). Si l'ancien index unique sur
+    # ISIN seul subsiste (bases créées avant), reconstruire la table pour le
+    # remplacer par la contrainte composite (ISIN, source).
+    with engine.begin() as conn:
+        index = conn.exec_driver_sql("PRAGMA index_list(actifs)").fetchall()
+
+        def _colonnes_index(nom_index: str) -> list[str]:
+            return [r[2] for r in conn.exec_driver_sql(
+                f"PRAGMA index_info('{nom_index}')").fetchall()]
+
+        uniques = [_colonnes_index(r[1]) for r in index if r[2]]
+        if ["isin"] in uniques and ["isin", "source"] not in uniques:
+            colonnes = [row[1] for row in conn.exec_driver_sql("PRAGMA table_info(actifs)")]
+            liste = ", ".join(colonnes)
+            conn.exec_driver_sql("ALTER TABLE actifs RENAME TO actifs_old")
+            models.Actif.__table__.create(conn)
+            conn.exec_driver_sql(f"INSERT INTO actifs ({liste}) SELECT {liste} FROM actifs_old")
+            conn.exec_driver_sql("DROP TABLE actifs_old")
+
     # Mini-migration : create_all ne modifie pas les tables existantes ;
     # on ajoute les colonnes apparues depuis la création de la base.
     with engine.begin() as conn:

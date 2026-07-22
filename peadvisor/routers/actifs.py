@@ -109,34 +109,57 @@ def _suggestions_reactualisation(actifs, echecs, sources_ko) -> list[str]:
     return suggestions
 
 
+def _actif_principal(session: Session, isin: str) -> Actif | None:
+    """Ligne représentative d'un ISIN (la mieux notée) — l'ISIN peut désormais
+    exister sous plusieurs sources (une ligne par source)."""
+    return (session.query(Actif).filter(Actif.isin == isin.upper())
+            .order_by(Actif.score_global.desc().nulls_last()).first())
+
+
+def _supprimer_lignes(session: Session, actifs: list[Actif]) -> None:
+    from peadvisor.models import ElementWatchlist, HistoriqueCours, HistoriqueScore
+
+    for actif in actifs:
+        session.query(HistoriqueCours).filter(HistoriqueCours.actif_id == actif.id).delete()
+        session.query(HistoriqueScore).filter(HistoriqueScore.actif_id == actif.id).delete()
+        session.query(ElementWatchlist).filter(ElementWatchlist.actif_id == actif.id).delete()
+        session.delete(actif)
+    session.commit()
+
+
 @router.get("/{isin}", response_model=ActifOut)
 def detail_actif(isin: str, session: Session = Depends(get_session)):
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+    actif = _actif_principal(session, isin)
     if not actif:
         raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
     return actif
 
 
+@router.delete("/ligne/{actif_id}")
+def supprimer_ligne(actif_id: int, session: Session = Depends(get_session)):
+    """Retire une seule ligne (une source donnée) par son identifiant."""
+    actif = session.get(Actif, actif_id)
+    if not actif:
+        raise HTTPException(404, f"Aucune ligne d'actif #{actif_id}")
+    isin, nom = actif.isin, actif.nom
+    _supprimer_lignes(session, [actif])
+    return {"supprime": isin, "nom": nom, "id": actif_id}
+
+
 @router.delete("/{isin}")
 def supprimer_actif(isin: str, session: Session = Depends(get_session)):
-    """Retire une valeur du référentiel (bouton « supprimer » d'une ligne)."""
-    from peadvisor.models import ElementWatchlist, HistoriqueCours, HistoriqueScore
-
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
-    if not actif:
+    """Retire toutes les lignes d'un ISIN (toutes sources) du référentiel."""
+    actifs = session.query(Actif).filter(Actif.isin == isin.upper()).all()
+    if not actifs:
         raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
-    # Nettoyage des dépendances (pas de cascade déclarée).
-    session.query(HistoriqueCours).filter(HistoriqueCours.actif_id == actif.id).delete()
-    session.query(HistoriqueScore).filter(HistoriqueScore.actif_id == actif.id).delete()
-    session.query(ElementWatchlist).filter(ElementWatchlist.actif_id == actif.id).delete()
-    session.delete(actif)
-    session.commit()
-    return {"supprime": isin.upper(), "nom": actif.nom}
+    nom = actifs[0].nom
+    _supprimer_lignes(session, actifs)
+    return {"supprime": isin.upper(), "nom": nom, "lignes": len(actifs)}
 
 
 @router.get("/{isin}/sous-scores")
 def sous_scores_actif(isin: str, session: Session = Depends(get_session)):
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+    actif = _actif_principal(session, isin)
     if not actif:
         raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
     return json.loads(actif.sous_scores) if actif.sous_scores else {}
@@ -148,7 +171,7 @@ def serie_de_cours(isin: str, limite: int = Query(750, le=5000),
     """Historique de cours quotidiens (du plus ancien au plus récent)."""
     from peadvisor.models import HistoriqueCours
 
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+    actif = _actif_principal(session, isin)
     if not actif:
         raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
     lignes = (session.query(HistoriqueCours)
@@ -161,7 +184,7 @@ def serie_de_cours(isin: str, limite: int = Query(750, le=5000),
 def historique_actif(isin: str, limite: int = Query(100, le=1000),
                      session: Session = Depends(get_session)):
     """Historique des scores et cours enregistrés à chaque mise à jour."""
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
+    actif = _actif_principal(session, isin)
     if not actif:
         raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
     historique = sorted(actif.historique_scores, key=lambda h: h.date, reverse=True)[:limite]

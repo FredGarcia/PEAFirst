@@ -26,12 +26,15 @@ class TypeActif(str, enum.Enum):
 
 class Actif(Base):
     __tablename__ = "actifs"
+    # Identité métier = (ISIN, source) : une même valeur peut coexister avec des
+    # données provenant de sources différentes (une ligne par source).
+    __table_args__ = (UniqueConstraint("isin", "source", name="uq_actif_isin_source"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     # Identité
     nom: Mapped[str] = mapped_column(String(120))
-    isin: Mapped[str] = mapped_column(String(12), unique=True, index=True)
+    isin: Mapped[str] = mapped_column(String(12), index=True)
     mnemonique: Mapped[str | None] = mapped_column(String(20), index=True)
     type: Mapped[TypeActif] = mapped_column(Enum(TypeActif), index=True)
     marche: Mapped[str | None] = mapped_column(String(60))

@@ -396,17 +396,20 @@ async function vueActifs(type, titre) {
       ${colonnes.map((c, i) => `<td class="${c.num ? "num" : ""} ${i < nbFixes ? "col-fixe" : ""}">${c.cell(a)}</td>`).join("")}
       <td style="white-space:nowrap">
         <button class="secondaire" data-watch="${a.isin}" title="Ajouter à la watchlist">☆</button>
-        <button class="btn-suppr" data-suppr="${a.isin}" data-nom="${echap(a.nom)}" title="Retirer du référentiel">🗑</button>
+        <button class="btn-suppr" data-suppr-id="${a.id}" data-nom="${echap(a.nom)}"
+          data-source="${echap(a.source ?? "")}" title="Retirer cette ligne (cette source)">🗑</button>
       </td></tr>`).join("");
     document.querySelectorAll("[data-watch]").forEach((b) =>
       b.addEventListener("click", async () => {
         await api(`/api/watchlist/${b.dataset.watch}`, { method: "POST" });
         b.textContent = "★";
       }));
-    document.querySelectorAll("[data-suppr]").forEach((b) =>
+    // Suppression d'une ligne précise (une source) par son id.
+    document.querySelectorAll("[data-suppr-id]").forEach((b) =>
       b.addEventListener("click", async () => {
-        if (!confirm(`Retirer ${b.dataset.nom} (${b.dataset.suppr}) du référentiel ?`)) return;
-        await api(`/api/actifs/${b.dataset.suppr}`, { method: "DELETE" });
+        const src = b.dataset.source ? ` [source ${b.dataset.source}]` : "";
+        if (!confirm(`Retirer la ligne ${b.dataset.nom}${src} du référentiel ?`)) return;
+        await api(`/api/actifs/ligne/${b.dataset.supprId}`, { method: "DELETE" });
         vueActifs(type, titre);
       }));
     figerColonnes(nbFixes);

@@ -24,6 +24,8 @@ CHAMPS_MAJ = [
     "eligible_pea", "eligible_pea_pme", "societe_gestion", "capitalisation",
     "cours", "rendement", "per", "croissance", "volatilite", "niveau_risque",
     "score_esg", "objectif_cours", "consensus",
+    # Fondamentaux alimentant les familles Qualité / Solidité du score.
+    "bna", "nb_titres", "ca", "dette_nette", "taux_distribution",
 ]
 
 
@@ -102,7 +104,10 @@ def importer(session: Session, nom_source: str | None = None) -> JournalMaj:
         if not inclure_pea_pme and propre.get("eligible_pea_pme") and not propre.get("eligible_pea", True):
             continue  # poche PEA-PME désactivée
 
-        existant = session.query(Actif).filter(Actif.isin == propre["isin"]).one_or_none()
+        # Upsert par (ISIN, source) : une source différente crée une nouvelle ligne.
+        existant = (session.query(Actif)
+                    .filter(Actif.isin == propre["isin"], Actif.source == nom_source)
+                    .first())
         if existant:
             for champ, valeur in propre.items():
                 setattr(existant, champ, valeur)

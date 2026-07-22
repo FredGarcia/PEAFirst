@@ -19,6 +19,12 @@ donnees:
   source_active: seed
   # Activer la poche PEA-PME (option du cahier des charges)
   inclure_pea_pme: false
+  # Remplissage initial : effectifs cible par type (le jeu seed complète les
+  # valeurs réelles curées avec des valeurs de démonstration jusqu'à ces nombres).
+  remplissage_initial:
+    actions: 300
+    etf: 30
+    opcvm: 30
 
 mise_a_jour:
   # Mise à jour automatique planifiée (APScheduler)

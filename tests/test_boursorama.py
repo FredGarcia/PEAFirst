@@ -150,25 +150,29 @@ def test_cotation_ne_garde_que_les_champs_utiles(monkeypatch):
     assert "ouverture" in champs and "plus_haut" in champs
 
 
-def test_import_boursorama_met_a_jour(monkeypatch, session):
-    """L'import d'Air Liquide (déjà en base via seed) met à jour la ligne + source."""
+def test_import_boursorama_ajoute_une_ligne_par_source(monkeypatch, session):
+    """Air Liquide est déjà en base via seed (source=seed) ; l'import Boursorama
+    crée une NOUVELLE ligne (source différente), sans écraser celle du seed."""
+    from peadvisor.models import Actif
     from peadvisor.routers.administration import importer_boursorama
     from peadvisor.services.importer import importer
 
-    importer(session, "seed")  # Air Liquide FR0000120073 présent, source=seed
+    importer(session, "seed")  # Air Liquide FR0000120073, source=seed
     monkeypatch.setattr("peadvisor.sources.boursorama.recuperer_un",
                         lambda code: parser_page(PAGE))
 
     r = importer_boursorama("1rPAI", session=session)
-    assert r["cree"] is False
+    assert r["cree"] is True                       # source différente → nouvelle ligne
     assert r["isin"] == "FR0000120073"
     assert r["source"] == "boursorama"
 
-    from peadvisor.models import Actif
-    al = session.query(Actif).filter(Actif.isin == "FR0000120073").one()
-    assert al.cours == 184.52 and al.source == "boursorama"
-    assert al.variation_pct == 1.23 and al.volume == 1234567
-    assert al.score_global is not None  # rescoré
+    # Deux lignes coexistent : seed + boursorama.
+    lignes = session.query(Actif).filter(Actif.isin == "FR0000120073").all()
+    sources = {a.source for a in lignes}
+    assert sources == {"seed", "boursorama"}
+    bourso = next(a for a in lignes if a.source == "boursorama")
+    assert bourso.cours == 184.52 and bourso.variation_pct == 1.23 and bourso.volume == 1234567
+    assert bourso.score_global is not None  # rescoré
 
 
 def test_import_boursorama_cree_nouvelle_valeur(monkeypatch, session):

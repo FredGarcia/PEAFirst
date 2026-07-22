@@ -8,6 +8,13 @@ import peadvisor.database as database
 from peadvisor.database import Base
 
 
+@pytest.fixture(autouse=True)
+def seed_curee(monkeypatch):
+    """Sans padding en test : le jeu seed reste les ~32 valeurs curées (rapide)."""
+    import peadvisor.sources.seed as seed
+    monkeypatch.setattr(seed, "cibles_remplissage", lambda: {})
+
+
 @pytest.fixture()
 def session(monkeypatch):
     engine = create_engine("sqlite://")

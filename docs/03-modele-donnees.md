@@ -6,7 +6,12 @@ Migration vers PostgreSQL possible en changeant l'URL de connexion
 
 ## Table `actifs` — référentiel des valeurs
 
-Clé métier : **ISIN** (unique, indexé). C'est la clé du dédoublonnage.
+Clé métier : **(ISIN, source)** — contrainte d'unicité composite. Une même
+valeur peut donc coexister sous plusieurs sources (une **ligne par source**,
+pour comparer les données) ; l'ISIN seul reste indexé. Le dédoublonnage à
+l'import se fait par (ISIN, source) : ré-importer depuis la même source met à
+jour la ligne, importer depuis une source différente en **ajoute** une. Les vues
+analytiques (allocation) ne retiennent qu'une ligne par ISIN (la mieux notée).
 
 | Groupe | Champs |
 |---|---|

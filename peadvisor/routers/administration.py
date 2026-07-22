@@ -338,13 +338,17 @@ def consulter_watchlist(session: Session = Depends(get_session)):
 @router.post("/watchlist/{isin}", response_model=ElementWatchlistOut)
 def ajouter_watchlist(isin: str, commentaire: str | None = None,
                       session: Session = Depends(get_session)):
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
-    if not actif:
+    # Une valeur peut exister sous plusieurs sources : on suit l'ISIN une seule fois.
+    lignes = (session.query(Actif).filter(Actif.isin == isin.upper())
+              .order_by(Actif.score_global.desc().nulls_last()).all())
+    if not lignes:
         raise HTTPException(404, f"Aucun actif avec l'ISIN {isin}")
-    existant = session.query(ElementWatchlist).filter(ElementWatchlist.actif_id == actif.id).one_or_none()
+    ids = [a.id for a in lignes]
+    existant = (session.query(ElementWatchlist)
+                .filter(ElementWatchlist.actif_id.in_(ids)).first())
     if existant:
         return existant
-    element = ElementWatchlist(actif_id=actif.id, commentaire=commentaire)
+    element = ElementWatchlist(actif_id=lignes[0].id, commentaire=commentaire)
     session.add(element)
     session.commit()
     session.refresh(element)
@@ -353,9 +357,9 @@ def ajouter_watchlist(isin: str, commentaire: str | None = None,
 
 @router.delete("/watchlist/{isin}")
 def retirer_watchlist(isin: str, session: Session = Depends(get_session)):
-    actif = session.query(Actif).filter(Actif.isin == isin.upper()).one_or_none()
-    element = actif and session.query(ElementWatchlist).filter(
-        ElementWatchlist.actif_id == actif.id).one_or_none()
+    ids = [a.id for a in session.query(Actif.id).filter(Actif.isin == isin.upper())]
+    element = (session.query(ElementWatchlist)
+               .filter(ElementWatchlist.actif_id.in_(ids)).first()) if ids else None
     if not element:
         raise HTTPException(404, f"{isin} n'est pas dans la watchlist")
     session.delete(element)

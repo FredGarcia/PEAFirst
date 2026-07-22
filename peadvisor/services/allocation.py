@@ -117,14 +117,22 @@ def proposer_allocation(session: Session, demande: DemandeAllocation) -> Reponse
     part_min_fonds = float(params.get("part_min_etf_opcvm", 0.30))
 
     eligibles = session.query(Actif).filter(Actif.eligible_pea.is_(True)).all()
+    # Une valeur peut exister sous plusieurs sources : on ne garde qu'une ligne
+    # par ISIN (la mieux notée) pour ne pas l'allouer plusieurs fois.
+    par_isin: dict[str, Actif] = {}
+    for a in eligibles:
+        meilleur = par_isin.get(a.isin)
+        if meilleur is None or (a.score_global or 0) > (meilleur.score_global or 0):
+            par_isin[a.isin] = a
+    uniques = list(par_isin.values())
     # Seules les valeurs suffisamment documentées sont allouables ; les autres
     # sont signalées (informations manquantes) sans être noyées dans le portefeuille.
-    actifs = [a for a in eligibles if _allouable(a)]
+    actifs = [a for a in uniques if _allouable(a)]
     valeurs_incompletes = [
         ValeurIncomplete(isin=a.isin, nom=a.nom,
                          type=a.type.value if hasattr(a.type, "value") else str(a.type),
                          informations_manquantes=_infos_manquantes(a))
-        for a in eligibles if not _allouable(a)
+        for a in uniques if not _allouable(a)
     ]
     mix = _ajuster_horizon(MIX_PROFILS[demande.niveau_risque], demande.horizon_annees)
 

@@ -209,7 +209,14 @@ Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
   et propose « Ajouter quand même » (`?confirmer=true`). Toute autre erreur
   (ISIN introuvable, réseau…) ouvre aussi une modale décrivant la cause ;
 - un bouton **par source** (recherche par valeur *et* import global depuis
-  l'onglet Sources) pilote l'acquisition. **« 🩺 Diagnostiquer les sources »**
+  l'onglet Sources) pilote l'acquisition. Acquérir une valeur depuis une
+  **source différente ajoute une ligne** (une ligne par source) ; ré-acquérir
+  depuis la même source met à jour la ligne existante. Le 🗑 retire une **ligne
+  précise** (une source) par son id.
+- **Remplissage initial** paramétrable (`config/settings.yaml` →
+  `donnees.remplissage_initial`) : par défaut **300 actions, 30 ETF, 30 OPCVM**.
+  Le jeu seed complète les valeurs réelles curées avec des valeurs de
+  démonstration cohérentes (indicateurs illustratifs) jusqu'à ces effectifs. **« 🩺 Diagnostiquer les sources »**
   teste chaque source (`GET /api/sources/etats`) et **colore** les boutons :
   **bleu** = données disponibles, **orange clair** = test OK mais aucune donnée,
   **gris** = indisponible ;

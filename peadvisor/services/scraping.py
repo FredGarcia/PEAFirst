@@ -49,10 +49,14 @@ def importer_valeur(session: Session, source: str, requete: str,
                 "donnees_extraites": donnees}
 
     champs = {c: donnees[c] for c in CHAMPS_FICHE if c in donnees}
-    actif = session.query(Actif).filter(Actif.isin == isin).one_or_none()
+    # Upsert par (ISIN, source) : chercher depuis une autre source ajoute une ligne.
+    nom_source = donnees.get("source", source)
+    actif = (session.query(Actif)
+             .filter(Actif.isin == isin, Actif.source == nom_source).first())
     cree = actif is None
     if cree:
-        actif = Actif(isin=isin, type=type_actif, nom=donnees.get("nom") or requete)
+        actif = Actif(isin=isin, type=type_actif, nom=donnees.get("nom") or requete,
+                      source=nom_source)
         session.add(actif)
     else:
         actif.type = type_actif
