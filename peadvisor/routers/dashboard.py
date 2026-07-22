@@ -13,6 +13,17 @@ from peadvisor.services.decision import classer
 router = APIRouter(prefix="/api/dashboard", tags=["Tableau de bord"])
 
 
+def _uniques_par_isin(actifs: list[Actif]) -> list[Actif]:
+    """Une seule ligne par ISIN (la mieux notée) : une valeur présente sous
+    plusieurs sources ne doit pas être comptée deux fois dans les statistiques."""
+    par_isin: dict[str, Actif] = {}
+    for a in actifs:
+        meilleur = par_isin.get(a.isin)
+        if meilleur is None or (a.score_global or 0) > (meilleur.score_global or 0):
+            par_isin[a.isin] = a
+    return list(par_isin.values())
+
+
 def _moyenne(valeurs: list[float | None]) -> float | None:
     presentes = [v for v in valeurs if v is not None]
     return round(sum(presentes) / len(presentes), 2) if presentes else None
@@ -39,7 +50,7 @@ def _top(actifs: list[Actif], attribut: str, n: int = 5) -> list[dict]:
 
 @router.get("/synthese")
 def synthese(session: Session = Depends(get_session)):
-    actifs = session.query(Actif).all()
+    actifs = _uniques_par_isin(session.query(Actif).all())
     secteurs = _repartition(actifs, "secteur")
     # Diversification : part du secteur le plus représenté (plus c'est bas, mieux c'est).
     concentration = round(max(secteurs.values()) / len(actifs) * 100, 1) if actifs else None
@@ -91,7 +102,7 @@ def matrice_decision(
     session: Session = Depends(get_session),
 ):
     """Matrice de décision multicritère : classement des actifs (score pondéré ou TOPSIS)."""
-    actifs = session.query(Actif).all()
+    actifs = _uniques_par_isin(session.query(Actif).all())
     classement = classer(actifs, methode)[:limite]
     return [
         LigneClassement(isin=a.isin, nom=a.nom, type=a.type.value, rang=i + 1, valeur=v)
