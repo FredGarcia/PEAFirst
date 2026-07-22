@@ -27,6 +27,14 @@ def get_session():
 def creer_tables() -> None:
     from peadvisor import models  # noqa: F401 — enregistre les modèles
 
+    # Reprise d'une migration interrompue : restaure « actifs » depuis
+    # « actifs_old » si le renommage a réussi sans que la table ait été recréée.
+    with engine.begin() as conn:
+        tables = {r[0] for r in conn.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if "actifs_old" in tables and "actifs" not in tables:
+            conn.exec_driver_sql("ALTER TABLE actifs_old RENAME TO actifs")
+
     Base.metadata.create_all(engine)
 
     # Migration : identité métier (ISIN, source). Si l'ancien index unique sur
@@ -43,7 +51,16 @@ def creer_tables() -> None:
         if ["isin"] in uniques and ["isin", "source"] not in uniques:
             colonnes = [row[1] for row in conn.exec_driver_sql("PRAGMA table_info(actifs)")]
             liste = ", ".join(colonnes)
+            # Libère les noms d'index explicites (ix_actifs_*) avant de recréer la
+            # table : ils seraient sinon en conflit lors du CREATE INDEX.
+            for r in index:
+                if not str(r[1]).startswith("sqlite_autoindex"):
+                    conn.exec_driver_sql(f'DROP INDEX IF EXISTS "{r[1]}"')
+            # legacy_alter_table=ON : le renommage ne réécrit pas les clés
+            # étrangères des tables enfant (elles continuent de viser « actifs »).
+            conn.exec_driver_sql("PRAGMA legacy_alter_table=ON")
             conn.exec_driver_sql("ALTER TABLE actifs RENAME TO actifs_old")
+            conn.exec_driver_sql("PRAGMA legacy_alter_table=OFF")
             models.Actif.__table__.create(conn)
             conn.exec_driver_sql(f"INSERT INTO actifs ({liste}) SELECT {liste} FROM actifs_old")
             conn.exec_driver_sql("DROP TABLE actifs_old")
