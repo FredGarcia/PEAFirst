@@ -19,8 +19,10 @@ donnees:
   source_active: seed
   # Activer la poche PEA-PME (option du cahier des charges)
   inclure_pea_pme: false
-  # Remplissage initial : effectifs cible par type (le jeu seed complète les
-  # valeurs réelles curées avec des valeurs de démonstration jusqu'à ces nombres).
+  # Remplissage initial : plafond du nombre de VRAIES valeurs chargées par type
+  # depuis le référentiel réel (peadvisor/data/seed_assets.json). Aucune valeur
+  # n'est inventée ; les cours/indicateurs du seed sont indicatifs et remplacés
+  # par des données réelles via « Réactualiser » (scraping Boursorama par ticker).
   remplissage_initial:
     actions: 300
     etf: 30

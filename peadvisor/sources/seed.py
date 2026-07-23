@@ -53,73 +53,24 @@ def _generer_historique(isin: str, cours_final: float, volatilite_pct: float,
             for d, p in zip(dates, chemin)]
 
 
-# Remplissage initial : nombre de valeurs cible par type (paramétrable dans
-# config/settings.yaml → donnees.remplissage_initial). Au-delà des valeurs
-# réelles curées, des valeurs de démonstration sont générées (ISIN, indicateurs
-# illustratifs cohérents) pour atteindre ces effectifs.
-CIBLES_DEFAUT = {"ACTION": 300, "ETF": 30, "OPCVM": 30}
-
-_SECTEURS = ["Énergie", "Banque & Assurance", "Santé", "Technologie", "Industrie",
-             "Consommation", "Télécoms", "Services aux collectivités", "Immobilier",
-             "Matériaux", "Automobile", "Luxe", "Agroalimentaire", "Chimie", "Média"]
+# Remplissage initial : plafond du nombre de VRAIES valeurs chargées par type
+# (paramétrable dans config/settings.yaml → donnees.remplissage_initial). Aucune
+# valeur n'est inventée : on charge le référentiel réel (seed_assets.json), au
+# plus `cap` par type. Les indicateurs de marché du seed sont des points de
+# départ indicatifs, remplacés par des données réelles via « Réactualiser ».
+PLAFONDS_DEFAUT = {"ACTION": 300, "ETF": 30, "OPCVM": 30}
 
 
 def cibles_remplissage() -> dict[str, int]:
-    """Effectifs cible par type pour le remplissage initial (settings.yaml)."""
+    """Plafond par type pour le remplissage initial (settings.yaml)."""
     from peadvisor.config import charger_settings
 
     cfg = (charger_settings().get("donnees", {}) or {}).get("remplissage_initial") or {}
     return {
-        "ACTION": int(cfg.get("actions", CIBLES_DEFAUT["ACTION"])),
-        "ETF": int(cfg.get("etf", CIBLES_DEFAUT["ETF"])),
-        "OPCVM": int(cfg.get("opcvm", CIBLES_DEFAUT["OPCVM"])),
+        "ACTION": int(cfg.get("actions", PLAFONDS_DEFAUT["ACTION"])),
+        "ETF": int(cfg.get("etf", PLAFONDS_DEFAUT["ETF"])),
+        "OPCVM": int(cfg.get("opcvm", PLAFONDS_DEFAUT["OPCVM"])),
     }
-
-
-def _generer_valeur(type_actif: str, indice: int) -> dict[str, Any]:
-    """Valeur de démonstration cohérente (indicateurs illustratifs déterministes)."""
-    prefixe = {"ACTION": "FR90", "ETF": "FR80", "OPCVM": "LU80"}[type_actif]
-    isin = f"{prefixe}{indice:08d}"
-    rng = random.Random(isin)
-    cours = round(rng.uniform(12, 320), 2)
-    per = round(rng.uniform(6, 38), 1)
-    volatilite = round(rng.uniform(10, 42), 1)
-    croissance = round(rng.uniform(-6, 26), 1)
-    capitalisation = round(rng.uniform(300, 90000), 0)          # M€
-    nb_titres = round(capitalisation * 1e6 / cours, 0)
-    bna = round(cours / per, 2)                                  # EPS = cours / PER
-    marge = rng.uniform(3, 22) / 100                            # marge nette cible
-    ca = round(bna * nb_titres / marge / 1e6, 0)                 # CA en M€
-    dette_nette = round(rng.uniform(-0.3, 1.6) * capitalisation, 0)
-    potentiel = rng.uniform(-15, 45)
-    base = {
-        "isin": isin, "type": type_actif, "devise": "EUR",
-        "pays": "France" if prefixe.startswith("FR") else "Luxembourg",
-        "secteur": rng.choice(_SECTEURS), "eligible_pea": True,
-        "cours": cours, "capitalisation": capitalisation, "volatilite": volatilite,
-        "croissance": croissance, "score_esg": round(rng.uniform(30, 92), 0),
-        "consensus": round(rng.uniform(2.4, 4.6), 2),
-    }
-    if type_actif == "ACTION":
-        base.update({
-            "nom": f"Valeur Démo {indice:03d}", "mnemonique": f"DMA{indice:04d}",
-            "marche": "Euronext Paris", "per": per, "bna": bna, "nb_titres": nb_titres,
-            "ca": ca, "dette_nette": dette_nette, "rendement": round(rng.uniform(0, 6), 2),
-            "objectif_cours": round(cours * (1 + potentiel / 100), 2),
-            "taux_distribution": round(rng.uniform(0, 80), 1),
-        })
-    elif type_actif == "ETF":
-        base.update({
-            "nom": f"ETF Démo {indice:03d}", "mnemonique": f"DME{indice:04d}",
-            "marche": "Euronext Paris", "societe_gestion": "Gestionnaire Démo",
-            "rendement": round(rng.uniform(0, 4), 2),
-        })
-    else:  # OPCVM
-        base.update({
-            "nom": f"OPCVM Démo {indice:03d}", "societe_gestion": "Gestionnaire Démo",
-            "rendement": round(rng.uniform(0, 4), 2),
-        })
-    return base
 
 
 class SourceSeed(SourceDonnees):
@@ -127,16 +78,19 @@ class SourceSeed(SourceDonnees):
 
     def recuperer(self) -> list[dict[str, Any]]:
         with open(CHEMIN_SEED, encoding="utf-8") as f:
-            actifs = json.load(f)
+            reference = json.load(f)
 
-        # Complète chaque type jusqu'à l'effectif cible avec des valeurs générées.
-        cibles = cibles_remplissage()
-        par_type: dict[str, int] = {}
-        for a in actifs:
-            par_type[a["type"]] = par_type.get(a["type"], 0) + 1
-        for type_actif, cible in cibles.items():
-            for i in range(par_type.get(type_actif, 0) + 1, cible + 1):
-                actifs.append(_generer_valeur(type_actif, i))
+        # Ne conserve que de vraies valeurs, au plus `cap` par type.
+        plafonds = cibles_remplissage()
+        comptes: dict[str, int] = {}
+        actifs: list[dict[str, Any]] = []
+        for actif in reference:
+            type_actif = actif.get("type")
+            plafond = plafonds.get(type_actif)
+            if plafond is not None and comptes.get(type_actif, 0) >= plafond:
+                continue
+            comptes[type_actif] = comptes.get(type_actif, 0) + 1
+            actifs.append(actif)
 
         for actif in actifs:
             if actif.get("cours"):

@@ -10,9 +10,12 @@ from peadvisor.database import Base
 
 @pytest.fixture(autouse=True)
 def seed_curee(monkeypatch):
-    """Sans padding en test : le jeu seed reste les ~32 valeurs curées (rapide)."""
+    """Plafond bas en test : un sous-ensemble des vraies valeurs (suite rapide).
+    Les premières valeurs du référentiel (TotalEnergies, Air Liquide, Sanofi…)
+    couvrent les ISIN utilisés par les tests."""
     import peadvisor.sources.seed as seed
-    monkeypatch.setattr(seed, "cibles_remplissage", lambda: {})
+    monkeypatch.setattr(seed, "cibles_remplissage",
+                        lambda: {"ACTION": 12, "ETF": 8, "OPCVM": 6})
 
 
 @pytest.fixture()

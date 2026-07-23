@@ -213,10 +213,14 @@ Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
   **source différente ajoute une ligne** (une ligne par source) ; ré-acquérir
   depuis la même source met à jour la ligne existante. Le 🗑 retire une **ligne
   précise** (une source) par son id.
-- **Remplissage initial** paramétrable (`config/settings.yaml` →
-  `donnees.remplissage_initial`) : par défaut **300 actions, 30 ETF, 30 OPCVM**.
-  Le jeu seed complète les valeurs réelles curées avec des valeurs de
-  démonstration cohérentes (indicateurs illustratifs) jusqu'à ces effectifs. **« 🩺 Diagnostiquer les sources »**
+- **Remplissage initial** = un **référentiel de vraies valeurs** éligibles au PEA
+  (`peadvisor/data/seed_assets.json` : ~90 actions Euronext Paris / SBF 120, ETF
+  PEA réels, OPCVM réels — nom, ISIN, mnémonique, secteur réels). **Aucune valeur
+  n'est inventée.** Le paramètre `config/settings.yaml → donnees.remplissage_initial`
+  est un **plafond** par type (défaut 300/30/30 = charge tout le référentiel
+  disponible). Les cours/indicateurs du seed sont **indicatifs** ; les **vraies
+  données de marché** s'obtiennent via **« Réactualiser »** (scraping Boursorama
+  par ticker) ou l'import depuis une source réelle. **« 🩺 Diagnostiquer les sources »**
   teste chaque source (`GET /api/sources/etats`) et **colore** les boutons :
   **bleu** = données disponibles, **orange clair** = test OK mais aucune donnée,
   **gris** = indisponible ;
