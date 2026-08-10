@@ -10,6 +10,9 @@ Base d'identifiants ISIN pour le projet PEA Advisor, construite depuis les liste
 | `data/base_isin_actions.csv` | Actions (2 798) |
 | `data/base_isin_etf.csv` | ETF (3 232) |
 | `data/base_isin_opcvm.csv` | OPCVM (158) |
+| `data/base_isin_fonds_pea.csv` | ETF + OPCVM enrichis de l'éligibilité PEA fiabilisée (3 390) |
+| `data/pea_emetteurs.csv` | Référence d'éligibilité vérifiée auprès des émetteurs (fait autorité) |
+| `data/openfigi_cache.csv` | Cache OpenFIGI (créé par `scripts/enrich_openfigi.py`) |
 
 ## Colonnes
 
@@ -24,12 +27,39 @@ Règle par préfixe pays de l'ISIN (UE/EEE incluant NO, IS, LI) :
 - **Actions** : règle fiable (siège dans l'EEE).
 - **ETF/OPCVM** : indicatif seulement. Un fonds domicilié IE/LU n'est éligible PEA que s'il respecte le quota de 75 % d'actions UE (réplication physique ou synthétique). Un enrichissement dédié est nécessaire pour fiabiliser cette colonne.
 
+## Éligibilité PEA fiabilisée (`data/base_isin_fonds_pea.csv`)
+
+Produit par `scripts/enrich_pea.py`, qui croise par priorité décroissante :
+
+1. **`data/pea_emetteurs.csv`** — liste vérifiée auprès des émetteurs (fait autorité, `LISTE_EMETTEUR`) ;
+2. domicile hors EEE → `NON` (`HORS_EEE`) ;
+3. marquage « PEA » dans le nom émetteur → `OUI` (`NOM_PEA`) ;
+4. classe d'actifs incompatible (obligataire, monétaire, crypto, matières premières) → `NON` (`CLASSE_ACTIFS`) ;
+5. indice actions européen + domicile EEE → `PROBABLE` (`INDICE_EUROPEEN`) ;
+6. reste → `A_VERIFIER` (fonds EEE sur indices monde/US/EM sans marquage PEA).
+
+Colonnes ajoutées : `PEA_eligible` (`OUI` | `PROBABLE` | `NON` | `A_VERIFIER`), `PEA_methode`, `PEA_source`.
+
+Pour réduire le stock `A_VERIFIER` : exécuter `scripts/enrich_openfigi.py` (noms complets décodant les libellés techniques Euronext) et fusionner les listes émetteurs via `scripts/maj_pea_emetteurs.py`.
+
+## Scripts
+
+| Script | Rôle |
+|---|---|
+| `scripts/validate_base.py` | Validation automatique : checksums ISIN, doublons, cohérence inter-fichiers, règle EEE, fichiers enrichis. Code retour ≠ 0 en cas d'erreur. |
+| `scripts/enrich_pea.py` | Classement de l'éligibilité PEA des fonds (règles + listes émetteurs + noms OpenFIGI). Hors-ligne. |
+| `scripts/enrich_openfigi.py` | FIGI, ticker et nom complet via l'API OpenFIGI (cache incrémental, reprise ; nécessite le réseau, clé gratuite optionnelle `OPENFIGI_API_KEY`). |
+| `scripts/maj_pea_emetteurs.py` | Fusion des listes d'éligibilité téléchargées chez les émetteurs (Amundi, iShares, BNP…) dans `data/pea_emetteurs.csv`, avec traçabilité source/date. |
+
+Chaîne complète : `enrich_openfigi.py` → `maj_pea_emetteurs.py --merge …` → `enrich_pea.py` → `validate_base.py`.
+
 ## Pipeline de mise à jour
 
 1. Télécharger les listes Euronext (actions, ETF, fonds).
 2. Dédoublonner par ISIN, agréger les places de cotation.
 3. Calculer `PEA_indicatif` par règle métier.
-4. (À venir) Enrichir via OpenFIGI : FIGI, ticker exact, type d'instrument.
-5. (À venir) Croiser les listes émetteurs ETF (Amundi, iShares, BNP) pour l'éligibilité PEA réelle.
+4. Enrichir via OpenFIGI (`scripts/enrich_openfigi.py`) : FIGI, ticker exact, nom complet.
+5. Croiser les listes émetteurs (`scripts/maj_pea_emetteurs.py`) puis reclasser (`scripts/enrich_pea.py`).
+6. Valider (`scripts/validate_base.py`).
 
 *Données à usage d'aide à la décision uniquement — ni conseil en investissement, ni conseil fiscal.*
