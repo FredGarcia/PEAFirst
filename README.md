@@ -55,7 +55,7 @@ Chaîne complète : `enrich_openfigi.py` → `maj_pea_emetteurs.py --merge …` 
 
 ## Intégration continue
 
-`.github/workflows/validate.yml` s'exécute à chaque push et chaque pull request :
+`.github/workflows/validate.yml` s'exécute sur chaque pull request et sur les push vers `main` :
 
 1. `validate_base.py` sur la base livrée ;
 2. régénération du classement PEA et échec si `data/base_isin_fonds_pea.csv` n'est pas à jour (garde-fou contre une modification de `pea_emetteurs.csv` ou des règles sans régénération) ;
