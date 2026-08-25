@@ -135,7 +135,7 @@ FR0010655712;AMUETFDAXETFP;CG1;ETF;ETF Plus | Euronext Paris;EUR;FR;OUI;-;Eurone
 FR0010655746;AMUNDI ETF MS SPA;CS1;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
 FR0010717090;AMUNDI ETF EMU HDV;CD8;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
 FR0010754200;AMUETFC3MIMETFP;C3M;ETF;ETF Plus | Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;NON;CLASSE_ACTIFS;Obligataire/monétaire/crypto/matières premières sans montage PEA
-FR0010755611;AMUNDI ETF LEV USA;CL2;ETF;Euronext Paris | ETF Plus;EUR;FR;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
+FR0010755611;AMUNDI ETF LEV USA;CL2;ETF;Euronext Paris | ETF Plus;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
 FR0010756114;AMUETFCM9IMETFP;CM9;ETF;ETF Plus | Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
 FR0010790980;AMUNDI ETF STOXX50;C5E;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
 FR0010821819;AMUNDI ETF EU X EM;CU9;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
@@ -159,8 +159,8 @@ FR0011869304;AM IMMO EUR PEA;PMEH;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-
 FR0011869312;AM ASIP EXJ PEA;PAEJ;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0011869320;AMUNDI INDIA PEA;PINR;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0011871078;AMUNDI Chine PEA;PASI;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
-FR0011871110;AM NSDQ 100 PEA;PUST;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
-FR0011871128;AMUNDI SP500 PEA;PSP5;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
+FR0011871110;AM NSDQ 100 PEA;PUST;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
+FR0011871128;AMUNDI SP500 PEA;PSP5;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
 FR0011871136;AM PEA SP5H EUR;PSPH;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0011882364;AMUNDI W WATER PEA;AWAT;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0012739431;BNPP EUROSTOXX50 C;ETDD;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
@@ -168,13 +168,13 @@ FR0012740983;BNPP EURSTOX50 C/D;ETBB;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;20
 FR0013041530;BNPETFSP500TETFP;ESEH;ETF;ETF Plus | Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 FR0013209921;MULETFWLDXIMETFP;WLDX;ETF;ETF Plus;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 FR0013346681;AMUNDI PEA OBLI;OBLI;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
-FR0013380607;AMUNDI CAC40 ACC;CACC;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
-FR0013411980;AMUNDI PEA TOPIX;PTPXE;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
+FR0013380607;AMUNDI CAC40 ACC;CACC;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
+FR0013411980;AMUNDI PEA TOPIX;PTPXE;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
 FR0013411998;AMUNDI PEA TOPIX H;PTPXH;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0013412004;AMUNDI PEA EM ALAT;PALAT;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
-FR0013412012;AMUNDI PEA EM ASIA;PAASI;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
-FR0013412020;AMUNDI PEA MSCI EM;PAEEM;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
-FR0013412038;AMUNDI PEA EUROPE;PCEU;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
+FR0013412012;AMUNDI PEA EM ASIA;PAASI;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
+FR0013412020;AMUNDI PEA MSCI EM;PAEEM;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
+FR0013412038;AMUNDI PEA EUROPE;PCEU;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
 FR0013412269;AMUNDI PEA NASDAQ;PANX;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0013412285;AMUNDI PEA SP500;PE500;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR0013412293;AMUNDI PEA SP500 H;P500H;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
@@ -198,7 +198,7 @@ FR001400SDO6;AMUACTISUHXPAR;ISUH;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Eu
 FR001400SDP3;AMUACTISRCXPAR;ISRC;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 FR001400SDQ1;AMUACTISRDXPAR;ISRD;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 FR001400SQV3;AMUACTISCHXPAR;ISCH;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
-FR001400U5Q4;AMUETFMSDEWIXPAR;DCAM;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
+FR001400U5Q4;AMUETFMSDEWIXPAR;DCAM;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
 FR001400XS96;CMAETFSX5TXPAR;CM5E;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
 FR001400ZGO4;AMUETFMXEECCXPAR;PEMS;ETF;Euronext Paris;EUR;FR;OUI;ESG ETF art. 8;Euronext;2026-08-04;OUI;NOM_PEA;Marquage « PEA » dans le nom émetteur
 FR001400ZGP1;MULETFSX5TXPAR;MSES;ETF;Euronext Paris;EUR;FR;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
@@ -1328,7 +1328,7 @@ IE00B469F816;SSGETFGEASIMETFP;EMRG;ETF;ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04
 IE00B46G8275;HSBETFXMINIMETFP;HIDD;ETF;ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 IE00B4K48X80;ISHARES MSCI EUR A;IMAE;ETF;Euronext Amsterdam | ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
 IE00B4K6B022;HSBC EUROSTX50 ETF;50E;ETF;Euronext Paris | ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;PROBABLE;INDICE_EUROPEEN;Indice actions européen — quota 75 % actions UE respecté de fait
-IE00B4L5Y983;ISHARES MSCI WOR A;IWDA;ETF;Euronext Amsterdam | ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
+IE00B4L5Y983;ISHARES MSCI WOR A;IWDA;ETF;Euronext Amsterdam | ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;NON;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur) — replication physique, quota 75% non respecte
 IE00B4L5YC18;ISHARES MSCI EM A;IEMA;ETF;Euronext Amsterdam | ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 IE00B4L5YX21;ISHARES MSCI JAP A;IJPA;ETF;Euronext Amsterdam | ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 IE00B4L5ZG21;ISHETFIEXFIMETFP;IEXF;ETF;ETF Plus;EUR;IE;OUI;-;Euronext;2026-08-04;NON;CLASSE_ACTIFS;Obligataire/monétaire/crypto/matières premières sans montage PEA
@@ -2520,7 +2520,7 @@ LU1681042864;AMUETFMXUSIMETFP;CU2;ETF;ETF Plus | Euronext Paris;EUR;LU;OUI;ESG E
 LU1681042948;AMUNDI ETF USA-B;CU2U;ETF;Euronext Paris - Multi-currency Trading;USD;LU;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 LU1681043086;AMUETFCI2IMETFP;CI2;ETF;ETF Plus | Euronext Paris;EUR;LU;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 LU1681043169;AMUNDI ETF INDIA-B;CI2U;ETF;Euronext Paris - Multi-currency Trading;USD;LU;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
-LU1681043599;AMUETFMXWOETFP;CW8;ETF;ETF Plus | Euronext Paris;EUR;LU;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
+LU1681043599;AMUETFMXWOETFP;CW8;ETF;ETF Plus | Euronext Paris;EUR;LU;OUI;-;Euronext;2026-08-04;OUI;LISTE_EMETTEUR;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur)
 LU1681043672;AMUNDI ETF WORLD-B;CW8U;ETF;Euronext Paris - Multi-currency Trading;USD;LU;OUI;-;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 LU1681043912;AMUETFMSCHETFP;CC1;ETF;ETF Plus | Euronext Paris;EUR;LU;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur
 LU1681044050;AMUNDI ETF CHINA-B;CC1U;ETF;Euronext Paris - Multi-currency Trading;USD;LU;OUI;ESG ETF art. 8;Euronext;2026-08-04;A_VERIFIER;NON_DETERMINE;Fonds EEE sur indice non européen : vérifier la liste émetteur

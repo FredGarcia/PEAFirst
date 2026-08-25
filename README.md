@@ -29,6 +29,17 @@ Règle par préfixe pays de l'ISIN (UE/EEE incluant NO, IS, LI) :
 
 ## Éligibilité PEA fiabilisée (`data/base_isin_fonds_pea.csv`)
 
+> **Il n'existe aucune liste officielle des ETF éligibles au PEA.** Ni l'AMF, ni
+> l'administration fiscale, ni Euronext n'en publient. L'éligibilité est un
+> engagement pris par la société de gestion dans le prospectus du fonds, sous sa
+> responsabilité. La seule source qui fait foi est donc **la fiche produit de
+> l'émetteur**, à une date donnée. `data/pea_emetteurs.csv` matérialise ce
+> relevé, avec la source et la date de vérification de chaque entrée.
+>
+> Deux niveaux de fiabilité y coexistent, tracés dans la colonne `Source` :
+> relevé direct sur la documentation de l'émetteur (le plus fort), ou relevé
+> secondaire à reconfirmer sur la fiche émetteur avant tout usage décisionnel.
+
 Produit par `scripts/enrich_pea.py`, qui croise par priorité décroissante :
 
 1. **`data/pea_emetteurs.csv`** — liste vérifiée auprès des émetteurs (fait autorité, `LISTE_EMETTEUR`) ;

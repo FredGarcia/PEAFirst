@@ -1,7 +1,18 @@
 ISIN;Nom;Emetteur;PEA_eligible;Source;Date_verification
+FR0010755611;Amundi MSCI USA Daily (2x) Leveraged UCITS ETF;Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
 FR0011550185;BNP Paribas Easy S&P 500 UCITS ETF (ESE);BNP Paribas;OUI;Documentation émetteur BNP Paribas Easy — réplication synthétique éligible PEA;2026-08-10
 FR0011550193;BNP Paribas Easy STOXX Europe 600 UCITS ETF (ETZ);BNP Paribas;OUI;Documentation émetteur BNP Paribas Easy — réplication synthétique éligible PEA;2026-08-10
-LU1291098827;BNP Paribas Easy MSCI EMU ESG Filtered UCITS ETF (EEMU);BNP Paribas;OUI;Documentation émetteur BNP Paribas Easy;2026-08-10
+FR0011871110;Amundi PEA Nasdaq-100 UCITS ETF Acc (PUST);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0011871128;Amundi PEA S&P 500 UCITS ETF Acc (PSP5);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0013380607;Amundi CAC 40 UCITS ETF Acc (CACC);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0013411980;Amundi PEA Japon TOPIX UCITS ETF Acc (PTPXE);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0013412012;Amundi PEA Asie Emergente Screened UCITS ETF (PAASI);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0013412020;Amundi PEA Emergent ESG Transition UCITS ETF (PAEEM);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0013412038;Amundi PEA MSCI Europe UCITS ETF Acc (PCEU);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR001400U5Q4;Amundi PEA Monde (MSCI World) UCITS ETF Acc;Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
+FR0014017NX3;Amundi PEA Monde MSCI ACWI UCITS ETF (GPEA);Amundi;OUI;Documentation émetteur Amundi — gamme PEA;2026-08-10
 IE0002XZSHO1;iShares MSCI World Swap PEA UCITS ETF (WPEA);iShares;OUI;Documentation émetteur iShares — gamme Swap PEA;2026-08-10
 IE000DQLYVB9;iShares S&P 500 Swap PEA UCITS ETF (SPEA);iShares;OUI;Documentation émetteur iShares — gamme Swap PEA;2026-08-10
-FR0014017NX3;Amundi PEA Monde MSCI ACWI UCITS ETF (GPEA);Amundi;OUI;Documentation émetteur Amundi — gamme PEA;2026-08-10
+IE00B4L5Y983;iShares Core MSCI World UCITS ETF (replication physique - non eligible PEA);iShares;NON;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur) — replication physique, quota 75% non respecte;2026-08-25
+LU1291098827;BNP Paribas Easy MSCI EMU ESG Filtered UCITS ETF (EEMU);BNP Paribas;OUI;Documentation émetteur BNP Paribas Easy;2026-08-10
+LU1681043599;Amundi MSCI World Swap UCITS ETF Acc (CW8);Amundi;OUI;get-gustav.com 2026-08-24, tableaux releves fiche par fiche chez les emetteurs le 2026-08-14 (source secondaire : a confirmer sur fiche emetteur);2026-08-25
