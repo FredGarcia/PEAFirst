@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PEA Advisor — état de la base</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --encre:#16202b; --encre-2:#3d4d5c; --papier:#eef1f4; --carte:#ffffff;
+  --trait:#c9d2da; --couvert:#2f6f6b; --manquant:#b8762a; --alerte:#8a3d3d;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--papier); color:var(--encre);
+  font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:15px; line-height:1.55;
+}
+.page { max-width:1080px; margin:0 auto; padding:28px 20px 64px; }
+.eyebrow {
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--encre-2);
+}
+h1 {
+  font-family:"IBM Plex Sans Condensed",sans-serif; font-weight:700;
+  font-size:clamp(30px,6vw,50px); line-height:1.03; letter-spacing:-.015em;
+  margin:.18em 0 .3em;
+}
+.these { max-width:56ch; color:var(--encre-2); margin:0 0 26px; }
+h2 {
+  font-family:"IBM Plex Sans Condensed",sans-serif; font-size:13px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--encre-2);
+  margin:0 0 14px; padding-bottom:7px; border-bottom:1px solid var(--trait);
+}
+.carte {
+  background:var(--carte); border:1px solid var(--trait); border-radius:3px;
+  padding:20px; margin-bottom:18px;
+}
+/* Signature : la couverture du barème, vide compris. */
+.jauge { display:flex; height:52px; border:1px solid var(--encre); border-radius:2px; overflow:hidden; }
+.jauge .plein { background:var(--couvert); }
+.jauge .vide {
+  background:repeating-linear-gradient(135deg,#f3ece1,#f3ece1 5px,#e6d9c4 5px,#e6d9c4 10px);
+}
+.jauge-leg { display:flex; justify-content:space-between; margin-top:9px; font-size:12.5px; color:var(--encre-2); }
+.jauge-leg b { font-family:"IBM Plex Mono",monospace; color:var(--encre); }
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); gap:14px; margin-bottom:18px; }
+.kpi { background:var(--carte); border:1px solid var(--trait); border-radius:3px; padding:15px 16px; }
+.kpi .v { font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:500; letter-spacing:-.02em; }
+.kpi .l { font-size:12px; color:var(--encre-2); margin-top:3px; }
+.duo { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.barre { display:flex; height:22px; border-radius:2px; overflow:hidden; background:var(--papier); }
+.seg { display:block; height:100%; }
+ul.leg { list-style:none; margin:13px 0 0; padding:0; font-size:13.5px; }
+ul.leg li { display:flex; align-items:center; gap:9px; padding:3.5px 0; border-bottom:1px solid #eef1f4; }
+.puce { width:10px; height:10px; border-radius:2px; flex:none; }
+.lib { flex:1; }
+.val { font-family:"IBM Plex Mono",monospace; }
+.pct { font-family:"IBM Plex Mono",monospace; color:var(--encre-2); width:56px; text-align:right; }
+table { width:100%; border-collapse:collapse; font-size:13.5px; }
+th {
+  text-align:left; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--encre-2);
+  padding:0 7px 7px; border-bottom:1px solid var(--trait); font-weight:500;
+}
+td { padding:7px; border-bottom:1px solid #eef1f4; }
+.rg { font-family:"IBM Plex Mono",monospace; color:var(--encre-2); width:30px; }
+.nu { font-family:"IBM Plex Mono",monospace; text-align:right; }
+.couv { color:var(--encre-2); }
+.ty { font-size:12px; color:var(--encre-2); }
+ul.absents { list-style:none; margin:0; padding:0; }
+ul.absents li {
+  display:flex; flex-wrap:wrap; gap:4px 12px; padding:9px 0 9px 15px;
+  border-bottom:1px solid #eef1f4; border-left:3px solid var(--manquant);
+  padding-left:13px; margin-bottom:2px;
+}
+.abs-t { font-weight:600; min-width:200px; }
+.abs-m { color:var(--encre-2); font-size:13px; }
+.note { font-size:13px; color:var(--encre-2); margin-top:11px; }
+footer { margin-top:34px; padding-top:16px; border-top:1px solid var(--trait);
+  font-size:12.5px; color:var(--encre-2); }
+@media (max-width:720px) { .duo { grid-template-columns:1fr; } .abs-t { min-width:0; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<p class="eyebrow">PEA Advisor · base ISIN · 2026-08-26</p>
+<h1>Ce que la base sait,<br>et ce qu'elle ignore.</h1>
+<p class="these">
+  6 188 instruments recensés depuis les listes officielles Euronext. Mais un
+  tableau de bord n'est utile que s'il distingue une donnée mesurée d'une donnée
+  absente. Les deux sont affichées ici.
+</p>
+
+<div class="carte">
+  <h2>Couverture du barème de score</h2>
+  <div class="jauge" role="img"
+       aria-label="Barème couvert à 60 %">
+    <div class="plein" style="width:60.0%"></div>
+    <div class="vide" style="width:40.0%"></div>
+  </div>
+  <div class="jauge-leg">
+    <span><b>60 %</b> évalués — risque et performance passée</span>
+    <span><b>40 %</b> sans source — valorisation, dividende, potentiel</span>
+  </div>
+  <p class="note">
+    Un score de 80 couvert à 60 % ne vaut pas un score de 80 couvert à 100 %.
+    La colonne « couv. » accompagne donc chaque classement ci-dessous.
+  </p>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">6 188</div><div class="l">instruments recensés</div></div>
+  <div class="kpi"><div class="v">6 171</div><div class="l">identifiés FIGI / ticker</div></div>
+  <div class="kpi"><div class="v">17</div><div class="l">notés (0.3 % de la base)</div></div>
+  <div class="kpi"><div class="v">50.0</div><div class="l">score moyen /100</div></div>
+  <div class="kpi"><div class="v">85.6</div><div class="l">diversification pays /100</div></div>
+  <div class="kpi"><div class="v">1 121</div><div class="l">avec classification ESG</div></div>
+</div>
+
+<div class="duo">
+  <div class="carte">
+    <h2>Nature des instruments</h2>
+    <div class="barre"><span class="seg" style="width:52.23%;background:#2f6f6b" title="ETF : 3232"></span><span class="seg" style="width:45.22%;background:#4d8f88" title="Action : 2798"></span><span class="seg" style="width:2.55%;background:#7fb0a6" title="OPCVM : 158"></span></div>
+    <ul class="leg"><li><span class="puce" style="background:#2f6f6b"></span><span class="lib">ETF</span><span class="val">3 232</span><span class="pct">52.2%</span></li><li><span class="puce" style="background:#4d8f88"></span><span class="lib">Action</span><span class="val">2 798</span><span class="pct">45.2%</span></li><li><span class="puce" style="background:#7fb0a6"></span><span class="lib">OPCVM</span><span class="val">158</span><span class="pct">2.6%</span></li></ul>
+  </div>
+  <div class="carte">
+    <h2>Pays d'émission</h2>
+    <div class="barre"><span class="seg" style="width:29.73%;background:#1f4a5c" title="Irlande : 1840"></span><span class="seg" style="width:12.82%;background:#2f6f6b" title="Luxembourg : 793"></span><span class="seg" style="width:12.09%;background:#4d8f88" title="France : 748"></span><span class="seg" style="width:10.50%;background:#7fb0a6" title="États-Unis : 650"></span><span class="seg" style="width:7.32%;background:#a8c8bd" title="Italie : 453"></span><span class="seg" style="width:5.59%;background:#b8762a" title="International : 346"></span><span class="seg" style="width:3.94%;background:#d09a55" title="Norvège : 244"></span><span class="seg" style="width:3.62%;background:#e0bd8a" title="Pays-Bas : 224"></span><span class="seg" style="width:14.38%;background:#c3cbd4" title="Autres : 890"></span></div>
+    <ul class="leg"><li><span class="puce" style="background:#1f4a5c"></span><span class="lib">Irlande</span><span class="val">1 840</span><span class="pct">29.7%</span></li><li><span class="puce" style="background:#2f6f6b"></span><span class="lib">Luxembourg</span><span class="val">793</span><span class="pct">12.8%</span></li><li><span class="puce" style="background:#4d8f88"></span><span class="lib">France</span><span class="val">748</span><span class="pct">12.1%</span></li><li><span class="puce" style="background:#7fb0a6"></span><span class="lib">États-Unis</span><span class="val">650</span><span class="pct">10.5%</span></li><li><span class="puce" style="background:#a8c8bd"></span><span class="lib">Italie</span><span class="val">453</span><span class="pct">7.3%</span></li><li><span class="puce" style="background:#b8762a"></span><span class="lib">International</span><span class="val">346</span><span class="pct">5.6%</span></li><li><span class="puce" style="background:#d09a55"></span><span class="lib">Norvège</span><span class="val">244</span><span class="pct">3.9%</span></li><li><span class="puce" style="background:#e0bd8a"></span><span class="lib">Pays-Bas</span><span class="val">224</span><span class="pct">3.6%</span></li><li><span class="puce" style="background:#c3cbd4"></span><span class="lib">Autres</span><span class="val">890</span><span class="pct">14.4%</span></li></ul>
+  </div>
+</div>
+
+<div class="carte">
+  <h2>Éligibilité PEA des fonds (3 390 ETF et OPCVM)</h2>
+  <div class="barre"><span class="seg" style="width:1.18%;background:#2f6f6b" title="Éligible confirmé : 40"></span><span class="seg" style="width:6.52%;background:#7fb0a6" title="Probable : 221"></span><span class="seg" style="width:64.07%;background:#c3cbd4" title="À vérifier : 2172"></span><span class="seg" style="width:28.23%;background:#8a3d3d" title="Non éligible : 957"></span></div>
+  <ul class="leg"><li><span class="puce" style="background:#2f6f6b"></span><span class="lib">Éligible confirmé</span><span class="val">40</span><span class="pct">1.2%</span></li><li><span class="puce" style="background:#7fb0a6"></span><span class="lib">Probable</span><span class="val">221</span><span class="pct">6.5%</span></li><li><span class="puce" style="background:#c3cbd4"></span><span class="lib">À vérifier</span><span class="val">2 172</span><span class="pct">64.1%</span></li><li><span class="puce" style="background:#8a3d3d"></span><span class="lib">Non éligible</span><span class="val">957</span><span class="pct">28.2%</span></li></ul>
+  <p class="note">
+    Aucune liste officielle d'ETF éligibles n'existe : l'éligibilité est un
+    engagement de la société de gestion dans le prospectus. Les fonds « à
+    vérifier » attendent une confirmation sur la fiche de l'émetteur.
+  </p>
+</div>
+
+<div class="duo">
+  <div class="carte">
+    <h2>Meilleurs scores pondérés</h2>
+    <table><thead><tr><th></th><th>Instrument</th><th>Type</th>
+      <th style="text-align:right">Score</th><th style="text-align:right">Couv.</th>
+    </tr></thead><tbody><tr><td class="rg">1</td><td class="nom">AGEAS</td><td class="ty">Action</td><td class="nu">89.1</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">2</td><td class="nom">SIPEF</td><td class="ty">Action</td><td class="nu">88.5</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">3</td><td class="nom">TEXAF</td><td class="ty">Action</td><td class="nu">76.0</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">4</td><td class="nom">VIOHALCO</td><td class="ty">Action</td><td class="nu">75.0</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">5</td><td class="nom">KINEPOLIS GROUP</td><td class="ty">Action</td><td class="nu">70.3</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">6</td><td class="nom">COLRUYT</td><td class="ty">Action</td><td class="nu">64.6</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">7</td><td class="nom">CARE PROPERTY INV.</td><td class="ty">Action</td><td class="nu">64.6</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">8</td><td class="nom">QRF</td><td class="ty">Action</td><td class="nu">62.5</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">9</td><td class="nom">FLUXYS BELGIUM D</td><td class="ty">Action</td><td class="nu">61.5</td><td class="nu couv">60.0%</td></tr><tr><td class="rg">10</td><td class="nom">BEKAERT</td><td class="ty">Action</td><td class="nu">47.9</td><td class="nu couv">60.0%</td></tr></tbody></table>
+  </div>
+  <div class="carte">
+    <h2>Matrice multicritère TOPSIS</h2>
+    <table><thead><tr><th></th><th>Instrument</th>
+      <th style="text-align:right">Coef.</th><th style="text-align:right">Score</th>
+    </tr></thead><tbody><tr><td class="rg">1</td><td class="nom">VIOHALCO</td><td class="nu">0.896</td><td class="nu couv">75.0</td></tr><tr><td class="rg">2</td><td class="nom">SIPEF</td><td class="nu">0.539</td><td class="nu couv">88.5</td></tr><tr><td class="rg">3</td><td class="nom">AGEAS</td><td class="nu">0.515</td><td class="nu couv">89.1</td></tr><tr><td class="rg">4</td><td class="nom">KINEPOLIS GROUP</td><td class="nu">0.501</td><td class="nu couv">70.3</td></tr><tr><td class="rg">5</td><td class="nom">TEXAF</td><td class="nu">0.464</td><td class="nu couv">76.0</td></tr><tr><td class="rg">6</td><td class="nom">FLUXYS BELGIUM D</td><td class="nu">0.380</td><td class="nu couv">61.5</td></tr><tr><td class="rg">7</td><td class="nom">COLRUYT</td><td class="nu">0.373</td><td class="nu couv">64.6</td></tr><tr><td class="rg">8</td><td class="nom">CARE PROPERTY INV.</td><td class="nu">0.370</td><td class="nu couv">64.6</td></tr><tr><td class="rg">9</td><td class="nom">QRF</td><td class="nu">0.357</td><td class="nu couv">62.5</td></tr><tr><td class="rg">10</td><td class="nom">BEKAERT</td><td class="nu">0.327</td><td class="nu couv">47.9</td></tr></tbody></table>
+    <p class="note">
+      Distance à la solution idéale, méthode indépendante du score pondéré. Un
+      écart de classement entre les deux colonnes signale un instrument dont la
+      note dépend fortement des pondérations choisies.
+    </p>
+  </div>
+</div>
+
+<div class="carte">
+  <h2>Indicateurs prévus, non alimentés</h2>
+  <ul class="absents"><li><span class="abs-t">Répartition sectorielle</span><span class="abs-m">aucun champ secteur dans les listes Euronext</span></li><li><span class="abs-t">Rendement moyen</span><span class="abs-m">dividendes européens indisponibles en gratuit</span></li><li><span class="abs-t">Potentiel moyen</span><span class="abs-m">objectifs de cours réservés aux offres payantes</span></li><li><span class="abs-t">Top dividendes</span><span class="abs-m">dividendes européens indisponibles en gratuit</span></li><li><span class="abs-t">Top croissance</span><span class="abs-m">données de croissance indisponibles en gratuit</span></li><li><span class="abs-t">Consensus analystes</span><span class="abs-m">couverture européenne payante</span></li><li><span class="abs-t">Allocation cible vs réelle</span><span class="abs-m">aucun portefeuille réel n&#x27;est saisi</span></li><li><span class="abs-t">Évolution du portefeuille</span><span class="abs-m">aucun historique de portefeuille enregistré</span></li></ul>
+  <p class="note">
+    Ces indicateurs entreront dans le tableau de bord dès qu'une source les
+    alimentera. Ils figurent ici pour que leur absence soit un constat, pas un oubli.
+  </p>
+</div>
+
+<footer>
+  Aide à la décision — ni conseil en investissement, ni conseil fiscal.
+  Généré par <code>scripts/dashboard.py</code>.
+</footer>
+
+</div>
+</body>
+</html>

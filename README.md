@@ -151,6 +151,29 @@ Deux limites assumées, affichées à chaque exécution plutôt que masquées :
 Si aucun instrument ne respecte la contrainte, le moteur ne force pas une
 allocation : il l'indique et propose d'élargir l'univers ou de relever le profil.
 
+## Tableau de bord (`data/dashboard.html`)
+
+`scripts/dashboard.py` produit une page autonome, consultable hors ligne et
+régénérée à chaque collecte. Elle réunit les indicateurs du CDC réellement
+alimentables — répartitions par nature, par pays, éligibilité PEA,
+diversification, meilleurs scores — et la **matrice multicritère TOPSIS**
+demandée au cahier des charges.
+
+Parti pris : les indicateurs prévus mais sans source disponible (secteur,
+rendement, potentiel, consensus, allocation réelle) sont **listés avec leur
+motif** au lieu d'être omis. Une case vide passerait pour un oubli ; un motif
+affiché est un constat. De même, la couverture du barème est représentée en
+tête avec sa part manquante visible, parce qu'un score de 80 couvert à 60 %
+ne vaut pas un score de 80 couvert à 100 %.
+
+TOPSIS classe par distance à la solution idéale, indépendamment du score
+pondéré. Un écart de rang entre les deux méthodes signale un instrument dont
+la note dépend fortement des pondérations retenues.
+
+```bash
+python3 scripts/dashboard.py --top 12
+```
+
 ## Collecte automatisée
 
 `.github/workflows/collecte-marche.yml` collecte chaque jour ouvré (06h15 UTC)
