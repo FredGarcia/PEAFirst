@@ -104,6 +104,28 @@ python3 scripts/enrich_marche.py --historique --filtre pea --limite 15
 **Aucune de ces sources ne fournit l'éligibilité PEA** : elle vient uniquement
 de `pea_emetteurs.csv`.
 
+## Score propriétaire (`data/base_isin_scores.csv`)
+
+`scripts/scoring.py` calcule un score sur 100 par rang percentile au sein de la
+population comparable (même `Type`), avec des pondérations lues dans
+`data/scoring_params.json` et modifiables sans toucher au code.
+`scripts/scoring.gs` en est la transposition pour Apps Script : module
+générique, sans référence d'enveloppe, à appeler depuis un `config.gs`.
+
+Deux garde-fous, parce qu'un score global tiré d'un seul critère induirait en
+erreur : au moins **2 critères notés** et **30 % du barème couvert**. En deçà,
+l'instrument n'est pas noté — il n'est jamais noté zéro, ce qui le ferait
+apparaître comme mauvais alors qu'il est seulement non documenté. La colonne
+`Couverture_pct` accompagne chaque score : à 60 %, il classe sur le risque et
+la performance passée, pas sur la valorisation ni les perspectives.
+
+Critères alimentables aujourd'hui (sources gratuites) : performance,
+volatilité, Sharpe, Sortino, drawdown, et ESG partiel (classification SFDR
+art. 8/9, ETF seulement). Les critères du CDC sans source gratuite en Europe
+— potentiel, valorisation, croissance, dividende, consensus — sont déjà
+déclarés dans les pondérations : ils entreront dans le score dès qu'une source
+les alimentera, sans modification du code.
+
 ## Pipeline de mise à jour
 
 1. Télécharger les listes Euronext (actions, ETF, fonds).

@@ -1,0 +1,14 @@
+{
+  "_commentaire": "Pondérations du score sur 100. Un critère sans donnée est retiré et les autres sont renormalisés ; son poids n'est jamais attribué par défaut.",
+  "performance": 20,
+  "sharpe": 15,
+  "volatilite": 10,
+  "drawdown": 10,
+  "sortino": 5,
+  "esg": 10,
+  "potentiel": 10,
+  "valorisation": 6,
+  "croissance": 6,
+  "dividende": 4,
+  "consensus": 4
+}
