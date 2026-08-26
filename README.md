@@ -154,24 +154,41 @@ allocation : il l'indique et propose d'élargir l'univers ou de relever le profi
 ## Tableau de bord (`data/dashboard.html`)
 
 `scripts/dashboard.py` produit une page autonome, consultable hors ligne et
-régénérée à chaque collecte. Elle réunit les indicateurs du CDC réellement
-alimentables — répartitions par nature, par pays, éligibilité PEA,
-diversification, meilleurs scores — et la **matrice multicritère TOPSIS**
-demandée au cahier des charges.
+régénérée à chaque collecte.
 
-Parti pris : les indicateurs prévus mais sans source disponible (secteur,
-rendement, potentiel, consensus, allocation réelle) sont **listés avec leur
-motif** au lieu d'être omis. Une case vide passerait pour un oubli ; un motif
-affiché est un constat. De même, la couverture du barème est représentée en
-tête avec sa part manquante visible, parce qu'un score de 80 couvert à 60 %
-ne vaut pas un score de 80 couvert à 100 %.
+**Bandeau de fraîcheur** en tête : date de génération, dernière mise à jour de
+la base, cours le plus récent, cours le plus ancien et nombre de cours périmés
+(seuil réglable via `--seuil-fraicheur`, 7 jours par défaut). L'âge est aussi
+affiché par ligne et mis en évidence au-delà du seuil : un cours de trois mois
+n'a pas la valeur d'un cours de la veille.
 
-TOPSIS classe par distance à la solution idéale, indépendamment du score
-pondéré. Un écart de rang entre les deux méthodes signale un instrument dont
-la note dépend fortement des pondérations retenues.
+**Explorateur** sur les 6 188 instruments : recherche, filtres (nature, pays,
+éligibilité PEA, état des données), tri par clic sur n'importe quelle colonne,
+et regroupement par nature, pays, éligibilité ou état. Chaque ligne porte son
+état — *noté*, *collecté* ou *en attente* — ce qui rend l'avancement de la
+collecte lisible instrument par instrument.
+
+**Constitution de lots** : cocher des lignes (ou « tout sélectionner », qui
+porte sur l'ensemble du filtre courant et non sur la seule page) produit soit
+une commande à copier, soit une file d'attente à télécharger. Les scripts la
+consomment ensuite :
 
 ```bash
-python3 scripts/dashboard.py --top 12
+python3 scripts/enrich_marche.py --historique --isins FR0000120073,BE0974293251
+python3 scripts/enrich_marche.py --historique --file-attente data/file_attente.txt
+```
+
+La page **n'embarque aucune clé d'API** et n'appelle donc aucune source
+directement : elle est versionnée sur GitHub, où une clé serait publiquement
+exposée. Elle prépare les lots, le script les exécute.
+
+Le reste réunit les indicateurs du CDC alimentables — répartitions, éligibilité
+PEA, diversification, meilleurs scores — la **matrice multicritère TOPSIS**, et
+la liste des indicateurs prévus mais sans source, avec leur motif. Une case vide
+passerait pour un oubli ; un motif affiché est un constat.
+
+```bash
+python3 scripts/dashboard.py --top 12 --seuil-fraicheur 7
 ```
 
 ## Collecte automatisée

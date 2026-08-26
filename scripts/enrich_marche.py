@@ -375,6 +375,12 @@ def main():
                    help="profondeur d'historique en jours (défaut 400)")
     p.add_argument("--taux-sans-risque", type=float, default=0.02,
                    help="taux sans risque annuel pour Sharpe/Sortino (défaut 0.02)")
+    p.add_argument("--isins", default="",
+                   help="liste d'ISIN séparés par des virgules, à traiter en "
+                        "priorité (lot issu du tableau de bord)")
+    p.add_argument("--file-attente", default="",
+                   help="fichier contenant un ISIN par ligne (file d'attente "
+                        "exportée depuis le tableau de bord)")
     p.add_argument("--forcer", action="store_true",
                    help="réinterroger même les instruments déjà en cache")
     p.add_argument("--source", choices=["eodhd", "marketstack"], default="eodhd",
@@ -405,6 +411,23 @@ def main():
         univers = [r for r in base
                    if r["ISIN"] in eligibles
                    or (r["Type"] == "Action" and r.get("PEA_indicatif") == "OUI")]
+
+    # Lot explicite : le tableau de bord permet de sélectionner des lignes et
+    # d'exporter leurs ISIN. Il prime sur --filtre, et conserve l'ordre demandé.
+    demandes = [i.strip() for i in args.isins.split(",") if i.strip()]
+    if args.file_attente:
+        chemin_file = Path(args.file_attente)
+        if not chemin_file.exists():
+            p.error(f"file d'attente introuvable : {chemin_file}")
+        demandes += [l.strip() for l in chemin_file.read_text(encoding="utf-8").splitlines()
+                     if l.strip() and not l.startswith("#")]
+    if demandes:
+        par_isin = {r["ISIN"]: r for r in base}
+        inconnus = [i for i in demandes if i not in par_isin]
+        if inconnus:
+            print(f"{len(inconnus)} ISIN hors base ignoré(s) : {inconnus[:3]}")
+        univers = [par_isin[i] for i in dict.fromkeys(demandes) if i in par_isin]
+        print(f"Lot demandé : {len(univers)} instrument(s)")
 
     couples = [(r, symbole_marche(r)) for r in univers]
     resolus = [(r, s) for r, s in couples if s]
