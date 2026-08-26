@@ -74,6 +74,36 @@ Chaîne complète : `enrich_openfigi.py` → `maj_pea_emetteurs.py --merge …` 
 
 Aucune dépendance à installer, aucun accès réseau requis — l'étape OpenFIGI reste manuelle.
 
+## Données de marché et indicateurs (`data/base_isin_marche.csv`)
+
+Produit par `scripts/enrich_marche.py` : cours de clôture, puis volatilité
+annualisée, drawdown maximal, Sharpe et Sortino (252 séances/an, taux sans
+risque paramétrable via `--taux-sans-risque`).
+
+Quotas constatés sur comptes gratuits (août 2026) — ils dictent la stratégie :
+
+| Source | Quota | Couverture Euronext | Usage |
+|---|---|---|---|
+| EODHD | 20 requêtes/**jour** | Paris, Amsterdam, Bruxelles, Lisbonne, Oslo, Milan, Dublin | `--historique` (défaut) |
+| Marketstack | 100 requêtes/**mois**, lots de 50 | Paris, Amsterdam, Bruxelles, Lisbonne — grandes capitalisations seulement | `--cours` en masse |
+| Alpha Vantage | 25 requêtes/jour | partielle | repli |
+| FMP, Finnhub, Tiingo, Polygon | — | **aucune** en gratuit (US uniquement) | réservés au CTO |
+
+Conséquence : enrichir les 6 188 instruments d'un coup est hors de portée en
+gratuit. Le script travaille donc par sous-ensemble priorisé
+(`--filtre pea|actions|etf`, `--limite`) et reprend où il s'est arrêté grâce à
+`data/marche_cache.json` (non versionné). Les symboles absents du fournisseur
+sont marqués une fois pour toutes et ne sont plus réinterrogés.
+
+```bash
+export EODHD_API_KEY=...
+python3 scripts/enrich_marche.py --etat                        # avancement
+python3 scripts/enrich_marche.py --historique --filtre pea --limite 15
+```
+
+**Aucune de ces sources ne fournit l'éligibilité PEA** : elle vient uniquement
+de `pea_emetteurs.csv`.
+
 ## Pipeline de mise à jour
 
 1. Télécharger les listes Euronext (actions, ETF, fonds).

@@ -1,0 +1,4 @@
+data/marche_cache.json
+*.tmp
+.keys/
+__pycache__/
