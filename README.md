@@ -126,6 +126,44 @@ art. 8/9, ETF seulement). Les critères du CDC sans source gratuite en Europe
 déclarés dans les pondérations : ils entreront dans le score dès qu'une source
 les alimentera, sans modification du code.
 
+## Allocation (`scripts/allocation.py`, `scripts/allocation.gs`)
+
+Répartit un capital selon les quatre entrées du CDC : capital, horizon, profil
+de risque (1 à 7) et objectif. Le profil suit les bornes de volatilité de
+**PRIIPS (indicateur SRI)**, donc comparables à celles des documents
+d'information des fonds. Un horizon court resserre automatiquement le plafond
+de volatilité, et le poids maximal par ligne dépend du profil.
+
+```bash
+python3 scripts/allocation.py --capital 10000 --risque 5 --horizon 10 \
+    --objectif croissance --pea-uniquement
+```
+
+Deux limites assumées, affichées à chaque exécution plutôt que masquées :
+
+- **les corrélations ne sont pas modélisées** : la volatilité annoncée est une
+  moyenne pondérée, donc un *majorant* du risque réel d'un portefeuille
+  diversifié. Elle sert à comparer des allocations, pas à prédire le risque ;
+- **l'objectif « revenus » ne peut pas être servi** faute de source gratuite
+  sur les dividendes européens. La sélection privilégie alors la régularité,
+  et le script le dit explicitement.
+
+Si aucun instrument ne respecte la contrainte, le moteur ne force pas une
+allocation : il l'indique et propose d'élargir l'univers ou de relever le profil.
+
+## Collecte automatisée
+
+`.github/workflows/collecte-marche.yml` collecte chaque jour ouvré (06h15 UTC)
+un lot d'instruments, recalcule les scores et publie le résultat. Le quota
+gratuit EODHD étant de 20 requêtes/jour, l'univers se construit progressivement ;
+`data/marche_cache.json` est versionné pour que chaque exécution reprenne où la
+précédente s'est arrêtée.
+
+**Prérequis** : ajouter le secret `EODHD_API_KEY` dans
+*Settings > Secrets and variables > Actions*. Sans lui, le workflow s'arrête
+avec un message explicite. Déclenchement manuel possible via *Run workflow*,
+avec choix du filtre et du nombre d'instruments.
+
 ## Pipeline de mise à jour
 
 1. Télécharger les listes Euronext (actions, ETF, fonds).

@@ -1,0 +1,82 @@
+name: Collecte quotidienne des données de marché
+
+# La collecte est étalée dans le temps parce que le quota gratuit EODHD est de
+# 20 requêtes par jour : impossible d'enrichir les 6 188 instruments d'un coup.
+# Chaque exécution reprend là où la précédente s'est arrêtée grâce au cache
+# data/marche_cache.json, qui est versionné pour survivre d'un run à l'autre.
+
+on:
+  schedule:
+    # 06h15 UTC, après la clôture de la veille sur Euronext.
+    - cron: '15 6 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      limite:
+        description: "Nombre d'instruments à interroger (quota EODHD : 20/jour)"
+        required: false
+        default: '18'
+      filtre:
+        description: 'Univers ciblé : pea, actions, etf ou tout'
+        required: false
+        default: 'pea'
+
+permissions:
+  contents: write
+
+concurrency:
+  # Deux collectes simultanées se marcheraient sur les pieds en écrivant le
+  # même cache et provoqueraient un conflit au commit.
+  group: collecte-marche
+  cancel-in-progress: false
+
+jobs:
+  collecte:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Vérifier la présence de la clé
+        env:
+          EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
+        run: |
+          if [ -z "$EODHD_API_KEY" ]; then
+            echo "::error::Secret EODHD_API_KEY absent. L'ajouter dans"
+            echo "::error::Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Collecter les cours et indicateurs
+        env:
+          EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
+        run: |
+          python3 scripts/enrich_marche.py --etat --filtre "${{ inputs.filtre || 'pea' }}"
+          python3 scripts/enrich_marche.py \
+            --historique --source eodhd \
+            --filtre "${{ inputs.filtre || 'pea' }}" \
+            --limite "${{ inputs.limite || '18' }}"
+
+      - name: Recalculer les scores
+        run: python3 scripts/scoring.py --top 10
+
+      - name: Contrôler l'intégrité de la base
+        run: python3 scripts/validate_base.py
+
+      - name: Publier les données collectées
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/marche_cache.json data/base_isin_marche.csv data/base_isin_scores.csv
+          if git diff --cached --quiet; then
+            echo "Aucune donnée nouvelle : rien à publier."
+            exit 0
+          fi
+          notes=$(wc -l < data/base_isin_scores.csv)
+          git commit -m "Collecte quotidienne : $((notes - 1)) instrument(s) notés"
+          # Une autre exécution a pu publier entre-temps : on se rebase avant
+          # de pousser plutôt que d'échouer.
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
