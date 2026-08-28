@@ -182,6 +182,25 @@ La page **n'embarque aucune clé d'API** et n'appelle donc aucune source
 directement : elle est versionnée sur GitHub, où une clé serait publiquement
 exposée. Elle prépare les lots, le script les exécute.
 
+**Progression de la collecte** : trois courbes (instruments notés, couverture
+moyenne, cours périmés) alimentées par `scripts/historique.py`. Une courbe qui
+stagne signale un quota épuisé ou un workflow en échec — ce qu'aucun score ne
+montrerait. `--reconstruire` amorce la série depuis l'historique Git plutôt que
+de la faire démarrer aujourd'hui ; il ne fabrique aucune donnée, il relit des
+états déjà commités.
+
+**Comparateur** : sélectionner 2 à 5 instruments affiche leurs indicateurs côte
+à côte, la meilleure valeur de chaque ligne mise en évidence — sauf quand toutes
+sont identiques, où surligner n'apprendrait rien.
+
+**Anomalies** (`scripts/anomalies.py`) : série trop courte, volatilité extrême
+ou quasi nulle, Sharpe aberrant, drawdown incohérent avec la volatilité,
+performance extrême, cours périmé, couverture faible. Un indicateur
+spectaculaire est plus souvent le symptôme d'une donnée douteuse que d'une
+opportunité. Les instruments concernés portent un marqueur dans l'explorateur ;
+ces signalements demandent une vérification, ils ne disqualifient pas
+l'instrument.
+
 Le reste réunit les indicateurs du CDC alimentables — répartitions, éligibilité
 PEA, diversification, meilleurs scores — la **matrice multicritère TOPSIS**, et
 la liste des indicateurs prévus mais sans source, avec leur motif. Une case vide

@@ -131,6 +131,34 @@ def legende(compteur, total, couleurs):
         for i, (c, n) in enumerate(compteur))
 
 
+def sparkline(points, cle, couleur, suffixe="", largeur=250, hauteur=54):
+    """Courbe d'évolution en SVG. Rend l'absence de recul explicite plutôt que
+    de tracer une ligne rassurante sur deux mesures."""
+    valeurs = [nombre(p.get(cle)) for p in points]
+    valeurs = [v for v in valeurs if v is not None]
+    if len(valeurs) < 2:
+        return ('<div class="spark-vide">Pas encore assez de points pour une '
+                'courbe — elle s\'étoffera à chaque collecte.</div>')
+    bas, haut = min(valeurs), max(valeurs)
+    etendue = (haut - bas) or 1
+    pas = largeur / (len(valeurs) - 1)
+    pts = " ".join(
+        f"{i * pas:.1f},{hauteur - 6 - (v - bas) / etendue * (hauteur - 14):.1f}"
+        for i, v in enumerate(valeurs))
+    dernier = valeurs[-1]
+    delta = dernier - valeurs[0]
+    signe = "+" if delta > 0 else ""
+    return (
+        f'<svg class="spark" viewBox="0 0 {largeur} {hauteur}" '
+        f'preserveAspectRatio="none" role="img" '
+        f'aria-label="Évolution : {dernier:.1f}{suffixe}, '
+        f'{signe}{delta:.1f} depuis le premier relevé">'
+        f'<polyline points="{pts}" fill="none" stroke="{couleur}" '
+        f'stroke-width="2" stroke-linejoin="round"/></svg>'
+        f'<div class="spark-l"><b>{dernier:.0f}{suffixe}</b>'
+        f'<span>{signe}{delta:.0f} sur {len(valeurs)} relevés</span></div>')
+
+
 def construire(data, top, seuil):
     base = lire(data / "base_isin.csv")
     fonds = {r["ISIN"]: r for r in lire(data / "base_isin_fonds_pea.csv")}
@@ -139,6 +167,14 @@ def construire(data, top, seuil):
     scores = lire(data / "base_isin_scores.csv")
     scores_idx = {r["ISIN"]: r for r in scores}
     figi = {r["ISIN"]: r for r in lire(data / "base_isin_figi.csv")}
+    anomalies = lire(data / "anomalies.csv")
+    histo = lire(data / "historique_couverture.csv")
+
+    # Anomalies groupées par instrument : la ligne de l'explorateur porte un
+    # marqueur, le détail reste dans la carte dédiée.
+    ano_par_isin = {}
+    for a in anomalies:
+        ano_par_isin.setdefault(a["ISIN"], []).append(a)
 
     total = len(base)
 
@@ -167,6 +203,11 @@ def construire(data, top, seuil):
             nombre(m.get("Drawdown_max_pct")),
             m.get("Date_cours") or "",
             age_jours(m.get("Date_cours")),
+            len(ano_par_isin.get(isin, [])),
+            "alerte" if any(x["Gravite"] == "alerte" for x in ano_par_isin.get(isin, []))
+            else ("attention" if ano_par_isin.get(isin) else ""),
+            nombre(m.get("Sharpe")),
+            nombre(m.get("Drawdown_max_pct")),
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -245,6 +286,21 @@ def construire(data, top, seuil):
             f'<td class="nu couv">{scores_idx.get(k, {}).get("Score_global", "—")}</td></tr>'
             for i, (k, n, c) in enumerate(classement, 1)) or
             '<tr><td colspan="4">Population insuffisante.</td></tr>',
+        "__SPARK_NOTES__": sparkline(histo, "Notes", "#2f6f6b"),
+        "__SPARK_COUV__": sparkline(histo, "Couverture_moy_pct", "#1f4a5c", " %"),
+        "__SPARK_PERIMES__": sparkline(histo, "Cours_perimes", "#b8762a"),
+        "__NB_POINTS__": str(len(histo)),
+        "__NB_ANO__": str(len(anomalies)),
+        "__NB_ANO_INST__": str(len(ano_par_isin)),
+        "__ANOMALIES__": "".join(
+            f'<tr><td>{html.escape(a["Nom"][:30])}</td>'
+            f'<td><span class="grav {html.escape(a["Gravite"])}">'
+            f'{html.escape(a["Gravite"])}</span></td>'
+            f'<td class="ty">{html.escape(a["Anomalie"].replace("_", " "))}</td>'
+            f'<td class="ty">{html.escape(a["Detail"])}</td></tr>'
+            for a in sorted(anomalies, key=lambda x: x["Gravite"])[:14]) or
+            '<tr><td colspan="4">Aucune anomalie détectée sur les instruments '
+            'collectés.</td></tr>',
         "__ABSENTS__": "".join(
             f'<li><span class="abs-t">{html.escape(t)}</span>'
             f'<span class="abs-m">{html.escape(m)}</span></li>'
@@ -355,6 +411,27 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--trait);
 font-size:12.5px;color:var(--encre-2)}
 /* Le tableau défile horizontalement dans son cadre : sur petit écran, mieux
 vaut un défilement local qu'une page entière plus large que l'écran. */
+.progres{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:20px}
+.spark{width:100%;height:54px;display:block}
+.spark-l{display:flex;justify-content:space-between;align-items:baseline;
+gap:8px;font-size:12px;color:var(--encre-2);margin-top:4px}
+.spark-l b{font-family:"IBM Plex Mono",monospace;font-size:19px;color:var(--encre)}
+.spark-vide{font-size:12.5px;color:var(--encre-2);padding:16px 0;
+border-top:1px dashed var(--trait);border-bottom:1px dashed var(--trait)}
+.spark-t{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+text-transform:uppercase;color:var(--encre-2);margin-bottom:6px}
+.grav{font-size:11px;font-family:"IBM Plex Mono",monospace;padding:2px 6px;border-radius:2px}
+.grav.alerte{background:#f6e2e2;color:var(--alerte)}
+.grav.attention{background:#fdf1e0;color:#8a5a1c}
+.drapeau{font-size:11px;margin-left:5px;cursor:help}
+.drapeau.alerte{color:var(--alerte)}
+.drapeau.attention{color:var(--manquant)}
+.comp{margin-top:14px;padding:15px;border:1px solid var(--couvert);
+border-radius:3px;background:#f2f8f7}
+.comp[hidden]{display:none}
+.comp table{margin-top:9px}
+.comp th{white-space:nowrap}
+.mieux{font-weight:600;color:var(--couvert)}
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tbl-wrap table{min-width:520px}
 @media (max-width:760px){.duo{grid-template-columns:1fr}.abs-t{min-width:0}
@@ -379,6 +456,18 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   <div class="fr-item"><div class="fr-l">Cours le plus récent</div><div class="fr-v">__MAJ_COURS__</div></div>
   <div class="fr-item"><div class="fr-l">Cours le plus ancien</div><div class="fr-v">__COURS_PLUS_VIEUX__</div></div>
   <div class="fr-item alerte"><div class="fr-l">Périmés (&gt; __SEUIL__ j)</div><div class="fr-v">__PERIMES__</div></div>
+</div>
+
+<div class="carte">
+  <h2>Progression de la collecte (__NB_POINTS__ relevés)</h2>
+  <div class="progres">
+    <div><div class="spark-t">Instruments notés</div>__SPARK_NOTES__</div>
+    <div><div class="spark-t">Couverture moyenne</div>__SPARK_COUV__</div>
+    <div><div class="spark-t">Cours périmés</div>__SPARK_PERIMES__</div>
+  </div>
+  <p class="note">Les scores ne valent que par l'étendue et la fraîcheur des
+  données qui les nourrissent. Une courbe qui stagne signale un quota épuisé ou
+  un workflow en échec — ce qu'aucun score ne montrerait.</p>
 </div>
 
 <div class="carte">
@@ -450,6 +539,14 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     </span>
   </div>
 
+  <div class="comp" id="comp" hidden>
+    <strong>Comparaison</strong>
+    <div class="tbl-wrap"><table id="compTbl"></table></div>
+    <p class="note">La meilleure valeur de chaque ligne est mise en évidence.
+    Comparer au-delà de cinq instruments devient illisible : affiner la
+    sélection.</p>
+  </div>
+
   <div class="lot" id="lot" hidden>
     <strong id="lotTitre"></strong>
     <p class="note" style="margin-top:6px">
@@ -504,6 +601,17 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
 </div>
 
 <div class="carte">
+  <h2>Anomalies détectées (__NB_ANO__ sur __NB_ANO_INST__ instrument(s))</h2>
+  <table><thead><tr><th>Instrument</th><th>Gravité</th><th>Type</th>
+    <th>Détail</th></tr></thead><tbody>__ANOMALIES__</tbody></table>
+  <p class="note">Un indicateur spectaculaire est plus souvent le symptôme d'une
+  donnée douteuse que d'une opportunité : un Sharpe très élevé sur un titre peu
+  échangé traduit une série de cours plate, pas une performance exceptionnelle.
+  Ces signalements demandent une vérification, ils ne disqualifient pas
+  l'instrument.</p>
+</div>
+
+<div class="carte">
   <h2>Indicateurs prévus, non alimentés</h2>
   <ul class="absents">__ABSENTS__</ul>
   <p class="note">Ces indicateurs entreront dans le tableau de bord dès qu'une
@@ -519,7 +627,8 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 (function(){
 "use strict";
 // Colonnes : 0 isin,1 nom,2 type,3 pays,4 pea,5 etat,6 score,7 couv,
-//            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age
+//            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
+//            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -544,6 +653,11 @@ function esc(s){
 }
 function libelleEtat(e){
   return e === "note" ? "noté" : (e === "collecte" ? "collecté" : "en attente");
+}
+function drapeau(r){
+  if (!r[14]) return "";
+  var t = r[14] + " anomalie(s) signalée(s) — voir la carte Anomalies";
+  return ' <span class="drapeau ' + esc(r[15]) + '" title="' + t + '">&#9650;</span>';
 }
 function cell(v, suffixe){
   return (v === null || v === undefined || v === "") ? "—"
@@ -598,7 +712,7 @@ function rendre(){
     lignes.push(
       '<tr><td><input type="checkbox" data-i="' + esc(r[0]) + '"' +
       (choix[r[0]] ? " checked" : "") + ' aria-label="Sélectionner ' + esc(r[1]) + '"></td>' +
-      "<td>" + esc(r[1]) + '<br><span class="ty">' + esc(r[0]) + "</span></td>" +
+      "<td>" + esc(r[1]) + drapeau(r) + '<br><span class="ty">' + esc(r[0]) + "</span></td>" +
       '<td class="masq-s ty">' + esc(r[2]) + "</td>" +
       '<td class="masq-s ty">' + esc(r[3]) + "</td>" +
       '<td class="ty">' + esc(r[4]) + "</td>" +
@@ -611,13 +725,70 @@ function rendre(){
   corps.innerHTML = lignes.join("") ||
     '<tr><td colspan="10">Aucune ligne ne correspond à ces filtres. ' +
     "Élargir la recherche ou réinitialiser.</td></tr>";
-  $("compte").textContent = vue.length.toLocaleString("fr-FR") + " ligne(s) filtrée(s) · " +
-    Object.keys(choix).length + " sélectionnée(s)";
   var pages = Math.max(1, Math.ceil(vue.length / PARPAGE));
   $("pagination").textContent = " page " + (page + 1) + " / " + pages + " ";
   $("pageMoins").disabled = page <= 0;
   $("pagePlus").disabled = page >= pages - 1;
+  majPanneaux();
+}
+
+// Cocher une case ne doit pas reconstruire le tableau : cela détacherait les
+// autres cases et ferait perdre le focus au clavier. Seuls les panneaux qui
+// dépendent de la sélection sont rafraîchis.
+function majPanneaux(){
+  $("compte").textContent = vue.length.toLocaleString("fr-FR") +
+    " ligne(s) filtrée(s) · " + Object.keys(choix).length + " sélectionnée(s)";
+  majComp();
   majLot();
+}
+
+// Comparateur : au-delà de cinq colonnes le tableau devient illisible, et
+// en deçà de deux il n'y a rien à comparer.
+var CRITERES_COMP = [
+  {l: "Score /100", i: 6, s: "", mieux: 1},
+  {l: "Couverture", i: 7, s: " %", mieux: 1},
+  {l: "Performance", i: 9, s: " %", mieux: 1},
+  {l: "Volatilité", i: 8, s: " %", mieux: -1},
+  {l: "Sharpe", i: 16, s: "", mieux: 1},
+  {l: "Drawdown max", i: 17, s: " %", mieux: 1},
+  {l: "Âge du cours", i: 13, s: " j", mieux: -1, entier: true}
+];
+
+function majComp(){
+  var bloc = $("comp");
+  var isins = Object.keys(choix);
+  if (isins.length < 2 || isins.length > 5){ bloc.hidden = true; return; }
+  var index = Object.create(null);
+  D.forEach(function(r){ if (choix[r[0]]) index[r[0]] = r; });
+  var lignes = isins.map(function(i){ return index[i]; }).filter(Boolean);
+  // Sans indicateurs, il n'y a rien à comparer : mieux vaut le dire.
+  var exploitables = lignes.filter(function(r){ return r[8] !== null && r[8] !== undefined; });
+  if (exploitables.length < 2){
+    bloc.hidden = false;
+    $("compTbl").innerHTML = '<tr><td>Au moins deux instruments collectés sont ' +
+      "nécessaires : la sélection actuelle n'a pas encore de données de marché.</td></tr>";
+    return;
+  }
+  bloc.hidden = false;
+  var html = "<thead><tr><th>Critère</th>" + exploitables.map(function(r){
+    return "<th>" + esc(r[1].slice(0, 22)) + "</th>";
+  }).join("") + "</tr></thead><tbody>";
+  CRITERES_COMP.forEach(function(c){
+    var vals = exploitables.map(function(r){ return r[c.i]; });
+    var num = vals.filter(function(v){ return typeof v === "number"; });
+    var best = null;
+    // Ne rien mettre en évidence si toutes les valeurs sont identiques :
+    // surligner l'ensemble d'une ligne n'apprend rien.
+    var varie = num.length > 1 && Math.min.apply(null, num) !== Math.max.apply(null, num);
+    if (varie) { best = c.mieux > 0 ? Math.max.apply(null, num) : Math.min.apply(null, num); }
+    html += "<tr><td>" + c.l + "</td>" + vals.map(function(v){
+      var t = (v === null || v === undefined) ? "—"
+            : (typeof v === "number" ? (c.entier ? String(Math.round(v)) : v.toFixed(1)) + c.s : v);
+      var cl = (varie && v === best) ? ' class="nu mieux"' : ' class="nu"';
+      return "<td" + cl + ">" + t + "</td>";
+    }).join("") + "</tr>";
+  });
+  $("compTbl").innerHTML = html + "</tbody>";
 }
 
 function majLot(){
@@ -656,7 +827,7 @@ corps.addEventListener("change", function(e){
   var cb = e.target;
   if (!cb.dataset || !cb.dataset.i) return;
   if (cb.checked){ choix[cb.dataset.i] = 1; } else { delete choix[cb.dataset.i]; }
-  rendre();
+  majPanneaux();
 });
 
 $("tout").addEventListener("change", function(e){
