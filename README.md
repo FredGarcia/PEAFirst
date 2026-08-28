@@ -1,5 +1,11 @@
 # PEAFirst — Base ISIN
 
+
+> **[Mode d'emploi complet → `docs/MODE_EMPLOI.md`](docs/MODE_EMPLOI.md)**
+> Installation, clés d'API et leurs quotas réels, chaîne de traitement
+> étape par étape, réglages, problèmes courants, et ce que la base ne
+> sait pas.
+
 Base d'identifiants ISIN pour le projet PEA Advisor, construite depuis les listes officielles Euronext (toutes places : Paris, Amsterdam, Bruxelles, Lisbonne, Oslo, Milan, Dublin…).
 
 ## Fichiers
