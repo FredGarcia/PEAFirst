@@ -1,3 +1,7 @@
 ISIN;Nom;Type;Anomalie;Gravite;Detail
 BE0974269012;ADC SIIC;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
 BE0974271034;VIOHALCO;Action;sharpe_aberrant;attention;Sharpe 3.15 : vérifier la régularité de la série
+BE0974294267;NYRSTAR;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+BE0974298300;CANDELA INVEST;Action;volatilite_extreme;alerte;volatilité 204 % (SRI 7) : liquidité à vérifier
+BE0974299316;INVIBES ADVERTSING;Action;volatilite_extreme;alerte;volatilité 118 % (SRI 7) : liquidité à vérifier
+BE0974328602;METRICS IN BALANCE;Action;volatilite_nulle;alerte;volatilité 0.0 % : cours probablement figé

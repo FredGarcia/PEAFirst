@@ -1,18 +1,34 @@
 ISIN;Nom;Type;Score_global;Couverture_pct;Criteres_notes;Rang;Date_MAJ
-BE0974264930;AGEAS;Action;89.1;60.0;drawdown|performance|sharpe|sortino|volatilite;1;2026-08-26
-BE0003898187;SIPEF;Action;88.5;60.0;drawdown|performance|sharpe|sortino|volatilite;2;2026-08-26
-BE0974263924;TEXAF;Action;76.0;60.0;drawdown|performance|sharpe|sortino|volatilite;3;2026-08-26
-BE0974271034;VIOHALCO;Action;75.0;60.0;drawdown|performance|sharpe|sortino|volatilite;4;2026-08-26
-BE0974274061;KINEPOLIS GROUP;Action;70.3;60.0;drawdown|performance|sharpe|sortino|volatilite;5;2026-08-26
-BE0974256852;COLRUYT;Action;64.6;60.0;drawdown|performance|sharpe|sortino|volatilite;6;2026-08-26
-BE0974273055;CARE PROPERTY INV.;Action;64.6;60.0;drawdown|performance|sharpe|sortino|volatilite;7;2026-08-26
-BE0974272040;QRF;Action;62.5;60.0;drawdown|performance|sharpe|sortino|volatilite;8;2026-08-26
-BE0974265945;FLUXYS BELGIUM D;Action;61.5;60.0;drawdown|performance|sharpe|sortino|volatilite;9;2026-08-26
-BE0974258874;BEKAERT;Action;47.9;60.0;drawdown|performance|sharpe|sortino|volatilite;10;2026-08-26
-BE0165385973;MELEXIS;Action;34.4;60.0;drawdown|performance|sharpe|sortino|volatilite;11;2026-08-26
-BE0003893139;IMMO MOURY;Action;32.3;60.0;drawdown|performance|sharpe|sortino|volatilite;12;2026-08-26
-BE0160342011;COIL;Action;32.3;60.0;drawdown|performance|sharpe|sortino|volatilite;13;2026-08-26
-BE0974269012;ADC SIIC;Action;20.8;60.0;drawdown|performance|sharpe|sortino|volatilite;14;2026-08-26
-BE0948608451;PHOTONIKE CAPITAL;Action;16.7;60.0;drawdown|performance|sharpe|sortino|volatilite;15;2026-08-26
-BE0974268972;BPOST;Action;10.4;60.0;drawdown|performance|sharpe|sortino|volatilite;16;2026-08-26
-BE0974276082;ONTEX GROUP;Action;3.1;60.0;drawdown|performance|sharpe|sortino|volatilite;17;2026-08-26
+BE0974264930;AGEAS;Action;88.3;60.0;drawdown|performance|sharpe|sortino|volatilite;1;2026-08-29
+BE0003898187;SIPEF;Action;87.5;60.0;drawdown|performance|sharpe|sortino|volatilite;2;2026-08-29
+BE0974287196;IMMO MCC;Action;84.9;60.0;drawdown|performance|sharpe|sortino|volatilite;3;2026-08-29
+BE0974271034;VIOHALCO;Action;80.2;60.0;drawdown|performance|sharpe|sortino|volatilite;4;2026-08-29
+BE0974282148;TINC;Action;80.2;60.0;drawdown|performance|sharpe|sortino|volatilite;5;2026-08-29
+BE0974293251;AB INBEV;Action;79.4;60.0;drawdown|performance|sharpe|sortino|volatilite;6;2026-08-29
+BE0974303357;CENERGY;Action;77.6;60.0;drawdown|performance|sharpe|sortino|volatilite;7;2026-08-29
+BE0974263924;TEXAF;Action;77.1;60.0;drawdown|performance|sharpe|sortino|volatilite;8;2026-08-29
+BE0974274061;KINEPOLIS GROUP;Action;75.0;60.0;drawdown|performance|sharpe|sortino|volatilite;9;2026-08-29
+BE0974328602;METRICS IN BALANCE;Action;67.7;60.0;drawdown|performance|sharpe|sortino|volatilite;10;2026-08-29
+BE0974256852;COLRUYT;Action;67.2;60.0;drawdown|performance|sharpe|sortino|volatilite;11;2026-08-29
+BE0974273055;CARE PROPERTY INV.;Action;67.2;60.0;drawdown|performance|sharpe|sortino|volatilite;12;2026-08-29
+BE0974272040;QRF;Action;66.1;60.0;drawdown|performance|sharpe|sortino|volatilite;13;2026-08-29
+BE0974265945;FLUXYS BELGIUM D;Action;65.1;60.0;drawdown|performance|sharpe|sortino|volatilite;14;2026-08-29
+BE0974299316;INVIBES ADVERTSING;Action;59.9;60.0;drawdown|performance|sharpe|sortino|volatilite;15;2026-08-29
+BE0974258874;BEKAERT;Action;55.2;60.0;drawdown|performance|sharpe|sortino|volatilite;16;2026-08-29
+BE0974288202;XIOR;Action;51.0;60.0;drawdown|performance|sharpe|sortino|volatilite;17;2026-08-29
+BE0165385973;MELEXIS;Action;46.4;60.0;drawdown|performance|sharpe|sortino|volatilite;18;2026-08-29
+BE0003893139;IMMO MOURY;Action;41.4;60.0;drawdown|performance|sharpe|sortino|volatilite;19;2026-08-29
+BE0974298300;CANDELA INVEST;Action;40.6;60.0;drawdown|performance|sharpe|sortino|volatilite;20;2026-08-29
+BE0974313455;ECONOCOM GROUP;Action;37.2;60.0;drawdown|performance|sharpe|sortino|volatilite;21;2026-08-29
+BE0160342011;COIL;Action;36.2;60.0;drawdown|performance|sharpe|sortino|volatilite;22;2026-08-29
+BE0974310428;X-FAB;Action;33.6;60.0;drawdown|performance|sharpe|sortino|volatilite;23;2026-08-29
+BE0974269012;ADC SIIC;Action;32.0;60.0;drawdown|performance|sharpe|sortino|volatilite;24;2026-08-29
+BE0948608451;PHOTONIKE CAPITAL;Action;28.1;60.0;drawdown|performance|sharpe|sortino|volatilite;25;2026-08-29
+BE0974294267;NYRSTAR;Action;26.0;60.0;drawdown|performance|sharpe|sortino|volatilite;26;2026-08-29
+BE0974363955;HYLORIS;Action;23.2;60.0;drawdown|performance|sharpe|sortino|volatilite;27;2026-08-29
+BE0974340722;SEQUANA MEDICAL;Action;19.0;60.0;drawdown|performance|sharpe|sortino|volatilite;28;2026-08-29
+BE0974268972;BPOST;Action;18.0;60.0;drawdown|performance|sharpe|sortino|volatilite;29;2026-08-29
+BE0974371032;BANQUP GROUP;Action;12.8;60.0;drawdown|performance|sharpe|sortino|volatilite;30;2026-08-29
+BE0974314461;BELYSSE GROUP;Action;10.7;60.0;drawdown|performance|sharpe|sortino|volatilite;31;2026-08-29
+BE0974276082;ONTEX GROUP;Action;8.6;60.0;drawdown|performance|sharpe|sortino|volatilite;32;2026-08-29
+BE0974358906;NYXOAH;Action;6.5;60.0;drawdown|performance|sharpe|sortino|volatilite;33;2026-08-29
