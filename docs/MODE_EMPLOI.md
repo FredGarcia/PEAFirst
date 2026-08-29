@@ -15,6 +15,7 @@ prospectus, ni l'avis d'un professionnel.
 1. [Installation](#1-installation)
 2. [Clés d'API : ce qui marche et ce qui ne marche pas](#2-clés-dapi)
 3. [Démarrage rapide](#3-démarrage-rapide)
+3bis. [Ce que vous devez faire, une fois pour toutes](#3bis-actions-initiales)
 4. [La chaîne complète, étape par étape](#4-la-chaîne-complète)
 5. [Le tableau de bord](#5-le-tableau-de-bord)
 6. [Automatisation](#6-automatisation)
@@ -22,6 +23,7 @@ prospectus, ni l'avis d'un professionnel.
 8. [Réglages](#8-réglages)
 9. [Problèmes courants](#9-problèmes-courants)
 10. [Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
+11. [Aide-mémoire des actions](#11-aide-mémoire-des-actions)
 
 ---
 
@@ -101,6 +103,80 @@ python3 scripts/dashboard.py
 ```
 
 `--limite 18` laisse une marge sous le quota de 20/jour.
+
+---
+
+## 3bis. Actions initiales
+
+Ces gestes ne se font qu'une fois. Chacun est décrit clic par clic.
+
+### A. Activer la collecte automatique (5 minutes)
+
+Sans cette étape, la base n'évolue plus toute seule.
+
+1. Ouvrir **github.com/FredGarcia/PEAFirst**
+2. Onglet **Settings** — celui du dépôt, dans la barre au-dessus du code, pas
+   les réglages du compte
+3. Menu de gauche : **Secrets and variables**, puis **Actions**
+4. Bouton vert **New repository secret**
+5. **Name** : `EODHD_API_KEY` — exactement cette orthographe. Le workflow
+   cherche ce nom précis ; toute variante le fera échouer
+6. **Secret** : coller la clé, sans guillemets ni espace
+7. **Add secret**
+
+GitHub ne réaffichera plus jamais la valeur en clair : elle pourra seulement
+être remplacée ou supprimée. C'est normal.
+
+**Vérifier immédiatement**, sans attendre le lendemain :
+
+1. Onglet **Actions**
+2. Colonne de gauche : **Collecte quotidienne des données de marché**
+3. Bouton **Run workflow** → laisser les valeurs par défaut → **Run workflow**
+4. Rafraîchir après quelques secondes, ouvrir l'exécution
+
+Si l'étape « Vérifier la présence de la clé » est verte, tout s'enchaîne. Si
+elle échoue, le secret est absent ou mal nommé — le workflow s'arrête là
+volontairement, pour ne pas consommer de quota inutilement.
+
+Un message *« Node.js 20 is deprecated »* peut apparaître : c'est un
+**avertissement**, pas une erreur. Les actions s'exécutent quand même. Se fier
+à la pastille verte ou rouge de l'exécution, pas à ce message.
+
+### B. Vérifier le droit d'écriture du jeton (si vous poussez depuis un poste)
+
+Un jeton *fine-grained* doit avoir **Contents : Read and write**. La lecture
+peut fonctionner alors que le push échoue en 403.
+
+Settings du compte → Developer settings → Personal access tokens →
+Fine-grained tokens → le jeton → **Permissions** → **Repository permissions** →
+ligne **Contents** → **Read and write** → **Update token** tout en bas.
+
+> Le bouton de confirmation en bas de page est souvent oublié : sans lui, la
+> modification n'est pas enregistrée.
+
+Contrôle en une commande (n'écrit rien) :
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X PUT \
+  -H "Authorization: Bearer $GITHUB_TOKEN" \
+  "https://api.github.com/repos/FredGarcia/PEAFirst/contents/.permcheck" -d '{}'
+```
+
+`422` = droit d'écriture présent. `403` = lecture seule.
+
+### C. Enregistrer vos clés localement
+
+Ajouter à votre `~/.bashrc` ou `~/.zshrc` pour ne plus y penser :
+
+```bash
+export EODHD_API_KEY="votre_cle"
+export OPENFIGI_API_KEY="votre_cle"
+export MARKETSTACK_API_KEY="votre_cle"
+```
+
+Puis `source ~/.bashrc`. **Ne jamais écrire une clé dans un fichier du dépôt** :
+tout ce qui est commité sur un dépôt public est lisible par tous, et une clé
+exposée doit être révoquée.
 
 ---
 
@@ -287,9 +363,23 @@ hors ligne.
   *collecté*, *en attente* — et un marqueur ▲ si une anomalie la concerne.
 - **Comparateur** : cocher 2 à 5 instruments les affiche côte à côte, meilleure
   valeur de chaque ligne mise en évidence.
-- **Constitution de lots** : cocher des lignes produit une commande à copier ou
-  une file d'attente à télécharger. « Tout sélectionner » porte sur l'ensemble
-  du filtre courant, pas sur la seule page affichée.
+- **Barre d'actions** au-dessus du tableau :
+
+| Bouton | Ce qu'il fait | Disponible |
+|---|---|---|
+| **Exporter la vue (CSV)** | télécharge `vue_peafirst.csv` avec les lignes **telles que filtrées et triées** à l'écran, 15 colonnes, encodage compatible Excel | toujours |
+| **Copier les ISIN** | met les ISIN sélectionnés dans le presse-papiers, un par ligne | si sélection |
+| **File d'attente** | télécharge `file_attente.txt` à passer à `--file-attente` | si sélection |
+| **Commande d'allocation** | copie une commande `allocation.py` prête à ajuster | si sélection |
+| **Vider la sélection** | décoche tout | si sélection |
+
+  Les boutons sans objet sont **désactivés** plutôt que silencieusement
+  inopérants, et chaque action confirme son effet sur le bouton lui-même
+  (« 33 ligne(s) exportée(s) », « 2 ISIN copiés »).
+
+- **Constitution de lots** : cocher des lignes fait apparaître un panneau avec
+  la commande de collecte correspondante. « Tout sélectionner » porte sur
+  l'ensemble du filtre courant, pas sur la seule page affichée.
 - **TOPSIS** : classement par distance à la solution idéale, indépendant du
   score pondéré. Un écart de rang entre les deux méthodes signale un instrument
   dont la note dépend fortement des pondérations retenues.
@@ -438,6 +528,50 @@ du propriétaire, **pas** les droits du jeton.
 - **Les seuils d'anomalie sont empiriques** et produiront des faux positifs sur
   un univers plus large.
 
+_(suite ci-dessous)_
+
 Un accès payant à EODHD ou FMP débloquerait les fondamentaux (PER, croissance,
 dividendes) et ferait passer la couverture du barème de 60 % à près de 100 %,
 sans modification du code : les critères sont déjà déclarés.
+
+
+---
+
+## 11. Aide-mémoire des actions
+
+### Une seule fois
+
+| Action | Où | Détail |
+|---|---|---|
+| Ajouter le secret `EODHD_API_KEY` | Settings → Secrets and variables → Actions | [§3bis A](#3bis-actions-initiales) |
+| Vérifier **Contents: Read and write** du jeton | Developer settings → Fine-grained tokens | [§3bis B](#3bis-actions-initiales) |
+| Exporter les clés dans le shell | `~/.bashrc` | [§3bis C](#3bis-actions-initiales) |
+
+### Sans rien faire
+
+La collecte tourne chaque jour ouvré à 06h15 UTC et publie elle-même les
+données, les anomalies, l'historique et le tableau de bord.
+
+### Quand vous le souhaitez
+
+| Envie | Geste |
+|---|---|
+| Accélérer la collecte | Actions → Run workflow (plusieurs fois par jour, dans la limite du quota) |
+| Cibler des instruments précis | Tableau de bord → filtrer → cocher → **File d'attente** → `enrich_marche.py --file-attente` |
+| Sortir des données vers Excel | Tableau de bord → filtrer → **Exporter la vue (CSV)** |
+| Comparer deux ou trois fonds | Tableau de bord → cocher 2 à 5 lignes |
+| Tester une allocation | `allocation.py --capital … --risque … --horizon … --objectif …` |
+| Changer les pondérations du score | éditer `data/scoring_params.json`, puis `scoring.py` |
+| Confirmer l'éligibilité d'un ETF | fiche de l'émetteur, puis `maj_pea_emetteurs.py --merge` |
+
+### Avant d'acheter
+
+1. Vérifier que `PEA_eligible` vaut **OUI** — un `PROBABLE` ou un `A_VERIFIER`
+   doit être confirmé sur la fiche de l'émetteur. Acheter un titre inéligible
+   dans un PEA **entraîne la clôture du plan**.
+2. Regarder `Couverture_pct` : un score couvert à 60 % ne dit rien de la
+   valorisation ni des perspectives.
+3. Vérifier l'absence de marqueur d'anomalie sur la ligne.
+4. Contrôler l'âge du cours : une donnée périmée fausse tous les indicateurs.
+
+*Aide à la décision — ni conseil en investissement, ni conseil fiscal.*

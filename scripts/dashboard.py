@@ -426,6 +426,12 @@ text-transform:uppercase;color:var(--encre-2);margin-bottom:6px}
 .drapeau{font-size:11px;margin-left:5px;cursor:help}
 .drapeau.alerte{color:var(--alerte)}
 .drapeau.attention{color:var(--manquant)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+padding:11px 13px;margin-bottom:14px;background:#f4f7f8;
+border:1px solid var(--trait);border-radius:3px}
+.actions .sep{flex:1}
+.actions .cnt{font-size:12.5px;color:var(--encre-2);font-family:"IBM Plex Mono",monospace}
+button.mini{font-size:12px;padding:5px 10px}
 .comp{margin-top:14px;padding:15px;border:1px solid var(--couvert);
 border-radius:3px;background:#f2f8f7}
 .comp[hidden]{display:none}
@@ -512,6 +518,16 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     <button type="button" class="sec" id="reset">Réinitialiser</button>
   </div>
 
+  <div class="actions">
+    <span class="cnt" id="cnt"></span>
+    <button type="button" class="sec mini" id="expCsv">Exporter la vue (CSV)</button>
+    <button type="button" class="sec mini" id="copIsin" disabled>Copier les ISIN</button>
+    <button type="button" class="sec mini" id="telecharger" disabled>File d'attente</button>
+    <button type="button" class="sec mini" id="cmdAlloc" disabled>Commande d'allocation</button>
+    <span class="sep"></span>
+    <button type="button" class="sec mini" id="vider" disabled>Vider la sélection</button>
+  </div>
+
   <div class="tbl-wrap">
   <table id="tbl">
     <thead><tr>
@@ -555,8 +571,6 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     </p>
     <code id="lotCmd"></code>
     <button type="button" id="copier">Copier la commande</button>
-    <button type="button" class="sec" id="telecharger">Télécharger la file d'attente</button>
-    <button type="button" class="sec" id="vider">Vider la sélection</button>
   </div>
 </div>
 
@@ -654,6 +668,33 @@ function esc(s){
 function libelleEtat(e){
   return e === "note" ? "noté" : (e === "collecte" ? "collecté" : "en attente");
 }
+// Retour visuel sur un bouton : une action sans effet visible laisse croire
+// qu'elle a échoué.
+function retour(bouton, message){
+  var initial = bouton.dataset.txt || bouton.textContent;
+  bouton.dataset.txt = initial;
+  bouton.textContent = message;
+  setTimeout(function(){ bouton.textContent = bouton.dataset.txt; }, 1800);
+}
+
+function telecharger(nom, contenu, type){
+  var url = URL.createObjectURL(new Blob([contenu], {type: type}));
+  var a = document.createElement("a");
+  a.href = url; a.download = nom;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function presse(texte, bouton, ok){
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texte).then(
+      function(){ retour(bouton, ok); },
+      function(){ retour(bouton, "Copie refusée"); });
+  } else {
+    retour(bouton, "Copie indisponible ici");
+  }
+}
+
 function drapeau(r){
   if (!r[14]) return "";
   var t = r[14] + " anomalie(s) signalée(s) — voir la carte Anomalies";
@@ -736,8 +777,15 @@ function rendre(){
 // autres cases et ferait perdre le focus au clavier. Seuls les panneaux qui
 // dépendent de la sélection sont rafraîchis.
 function majPanneaux(){
-  $("compte").textContent = vue.length.toLocaleString("fr-FR") +
-    " ligne(s) filtrée(s) · " + Object.keys(choix).length + " sélectionnée(s)";
+  var n = Object.keys(choix).length;
+  var texte = vue.length.toLocaleString("fr-FR") + " ligne(s) filtrée(s) · " +
+    n + " sélectionnée(s)";
+  $("compte").textContent = texte;
+  $("cnt").textContent = texte;
+  // Un bouton sans objet est désactivé plutôt que silencieusement inopérant.
+  ["copIsin", "telecharger", "cmdAlloc", "vider"].forEach(function(id){
+    $(id).disabled = (n === 0);
+  });
   majComp();
   majLot();
 }
@@ -856,20 +904,49 @@ $("pageMoins").addEventListener("click", function(){ if (page > 0){ page--; rend
 $("pagePlus").addEventListener("click", function(){
   if (page < Math.ceil(vue.length / PARPAGE) - 1){ page++; rendre(); }
 });
-$("vider").addEventListener("click", function(){ choix = Object.create(null); rendre(); });
+$("vider").addEventListener("click", function(){
+  choix = Object.create(null);
+  rendre();
+});
+
+$("expCsv").addEventListener("click", function(){
+  // Exporte la vue telle qu'elle est filtrée et triée à l'écran : ce que
+  // l'utilisateur voit est ce qu'il obtient.
+  var entetes = ["ISIN","Nom","Type","Pays","PEA","Etat","Score","Couverture_pct",
+                 "Volatilite_pct","Perf_pct","Sharpe","Drawdown_pct","Date_cours",
+                 "Age_jours","Anomalies"];
+  var idx = [0,1,2,3,4,5,6,7,8,9,16,17,12,13,14];
+  function champ(v){
+    if (v === null || v === undefined) return "";
+    var t = String(v);
+    return (t.indexOf(";") >= 0 || t.indexOf('"') >= 0)
+      ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  var lignes = [entetes.join(";")];
+  vue.forEach(function(r){
+    lignes.push(idx.map(function(i){ return champ(r[i]); }).join(";"));
+  });
+  // BOM UTF-8 : sans lui, Excel affiche mal les accents.
+  telecharger("vue_peafirst.csv", "\ufeff" + lignes.join("\r\n") + "\r\n",
+              "text/csv;charset=utf-8");
+  retour(this, vue.length + " ligne(s) exportée(s)");
+});
+
+$("copIsin").addEventListener("click", function(){
+  presse(Object.keys(choix).join("\n"), this,
+         Object.keys(choix).length + " ISIN copiés");
+});
+
+$("cmdAlloc").addEventListener("click", function(){
+  // L'allocation se calcule sur les instruments notés : la commande produite
+  // rappelle les paramètres à ajuster plutôt que d'en imposer.
+  presse("python3 scripts/allocation.py --capital 10000 --risque 5 \\\n" +
+         "    --horizon 10 --objectif croissance --pea-uniquement",
+         this, "Commande copiée");
+});
 
 $("copier").addEventListener("click", function(){
-  var bouton = $("copier");
-  function retour(msg){
-    bouton.textContent = msg;
-    setTimeout(function(){ bouton.textContent = "Copier la commande"; }, 1800);
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText($("lotCmd").textContent)
-      .then(function(){ retour("Copié"); }, function(){ retour("Copie refusée"); });
-  } else {
-    retour("Copie indisponible ici");
-  }
+  presse($("lotCmd").textContent, this, "Copié");
 });
 
 $("telecharger").addEventListener("click", function(){
@@ -877,11 +954,8 @@ $("telecharger").addEventListener("click", function(){
   var contenu = "# File d'attente PEA Advisor — " + isins.length + " instrument(s)\n" +
     "# python3 scripts/enrich_marche.py --historique --file-attente <ce fichier>\n" +
     isins.join("\n") + "\n";
-  var url = URL.createObjectURL(new Blob([contenu], {type: "text/plain;charset=utf-8"}));
-  var a = document.createElement("a");
-  a.href = url; a.download = "file_attente.txt";
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  telecharger("file_attente.txt", contenu, "text/plain;charset=utf-8");
+  retour(this, isins.length + " ISIN exportés");
 });
 
 filtrer();
