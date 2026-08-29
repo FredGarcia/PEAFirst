@@ -11,14 +11,32 @@ on:
     - cron: '15 6 * * 1-5'
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'Traitement à lancer'
+        required: false
+        default: historique
+        type: choice
+        options: [historique, cours, openfigi]
+      source:
+        description: 'Fournisseur pour le mode historique'
+        required: false
+        default: eodhd
+        type: choice
+        options: [eodhd, marketstack]
+      filtre:
+        description: 'Univers ciblé (ignoré si des ISIN sont fournis)'
+        required: false
+        default: pea
+        type: choice
+        options: [pea, actions, etf, tout]
       limite:
-        description: "Nombre d'instruments à interroger (quota EODHD : 20/jour)"
+        description: "Nombre d'instruments (EODHD : 20/jour, Marketstack : 100/mois)"
         required: false
         default: '18'
-      filtre:
-        description: 'Univers ciblé : pea, actions, etf ou tout'
+      isins:
+        description: "Lot précis d'ISIN séparés par des virgules (prioritaire sur le filtre)"
         required: false
-        default: 'pea'
+        default: ''
 
 permissions:
   contents: write
@@ -39,25 +57,59 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Vérifier la présence de la clé
+      - name: Vérifier la présence de la clé requise
         env:
+          MODE: ${{ inputs.mode || 'historique' }}
+          SOURCE: ${{ inputs.source || 'eodhd' }}
           EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
+          MARKETSTACK_API_KEY: ${{ secrets.MARKETSTACK_API_KEY }}
+          OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
         run: |
-          if [ -z "$EODHD_API_KEY" ]; then
-            echo "::error::Secret EODHD_API_KEY absent. L'ajouter dans"
-            echo "::error::Settings > Secrets and variables > Actions."
+          # Chaque mode dépend d'un secret différent : mieux vaut s'arrêter ici
+          # avec un message clair que d'échouer au milieu de la collecte.
+          case "$MODE" in
+            openfigi) requis=OPENFIGI_API_KEY ;;
+            cours)    requis=MARKETSTACK_API_KEY ;;
+            *)        if [ "$SOURCE" = "marketstack" ]; then
+                        requis=MARKETSTACK_API_KEY
+                      else
+                        requis=EODHD_API_KEY
+                      fi ;;
+          esac
+          if [ -z "${!requis}" ]; then
+            echo "::error::Secret $requis absent, requis pour le mode « $MODE »."
+            echo "::error::L'ajouter dans Settings > Secrets and variables > Actions."
             exit 1
           fi
+          echo "Mode « $MODE » : secret $requis présent."
 
-      - name: Collecter les cours et indicateurs
+      - name: Collecter les données
         env:
+          MODE: ${{ inputs.mode || 'historique' }}
+          SOURCE: ${{ inputs.source || 'eodhd' }}
+          FILTRE: ${{ inputs.filtre || 'pea' }}
+          LIMITE: ${{ inputs.limite || '18' }}
+          ISINS: ${{ inputs.isins }}
           EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
+          MARKETSTACK_API_KEY: ${{ secrets.MARKETSTACK_API_KEY }}
+          OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
         run: |
-          python3 scripts/enrich_marche.py --etat --filtre "${{ inputs.filtre || 'pea' }}"
-          python3 scripts/enrich_marche.py \
-            --historique --source eodhd \
-            --filtre "${{ inputs.filtre || 'pea' }}" \
-            --limite "${{ inputs.limite || '18' }}"
+          set -e
+          if [ "$MODE" = "openfigi" ]; then
+            python3 scripts/enrich_openfigi.py --tout
+            python3 scripts/enrich_pea.py
+          else
+            python3 scripts/enrich_marche.py --etat --filtre "$FILTRE"
+            args="--filtre $FILTRE --limite $LIMITE"
+            # Un lot explicite prime sur le filtre : c'est ce que produit la
+            # sélection du tableau de bord.
+            if [ -n "$ISINS" ]; then args="--isins $ISINS --limite $LIMITE"; fi
+            if [ "$MODE" = "cours" ]; then
+              python3 scripts/enrich_marche.py --cours $args
+            else
+              python3 scripts/enrich_marche.py --historique --source "$SOURCE" $args
+            fi
+          fi
 
       - name: Recalculer les scores
         run: python3 scripts/scoring.py --top 10
@@ -79,7 +131,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/marche_cache.json data/base_isin_marche.csv \
                   data/base_isin_scores.csv data/dashboard.html \
-                  data/anomalies.csv data/historique_couverture.csv
+                  data/anomalies.csv data/historique_couverture.csv \
+                  data/openfigi_cache.csv data/base_isin_figi.csv \
+                  data/base_isin_fonds_pea.csv
           if git diff --cached --quiet; then
             echo "Aucune donnée nouvelle : rien à publier."
             exit 0

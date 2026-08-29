@@ -23,7 +23,8 @@ prospectus, ni l'avis d'un professionnel.
 8. [Réglages](#8-réglages)
 9. [Problèmes courants](#9-problèmes-courants)
 10. [Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
-11. [Aide-mémoire des actions](#11-aide-mémoire-des-actions)
+11. [Simulateur](#11-simulateur)
+12. [Aide-mémoire des actions](#12-aide-mémoire-des-actions)
 
 ---
 
@@ -372,6 +373,7 @@ hors ligne.
 | **File d'attente** | télécharge `file_attente.txt` à passer à `--file-attente` | si sélection |
 | **Commande d'allocation** | copie une commande `allocation.py` prête à ajuster | si sélection |
 | **Vider la sélection** | décoche tout | si sélection |
+| **Piloter la collecte** | ouvre un panneau qui compose les paramètres du workflow et donne le lien vers *Run workflow* | toujours |
 
   Les boutons sans objet sont **désactivés** plutôt que silencieusement
   inopérants, et chaque action confirme son effet sur le bouton lui-même
@@ -537,7 +539,44 @@ sans modification du code : les critères sont déjà déclarés.
 
 ---
 
-## 11. Aide-mémoire des actions
+## 11. Simulateur
+
+```bash
+python3 scripts/simulateur.py --capital 10000 --versement 500
+python3 scripts/simulateur.py --capital 5000 --versement 750 --horizons 5,10 --sequence
+python3 scripts/simulateur.py --capital 20000 --enveloppe cto
+```
+
+Versements programmés (`--periodicite mensuel|trimestriel|annuel`), horizons de
+2 à 10 ans, trois scénarios, frais de gestion et de courtage, inflation, et
+fiscalité estimée au retrait.
+
+**Fiscalité appliquée (1er janvier 2026)** — les prélèvements sociaux sont
+passés de 17,2 % à 18,6 % (LFSS 2026, loi n° 2025-1403 du 30 décembre 2025) :
+
+| Situation | Taux sur les gains |
+|---|---|
+| PEA, retrait avant 5 ans | **31,4 %** (12,8 % IR + 18,6 % PS) et clôture du plan |
+| PEA, retrait après 5 ans | **18,6 %** (exonération d'IR) |
+| Compte-titres | **31,4 %** quelle que soit la durée |
+
+Le taux retenu est celui en vigueur **au moment du retrait**, y compris sur des
+gains antérieurs à 2026. Conséquence directe : les horizons de 2 et 3 ans sont
+structurellement défavorables en PEA, ce que le simulateur chiffre au lieu de
+le passer sous silence.
+
+Les scénarios sont **déterministes** — un rendement annuel constant, paramétrable
+dans `SCENARIOS` en tête du script. C'est un choix assumé : une simulation de
+Monte-Carlo produirait des percentiles d'allure scientifique reposant sur les
+mêmes hypothèses de départ, avec une précision apparente que rien ne justifie.
+`--sequence` montre l'essentiel de ce qu'une moyenne masque : à rendement cumulé
+identique, l'ordre des rendements change le résultat dès qu'on verse
+régulièrement — et des rendements faibles au début sont **favorables** à
+l'épargnant, dont les versements achètent plus de parts tant que les cours sont bas.
+
+C'est une projection d'hypothèses, **pas une prévision**.
+
+## 12. Aide-mémoire des actions
 
 ### Une seule fois
 
@@ -556,7 +595,9 @@ données, les anomalies, l'historique et le tableau de bord.
 
 | Envie | Geste |
 |---|---|
-| Accélérer la collecte | Actions → Run workflow (plusieurs fois par jour, dans la limite du quota) |
+| Accélérer la collecte | Tableau de bord → **Piloter la collecte** → régler les paramètres → **Ouvrir Run workflow** |
+| Rafraîchir les identifiants | Piloter → mode `openfigi` (retraite toute la base et régénère l'éligibilité PEA) |
+| Simuler un plan de versements | `simulateur.py --capital … --versement … --periodicite trimestriel` |
 | Cibler des instruments précis | Tableau de bord → filtrer → cocher → **File d'attente** → `enrich_marche.py --file-attente` |
 | Sortir des données vers Excel | Tableau de bord → filtrer → **Exporter la vue (CSV)** |
 | Comparer deux ou trois fonds | Tableau de bord → cocher 2 à 5 lignes |

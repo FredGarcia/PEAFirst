@@ -247,6 +247,8 @@ def construire(data, top, seuil):
 
     gabarit = MODELE
     remplacements = {
+        "__URL_ACTIONS__": ("https://github.com/FredGarcia/PEAFirst/actions/"
+                            "workflows/collecte-marche.yml"),
         "__DONNEES__": json.dumps(lignes, ensure_ascii=False, separators=(",", ":")),
         "__DATE__": date.today().isoformat(),
         "__HEURE__": datetime.now().strftime("%H:%M"),
@@ -432,6 +434,17 @@ border:1px solid var(--trait);border-radius:3px}
 .actions .sep{flex:1}
 .actions .cnt{font-size:12.5px;color:var(--encre-2);font-family:"IBM Plex Mono",monospace}
 button.mini{font-size:12px;padding:5px 10px}
+.pilote{margin-top:14px;padding:15px;border:1px solid var(--couvert);
+border-radius:3px;background:#f2f8f7}
+.pilote h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:13px;
+letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--encre)}
+.pilote .champs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.pilote select{font-family:inherit;font-size:13px;padding:6px 8px;
+border:1px solid var(--trait);border-radius:3px;background:#fff;color:inherit}
+a.bouton{display:inline-block;font-family:inherit;font-size:13px;padding:7px 13px;
+border:1px solid var(--encre);border-radius:3px;background:var(--encre);
+color:#fff;text-decoration:none}
+a.bouton:hover{opacity:.9}
 .comp{margin-top:14px;padding:15px;border:1px solid var(--couvert);
 border-radius:3px;background:#f2f8f7}
 .comp[hidden]{display:none}
@@ -524,6 +537,7 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     <button type="button" class="sec mini" id="copIsin" disabled>Copier les ISIN</button>
     <button type="button" class="sec mini" id="telecharger" disabled>File d'attente</button>
     <button type="button" class="sec mini" id="cmdAlloc" disabled>Commande d'allocation</button>
+    <button type="button" class="sec mini" id="pilote">Piloter la collecte</button>
     <span class="sep"></span>
     <button type="button" class="sec mini" id="vider" disabled>Vider la sélection</button>
   </div>
@@ -553,6 +567,40 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
       <span id="pagination"></span>
       <button type="button" class="sec" id="pagePlus">Suivant</button>
     </span>
+  </div>
+
+  <div class="pilote" id="pil" hidden>
+    <h3>Piloter la collecte depuis GitHub Actions</h3>
+    <p class="note" style="margin-top:4px">
+      Les clés sont stockées comme secrets du dépôt : le traitement s'exécute
+      chez GitHub, pas dans cette page, qui n'en contient aucune. Choisir les
+      paramètres, copier la valeur du champ <i>isins</i> si une sélection est
+      active, puis ouvrir <i>Run workflow</i> et la coller.
+    </p>
+    <div class="champs">
+      <select id="pMode" aria-label="Traitement">
+        <option value="historique">historique — cours et indicateurs</option>
+        <option value="cours">cours — dernier cours en masse</option>
+        <option value="openfigi">openfigi — identifiants et éligibilité</option>
+      </select>
+      <select id="pSource" aria-label="Fournisseur">
+        <option value="eodhd">eodhd — 20/jour, Euronext large</option>
+        <option value="marketstack">marketstack — 100/mois, lots de 50</option>
+      </select>
+      <select id="pFiltre" aria-label="Univers">
+        <option value="pea">pea</option><option value="actions">actions</option>
+        <option value="etf">etf</option><option value="tout">tout</option>
+      </select>
+      <select id="pLimite" aria-label="Nombre d'instruments">
+        <option>18</option><option>10</option><option>50</option><option>100</option>
+      </select>
+    </div>
+    <code id="pilResume"></code>
+    <a class="bouton" id="pilLien" href="__URL_ACTIONS__" target="_blank"
+       rel="noopener">Ouvrir Run workflow</a>
+    <button type="button" class="sec" id="pilCopie">Copier les paramètres</button>
+    <button type="button" class="sec" id="pilFermer">Fermer</button>
+    <p class="note" id="pilQuota"></p>
   </div>
 
   <div class="comp" id="comp" hidden>
@@ -788,6 +836,7 @@ function majPanneaux(){
   });
   majComp();
   majLot();
+  if (!$("pil").hidden) majPilote();
 }
 
 // Comparateur : au-delà de cinq colonnes le tableau devient illisible, et
@@ -943,6 +992,52 @@ $("cmdAlloc").addEventListener("click", function(){
   presse("python3 scripts/allocation.py --capital 10000 --risque 5 \\\n" +
          "    --horizon 10 --objectif croissance --pea-uniquement",
          this, "Commande copiée");
+});
+
+function majPilote(){
+  var mode = $("pMode").value;
+  var source = $("pSource").value;
+  var isins = Object.keys(choix);
+  // La source ne concerne que le mode historique ; l'univers est ignoré dès
+  // qu'un lot explicite est fourni.
+  $("pSource").disabled = (mode !== "historique");
+  $("pFiltre").disabled = (mode === "openfigi" || isins.length > 0);
+  $("pLimite").disabled = (mode === "openfigi");
+
+  var lignes = ["mode    : " + mode];
+  if (mode === "historique") lignes.push("source  : " + source);
+  if (mode !== "openfigi"){
+    lignes.push("filtre  : " + (isins.length ? "(ignoré — lot explicite)" : $("pFiltre").value));
+    lignes.push("limite  : " + $("pLimite").value);
+    lignes.push("isins   : " + (isins.length ? isins.join(",") : "(vide)"));
+  }
+  $("pilResume").textContent = lignes.join("\n");
+
+  var q = "";
+  if (mode === "openfigi"){
+    q = "Le mode openfigi retraite toute la base et régénère l'éligibilité PEA. " +
+        "Avec une clé, il consomme environ 62 requêtes OpenFIGI.";
+  } else if (mode === "cours" || source === "marketstack"){
+    q = "Marketstack : quota mensuel de 100 requêtes, qui ne se régénère pas " +
+        "avant le mois suivant. À réserver aux collectes en masse.";
+  } else {
+    q = "EODHD : 20 requêtes par jour, régénérées chaque nuit. Rester sous 18 " +
+        "laisse une marge.";
+  }
+  $("pilQuota").textContent = q;
+}
+
+["pMode","pSource","pFiltre","pLimite"].forEach(function(id){
+  $(id).addEventListener("change", majPilote);
+});
+$("pilote").addEventListener("click", function(){
+  var bloc = $("pil");
+  bloc.hidden = !bloc.hidden;
+  if (!bloc.hidden) majPilote();
+});
+$("pilFermer").addEventListener("click", function(){ $("pil").hidden = true; });
+$("pilCopie").addEventListener("click", function(){
+  presse($("pilResume").textContent, this, "Paramètres copiés");
 });
 
 $("copier").addEventListener("click", function(){

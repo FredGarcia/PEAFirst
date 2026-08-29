@@ -20,6 +20,7 @@ Euronext jusqu'aux scores, aux allocations et au tableau de bord.
 | Éligibilité PEA | relevés émetteurs + règles métier, avec traçabilité de la source |
 | Indicateurs | volatilité, drawdown, Sharpe, Sortino, performance |
 | Décision | score pondéré paramétrable, TOPSIS, moteur d'allocation SRI |
+| Simulation | versements programmés, horizons 2 à 10 ans, scénarios, fiscalité 2026 |
 | Restitution | tableau de bord HTML autonome, modules Apps Script |
 
 Deux contraintes structurent tout le projet :
@@ -146,6 +147,7 @@ flowchart TD
     AN["anomalies.py"]:::scr
     HI["historique.py"]:::scr
     AL["allocation.py"]:::scr
+    SI["simulateur.py"]:::scr
     DA["dashboard.py"]:::scr
     HT["dashboard.html"]:::out
     GS["scoring.gs · allocation.gs<br/><i>modules Apps Script</i>"]:::out
@@ -169,6 +171,7 @@ flowchart TD
     S --> HI
     S --> AL
     FP --> AL
+    AL -.-> SI
     S --> DA
     FP --> DA
     AN --> DA
@@ -185,7 +188,8 @@ flowchart TD
 ```
 
 Le tableau de bord **n'appelle aucune source** : il est versionné, une clé y
-serait publiquement exposée. Il prépare des lots que les scripts exécutent.
+serait publiquement exposée. Il compose les paramètres du workflow, qui
+s'exécute chez GitHub Actions où les clés sont stockées comme secrets.
 
 ---
 
