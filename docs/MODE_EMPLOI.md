@@ -288,6 +288,7 @@ décroissante :
 |---|---|---|
 | 1 | correction utilisateur (`corrections_pea.csv`) | fait toujours foi |
 | 2 | régime foncier (`Type_instrument = REIT`) | **NON** |
+| 2bis | régime annoncé dans la raison sociale (SOCIMI, SIIC, SIIQ, Sicafi, REIT) | **NON** |
 | 3 | bon ou droit de souscription | **NON** |
 | 4 | pays d'émission hors EEE | **NON** |
 | 5 | nature incertaine (préférence, certificat, action d'épargne…) | **A_VERIFIER** |
@@ -299,6 +300,23 @@ décroissante :
 > allemand, UK-REIT. La règle exclut donc 68 titres que l'ancienne méthode
 > retenait — Klépierre, Gecina, Unibail, Icade, Covivio et leurs équivalents
 > européens. Loger un titre inéligible dans un PEA expose à la clôture du plan.
+
+**Colonne `Vigilance`.** Une société au nom immobilier n'est pas forcément une
+foncière à statut transparent : un promoteur reste éligible. Ces titres gardent
+donc leur classement mais portent un signal, remonté dans le tableau de bord par
+un marqueur **!** sur la colonne PEA et par le filtre *À contrôler*. Le signal
+est volontairement large : il attrape quelques faux positifs (un logisticien
+n'est pas une foncière), ce qui est sans conséquence puisqu'il ne modifie pas le
+classement — alors qu'une foncière manquée coûterait la clôture du plan.
+
+Pour travailler la liste :
+
+```bash
+python3 scripts/enrich_pea_actions.py --a-verifier
+```
+
+Affiche les titres au statut indéterminé et ceux classés OUI sous réserve.
+Chaque exécution se termine par un rappel du risque, sauf avec `--silencieux`.
 
 **Corriger une éligibilité.** Les règles se trompent : elles s'appuient sur la
 classification OpenFIGI, qui n'est ni exhaustive ni infaillible. Depuis le

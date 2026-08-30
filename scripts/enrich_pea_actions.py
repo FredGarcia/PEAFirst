@@ -36,6 +36,7 @@ Usage :
 """
 import argparse
 import csv
+import re
 import sys
 from collections import Counter
 from datetime import date
@@ -66,9 +67,25 @@ INCERTAINS = {
     "Unit": "part composite : vérifier la composition",
 }
 
+# Régimes fiscaux immobiliers déclarés dans la raison sociale. Une société qui
+# s'appelle « ... SOCIMI » annonce son statut : c'est une preuve suffisante
+# pour exclure, là où OpenFIGI la classe encore en action ordinaire.
+REGIME_DECLARE = re.compile(
+    r"\b(SOCIMI|SIIC|SIIQ|SICAFI|REIT|RIET)\b", re.IGNORECASE)
+
+# Signaux faibles : le nom évoque l'immobilier sans prouver le régime fiscal.
+# Un promoteur ou un marchand de biens reste éligible ; une foncière à statut
+# transparent ne l'est pas. Ces titres restent classés selon la règle générale
+# mais sont signalés pour vérification : c'est là que se cachent les erreurs
+# que ni OpenFIGI ni le nom ne permettent de trancher.
+INDICE_IMMOBILIER = re.compile(
+    r"(FONCIER|IMMOBIL|IMMO\b|VASTGOED|PROPERT|REAL ESTATE|REALTY|ESTATES?\b"
+    r"|PATRIMOIN|LOGISTIC|WAREHOUS|RESIDENTIAL|HOME INVEST|LAND SECUR)",
+    re.IGNORECASE)
+
 COLONNES = ["ISIN", "Nom", "Symbole", "Marché(s)", "Devise", "Pays_émission",
             "Type_instrument", "PEA_eligible", "PEA_methode", "PEA_source",
-            "Date_MAJ"]
+            "Vigilance", "Date_MAJ"]
 
 CORRECTIONS_ENTETE = ["ISIN", "PEA_eligible", "Motif", "Source", "Date"]
 
@@ -96,6 +113,25 @@ def charger_corrections(chemin):
     return corrections
 
 
+def vigilance(action, valeur, methode, type_figi, nom_figi):
+    """Signale un doute résiduel sans modifier le classement.
+
+    Vise les cas que ni OpenFIGI ni le nom ne tranchent : une société au nom
+    immobilier peut être un promoteur (éligible) comme une foncière à statut
+    transparent (exclue). Taire ce doute serait plus dangereux que l'afficher.
+    """
+    if methode == "CORRECTION_UTILISATEUR":
+        return ""
+    if valeur != "OUI":
+        return ""
+    texte = f"{action.get('Nom', '')} {nom_figi}"
+    if INDICE_IMMOBILIER.search(texte):
+        return ("activité immobilière probable : vérifier si la société relève "
+                "d'un régime SIIC, SOCIMI, SIR, FBI, SIIQ, G-REIT ou UK-REIT, "
+                "qui la rendrait inéligible")
+    return ""
+
+
 def classer(action, type_figi, corrections):
     isin = action["ISIN"]
     if isin in corrections:
@@ -105,6 +141,14 @@ def classer(action, type_figi, corrections):
     if type_figi in EXCLUS:
         methode, motif = EXCLUS[type_figi]
         return "NON", methode, motif
+
+    # Le régime annoncé dans la raison sociale prime sur la classification
+    # OpenFIGI, qui range plusieurs SOCIMI parmi les actions ordinaires.
+    declare = REGIME_DECLARE.search(action.get("Nom", "") or "")
+    if declare:
+        return "NON", "REGIME_DECLARE", (
+            f"régime « {declare.group(0).upper()} » annoncé dans la raison "
+            "sociale : foncière à statut transparent, exclue du PEA")
 
     if action.get("Pays_émission") not in EEE:
         return "NON", "HORS_EEE", (
@@ -126,6 +170,10 @@ def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--resume", action="store_true", help="afficher la synthèse")
+    p.add_argument("--a-verifier", action="store_true",
+                   help="lister les titres à vérifier manuellement")
+    p.add_argument("--silencieux", action="store_true",
+                   help="ne pas afficher le rappel de risque final")
     p.add_argument("--data-dir", default="data")
     args = p.parse_args()
 
@@ -134,8 +182,9 @@ def main():
     if not base:
         print(f"{data}/base_isin.csv absent.")
         return 1
-    figi = {r["ISIN"]: (r.get("Type_instrument") or "").strip()
-            for r in lire(data / "base_isin_figi.csv")}
+    lignes_figi = lire(data / "base_isin_figi.csv")
+    figi = {r["ISIN"]: (r.get("Type_instrument") or "").strip() for r in lignes_figi}
+    noms_figi = {r["ISIN"]: (r.get("Nom_complet") or "").strip() for r in lignes_figi}
     chemin_corr = data / "corrections_pea.csv"
     corrections = charger_corrections(chemin_corr)
 
@@ -152,12 +201,14 @@ def main():
     for a in actions:
         type_figi = figi.get(a["ISIN"], "")
         valeur, methode, motif = classer(a, type_figi, corrections)
+        alerte = vigilance(a, valeur, methode, type_figi,
+                           noms_figi.get(a["ISIN"], ""))
         lignes.append({
             "ISIN": a["ISIN"], "Nom": a["Nom"], "Symbole": a["Symbole"],
             "Marché(s)": a["Marché(s)"], "Devise": a["Devise"],
             "Pays_émission": a["Pays_émission"], "Type_instrument": type_figi,
             "PEA_eligible": valeur, "PEA_methode": methode,
-            "PEA_source": motif, "Date_MAJ": aujourdhui,
+            "PEA_source": motif, "Vigilance": alerte, "Date_MAJ": aujourdhui,
         })
 
     sortie = data / "base_isin_actions_pea.csv"
@@ -175,11 +226,44 @@ def main():
         print(f"  {appliquees} correction(s) utilisateur appliquée(s)")
     if inconnues:
         print(f"  {len(inconnues)} correction(s) sur un ISIN hors actions, ignorée(s)")
+    a_verifier = [l for l in lignes if l["PEA_eligible"] == "A_VERIFIER"]
+    sous_vigilance = [l for l in lignes if l["Vigilance"]]
+
     if args.resume:
         print()
         for (v, m), n in Counter(
                 (l["PEA_eligible"], l["PEA_methode"]) for l in lignes).most_common():
             print(f"  {v:<12} {m:<24} {n}")
+
+    if args.a_verifier:
+        print()
+        print(f"=== {len(a_verifier)} titre(s) au statut indéterminé ===")
+        for l in sorted(a_verifier, key=lambda x: x["Nom"]):
+            print(f"  {l['ISIN']}  {l['Nom'][:34]:<34} {l['PEA_source'][:52]}")
+        print()
+        print(f"=== {len(sous_vigilance)} titre(s) classés OUI mais à contrôler ===")
+        print("    Activité immobilière probable : un promoteur reste éligible,")
+        print("    une foncière à régime transparent ne l'est pas. Seul le")
+        print("    document de référence de la société permet de trancher.")
+        for l in sorted(sous_vigilance, key=lambda x: x["Nom"]):
+            print(f"  {l['ISIN']}  {l['Nom'][:34]:<34} {l['Pays_émission']}")
+
+    if not args.silencieux and (a_verifier or sous_vigilance):
+        print()
+        print("─" * 72)
+        print("À VÉRIFIER AVANT TOUT ACHAT")
+        print(f"  {len(a_verifier)} titre(s) au statut indéterminé et "
+              f"{len(sous_vigilance)} classé(s) OUI sous réserve.")
+        print("  Ce classement est déduit de règles automatiques et de la")
+        print("  classification OpenFIGI ; il n'a aucune valeur officielle.")
+        print("  Loger un titre inéligible dans un PEA entraîne la clôture du")
+        print("  plan et la perte de l'antériorité fiscale acquise.")
+        print("  Vérifier sur le document de référence de la société, puis")
+        print("  enregistrer la réponse : elle deviendra la référence.")
+        print("    python3 scripts/enrich_pea_actions.py --a-verifier")
+        print("    puis renseigner data/corrections_pea.csv "
+              "(ISIN;PEA_eligible;Motif;Source;Date)")
+        print("─" * 72)
     return 0
 
 

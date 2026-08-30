@@ -194,6 +194,7 @@ def construire(data, top, seuil):
         pea = f.get("PEA_eligible") or a.get("PEA_eligible") or "A_VERIFIER"
         methode = f.get("PEA_methode") or a.get("PEA_methode") or ""
         motif = f.get("PEA_source") or a.get("PEA_source") or ""
+        vigil = a.get("Vigilance") or ""
         etat = "note" if s else ("collecte" if m else "attente")
         lignes.append([
             isin,
@@ -217,6 +218,7 @@ def construire(data, top, seuil):
             nombre(m.get("Drawdown_max_pct")),
             methode,
             motif[:90],
+            vigil[:120],
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -409,6 +411,9 @@ font-family:"IBM Plex Sans Condensed",sans-serif;letter-spacing:.03em}
 .etat.collecte{background:#fdf1e0;color:#8a5a1c}
 .etat.attente{background:#eceff2;color:var(--encre-2)}
 .vieux{color:var(--manquant);font-weight:500}
+.vigil{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;
+font-weight:700;width:14px;height:14px;line-height:14px;text-align:center;
+border-radius:50%;background:var(--manquant);color:#fff;cursor:help}
 .pied{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
 justify-content:space-between;margin-top:13px;font-size:13px;color:var(--encre-2)}
 .lot{margin-top:14px;padding:15px;border:1px solid var(--manquant);
@@ -550,6 +555,11 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     <select id="fEtat" aria-label="Filtrer par état des données">
       <option value="">Tous états</option><option value="note">Notés</option>
       <option value="collecte">Collectés, non notés</option><option value="attente">En attente</option>
+    </select>
+    <select id="fVigil" aria-label="Filtrer par vigilance">
+      <option value="">Éligibilité : tout</option>
+      <option value="vig">À contrôler (régime immobilier possible)</option>
+      <option value="ver">Statut indéterminé</option>
     </select>
     <select id="grp" aria-label="Regrouper les lignes">
       <option value="">Sans regroupement</option><option value="2">Grouper par nature</option>
@@ -745,7 +755,7 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 // Colonnes : 0 isin,1 nom,2 type,3 pays,4 pea,5 etat,6 score,7 couv,
 //            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
 //            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
-//            18 methode PEA,19 motif PEA
+//            18 methode PEA,19 motif PEA,20 vigilance
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -811,12 +821,14 @@ function cell(v, suffixe){
 function filtrer(){
   var q = $("q").value.trim().toLowerCase();
   var ft = $("fType").value, fp = $("fPays").value,
-      fe = $("fPea").value, fs = $("fEtat").value;
+      fe = $("fPea").value, fs = $("fEtat").value, fv = $("fVigil").value;
   vue = D.filter(function(r){
     if (ft && r[2] !== ft) return false;
     if (fp && r[3] !== fp) return false;
     if (fe && r[4] !== fe) return false;
     if (fs && r[5] !== fs) return false;
+    if (fv === "vig" && !r[20]) return false;
+    if (fv === "ver" && r[4] !== "A_VERIFIER") return false;
     if (q && r[1].toLowerCase().indexOf(q) < 0 && r[0].toLowerCase().indexOf(q) < 0) return false;
     return true;
   });
@@ -859,8 +871,10 @@ function rendre(){
       "<td>" + esc(r[1]) + drapeau(r) + '<br><span class="ty">' + esc(r[0]) + "</span></td>" +
       '<td class="masq-s ty">' + esc(r[2]) + "</td>" +
       '<td class="masq-s ty">' + esc(r[3]) + "</td>" +
-      '<td class="ty" title="' + esc((r[18] || "") + (r[19] ? " — " + r[19] : "")) +
-        '">' + esc(r[4]) + "</td>" +
+      '<td class="ty" title="' + esc((r[18] || "") + (r[19] ? " — " + r[19] : "") +
+        (r[20] ? "\nÀ CONTRÔLER : " + r[20] : "")) + '">' + esc(r[4]) +
+        (r[20] ? ' <span class="vigil" title="' + esc(r[20]) + '">!</span>' : "") +
+        "</td>" +
       '<td><span class="etat ' + esc(r[5]) + '">' + libelleEtat(r[5]) + "</span></td>" +
       '<td class="nu">' + cell(r[6]) + "</td>" +
       '<td class="nu masq-s">' + cell(r[8], "%") + "</td>" +
@@ -991,7 +1005,7 @@ $("tout").addEventListener("change", function(e){
   rendre();
 });
 
-["q","fType","fPays","fPea","fEtat"].forEach(function(id){
+["q","fType","fPays","fPea","fEtat","fVigil"].forEach(function(id){
   $(id).addEventListener("input", filtrer);
 });
 $("grp").addEventListener("change", function(){
@@ -1001,7 +1015,7 @@ $("grp").addEventListener("change", function(){
   filtrer();
 });
 $("reset").addEventListener("click", function(){
-  ["q","fType","fPays","fPea","fEtat","grp"].forEach(function(id){ $(id).value = ""; });
+  ["q","fType","fPays","fPea","fEtat","fVigil","grp"].forEach(function(id){ $(id).value = ""; });
   tri = {c: 6, desc: true};
   filtrer();
 });
