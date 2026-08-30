@@ -12,19 +12,38 @@ prospectus, ni l'avis d'un professionnel.
 
 ## Sommaire
 
-1. [Installation](#1-installation)
-2. [Clés d'API : ce qui marche et ce qui ne marche pas](#2-clés-dapi)
-3. [Démarrage rapide](#3-démarrage-rapide)
-3bis. [Ce que vous devez faire, une fois pour toutes](#3bis-actions-initiales)
-4. [La chaîne complète, étape par étape](#4-la-chaîne-complète)
-5. [Le tableau de bord](#5-le-tableau-de-bord)
-6. [Automatisation](#6-automatisation)
-7. [Fichiers produits](#7-fichiers-produits)
-8. [Réglages](#8-réglages)
-9. [Problèmes courants](#9-problèmes-courants)
-10. [Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
-11. [Simulateur](#11-simulateur)
-12. [Aide-mémoire des actions](#12-aide-mémoire-des-actions)
+- [Mode d'emploi — PEAFirst](#mode-demploi--peafirst)
+  - [Sommaire](#sommaire)
+  - [1. Installation](#1-installation)
+  - [2. Clés d'API](#2-clés-dapi)
+    - [Couverture réelle, testée sur instruments européens](#couverture-réelle-testée-sur-instruments-européens)
+  - [3. Démarrage rapide](#3-démarrage-rapide)
+  - [Depuis Android](#depuis-android)
+  - [3bis. Actions initiales](#3bis-actions-initiales)
+    - [A. Activer la collecte automatique (5 minutes)](#a-activer-la-collecte-automatique-5-minutes)
+    - [B. Vérifier le droit d'écriture du jeton (si vous poussez depuis un poste)](#b-vérifier-le-droit-décriture-du-jeton-si-vous-poussez-depuis-un-poste)
+    - [C. Enregistrer vos clés localement](#c-enregistrer-vos-clés-localement)
+  - [4. La chaîne complète](#4-la-chaîne-complète)
+    - [4.1 Base ISIN (déjà constituée)](#41-base-isin-déjà-constituée)
+    - [4.2 Identifiants OpenFIGI](#42-identifiants-openfigi)
+    - [4.3 Éligibilité PEA](#43-éligibilité-pea)
+    - [4.4 Données de marché et indicateurs](#44-données-de-marché-et-indicateurs)
+    - [4.5 Scores](#45-scores)
+    - [4.6 Anomalies](#46-anomalies)
+    - [4.7 Progression](#47-progression)
+    - [4.8 Allocation](#48-allocation)
+  - [5. Le tableau de bord](#5-le-tableau-de-bord)
+  - [6. Automatisation](#6-automatisation)
+  - [7. Fichiers produits](#7-fichiers-produits)
+  - [8. Réglages](#8-réglages)
+  - [9. Problèmes courants](#9-problèmes-courants)
+  - [10. Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
+  - [11. Simulateur](#11-simulateur)
+  - [12. Aide-mémoire des actions](#12-aide-mémoire-des-actions)
+    - [Une seule fois](#une-seule-fois)
+    - [Sans rien faire](#sans-rien-faire)
+    - [Quand vous le souhaitez](#quand-vous-le-souhaitez)
+    - [Avant d'acheter](#avant-dacheter)
 
 ---
 
@@ -58,7 +77,18 @@ export EODHD_API_KEY="votre_cle"
 export MARKETSTACK_API_KEY="votre_cle"
 export OPENFIGI_API_KEY="votre_cle"
 ```
-
+```powershell
+setx EODHD_API_KEY "votre_cle"
+setx OPENFIGI_API_KEY "votre_cle"
+setx MARKETSTACK_API_KEY "votre_cle"
+echo verification
+echo $env:EODHD_API_KEY
+```
+```bash
+echo 'export EODHD_API_KEY="votre_cle"' >> ~/.bashrc
+source ~/.bashrc
+```
+Si le fichier n'existe pas, cette commande le crée. C'est l'option la plus simple si vous voulez copier-coller les commandes de la documentation sans les adapter.
 ### Couverture réelle, testée sur instruments européens
 
 | Source | Quota gratuit | Europe | Usage dans le projet |
@@ -96,8 +126,8 @@ Collecter de nouvelles données (une clé EODHD suffit) :
 ```bash
 export EODHD_API_KEY="votre_cle"
 python3 scripts/enrich_marche.py --etat --filtre pea      # où en est-on ?
-python3 scripts/enrich_marche.py --historique --filtre pea --limite 18
-python3 scripts/scoring.py
+python3 scripts/enrich_marche.py --historique --filtre pea --limite 18 # max 475
+python3 scripts/scoring.py #--top 20
 python3 scripts/anomalies.py --resume
 python3 scripts/historique.py
 python3 scripts/dashboard.py
@@ -106,6 +136,10 @@ python3 scripts/dashboard.py
 `--limite 18` laisse une marge sous le quota de 20/jour.
 
 ---
+## Depuis Android
+
+https://htmlpreview.github.io/?
+https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
 
 ## 3bis. Actions initiales
 
