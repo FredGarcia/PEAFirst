@@ -397,9 +397,30 @@ révisé par le règlement 2021/2268.
 > lui est appliquée par analogie, pour permettre la comparaison ; la colonne
 > `Ecart_officiel` le signale ligne par ligne.
 
-Le tableau de bord affiche le SRI dans une colonne triable, avec un code
-couleur et la réserve en infobulle. Le DIC de l'émetteur reste la seule
-référence.
+**Enregistrer un SRI officiel.** Le chiffre lu sur un DIC est le SRI
+réglementaire : il **remplace** l'estimation, sans réserve. Depuis le tableau
+de bord :
+
+1. cocher les lignes concernées ;
+2. bouton **Corriger l'éligibilité PEA** → sélecteur **SRI officiel relevé sur
+   un DIC** ;
+3. choisir la classe, saisir la source et **la date du DIC** ;
+4. **Appliquer à la sélection**, puis **Télécharger corrections_sri.csv** ;
+5. remplacer `data/corrections_sri.csv`, relancer `python3 scripts/sri.py`.
+
+La date compte : un SRI est révisable, et un relevé ancien reste un relevé
+ancien. Le script signale les cas où le chiffre officiel diverge de
+l'estimation — un écart est normal, le DIC intégrant le risque de crédit et
+cinq ans d'historique.
+
+Dans le tableau de bord, la colonne SRI est triable, avec un code couleur ; un
+SRI officiel se distingue d'une estimation par un contour marqué, et la réserve
+figure en infobulle. Le DIC de l'émetteur reste la seule référence.
+
+| Fichier | Rôle |
+|---|---|
+| `data/corrections_pea.csv` | éligibilité PEA corrigée, prime sur les règles |
+| `data/corrections_sri.csv` | SRI officiel relevé sur DIC, prime sur l'estimation |
 
 ### 4.5 Scores
 

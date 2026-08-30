@@ -64,11 +64,40 @@ from pathlib import Path
 BORNES = [(1, 0.5), (2, 5.0), (3, 12.0), (4, 20.0), (5, 30.0), (6, 80.0)]
 
 COLONNES = ["ISIN", "Nom", "Type", "Volatilite_annualisee_pct", "VEV_pct",
-            "SRI_estime", "Bande", "Methode", "Fiabilite", "Nb_seances",
-            "Ecart_officiel", "Date_MAJ"]
+            "SRI_estime", "SRI_officiel", "SRI_retenu", "Bande", "Methode",
+            "Fiabilite", "Nb_seances", "Source_SRI", "Ecart_officiel",
+            "Date_MAJ"]
+
+CORRECTIONS_ENTETE = ["ISIN", "SRI_officiel", "Source", "Date_DIC", "Note"]
 
 # Séances attendues pour cinq ans de cotation quotidienne.
 SEANCES_CINQ_ANS = 5 * 252
+
+
+def charger_corrections(chemin):
+    """SRI relevés sur les documents d'informations clés des émetteurs.
+
+    Un SRI lu sur un DIC est le chiffre réglementaire : il prime sans réserve
+    sur toute estimation calculée ici. Le fichier porte la source et la date du
+    document, car un SRI est révisable — un relevé ancien reste un relevé
+    ancien, et le script le signale.
+    """
+    corrections = {}
+    for r in lire(chemin):
+        isin = (r.get("ISIN") or "").strip()
+        brut = (r.get("SRI_officiel") or "").strip()
+        if not isin or not brut.isdigit():
+            continue
+        niveau = int(brut)
+        if not 1 <= niveau <= 7:
+            continue
+        corrections[isin] = {
+            "niveau": niveau,
+            "source": (r.get("Source") or "").strip() or "DIC émetteur",
+            "date": (r.get("Date_DIC") or "").strip(),
+            "note": (r.get("Note") or "").strip(),
+        }
+    return corrections
 
 
 def lire(chemin):
@@ -160,6 +189,13 @@ def main():
         print("Aucune donnée de marché : lancer d'abord scripts/enrich_marche.py")
         return 0
 
+    chemin_corr = data / "corrections_sri.csv"
+    corrections = charger_corrections(chemin_corr)
+    if not chemin_corr.exists():
+        with open(chemin_corr, "w", newline="", encoding="utf-8") as f:
+            csv.writer(f, delimiter=";").writerow(CORRECTIONS_ENTETE)
+        print(f"{chemin_corr} créé (vide) : y déposer les SRI relevés sur DIC.")
+
     aujourdhui = date.today().isoformat()
     lignes = []
     for r in marche:
@@ -182,13 +218,34 @@ def main():
                      "les cinq ans exigés")
             if methode == "volatilite_annualisee":
                 ecart += ", asymétrie et aplatissement non corrigés"
+        officiel = corrections.get(r["ISIN"])
+        if officiel:
+            retenu = officiel["niveau"]
+            methode = "dic_emetteur"
+            note = "officielle"
+            source = (f"{officiel['source']}"
+                      + (f", DIC du {officiel['date']}" if officiel["date"] else "")
+                      + (f" — {officiel['note']}" if officiel["note"] else ""))
+            ecart = "SRI officiel relevé sur le document de l'émetteur"
+            if niveau and niveau != retenu:
+                ecart += (f" ; l'estimation calculée donnait {niveau}, écart "
+                          "attendu car le DIC intègre le risque de crédit et "
+                          "cinq ans d'historique")
+        else:
+            retenu = niveau
+            source = "calcul PEAFirst"
+            ecart = ecart + f" ({motif})"
+
         lignes.append({
             "ISIN": r["ISIN"], "Nom": r.get("Nom", ""), "Type": r.get("Type", ""),
             "Volatilite_annualisee_pct": f"{vol:.2f}",
             "VEV_pct": f"{v:.2f}" if v is not None else "",
-            "SRI_estime": niveau or "", "Bande": bande, "Methode": methode,
+            "SRI_estime": niveau or "",
+            "SRI_officiel": officiel["niveau"] if officiel else "",
+            "SRI_retenu": retenu or "", "Bande": bande, "Methode": methode,
             "Fiabilite": note, "Nb_seances": int(seances) if seances else "",
-            "Ecart_officiel": ecart + f" ({motif})", "Date_MAJ": aujourdhui,
+            "Source_SRI": source, "Ecart_officiel": ecart,
+            "Date_MAJ": aujourdhui,
         })
 
     sortie = data / "base_isin_sri.csv"
@@ -199,7 +256,7 @@ def main():
 
     # Les instruments sans classe apparaissent sous une clé distincte plutôt
     # que mêlés aux niveaux numériques.
-    repartition = Counter(l["SRI_estime"] if l["SRI_estime"] != "" else "n.d."
+    repartition = Counter(str(l["SRI_retenu"]) if l["SRI_retenu"] != "" else "n.d."
                           for l in lignes)
     niveaux = sorted(k for k in repartition if k != "n.d.")
     if "n.d." in repartition:
@@ -207,6 +264,12 @@ def main():
     print(f"{sortie} : {len(lignes)} instrument(s)")
     print("  Répartition SRI estimé : " +
           ", ".join(f"{k}={repartition[k]}" for k in niveaux))
+    officiels = sum(1 for l in lignes if l["SRI_officiel"] != "")
+    if officiels:
+        divergents = sum(1 for l in lignes if l["SRI_officiel"] != ""
+                         and l["SRI_estime"] not in ("", l["SRI_officiel"]))
+        print(f"  {officiels} SRI officiel(s) relevé(s) sur DIC, "
+              f"dont {divergents} divergent(s) de l'estimation")
     faibles = sum(1 for l in lignes if l["Fiabilite"] == "faible")
     if faibles:
         print(f"  {faibles} estimation(s) de fiabilité faible "
@@ -216,8 +279,10 @@ def main():
         for niveau in niveaux:
             if niveau == "n.d.":
                 continue
-            exemples = [l["Nom"][:26] for l in lignes if l["SRI_estime"] == niveau][:3]
-            bande = next(l["Bande"] for l in lignes if l["SRI_estime"] == niveau)
+            exemples = [l["Nom"][:26] for l in lignes
+                        if str(l["SRI_retenu"]) == niveau][:3]
+            bande = next(l["Bande"] for l in lignes
+                         if str(l["SRI_retenu"]) == niveau)
             print(f"  SRI {niveau} ({bande:<12}) : {repartition[niveau]:>4} — "
                   + ", ".join(exemples))
 

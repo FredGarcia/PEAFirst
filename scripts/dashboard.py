@@ -169,6 +169,7 @@ def construire(data, top, seuil):
     figi = {r["ISIN"]: r for r in lire(data / "base_isin_figi.csv")}
     actions_pea = {r["ISIN"]: r for r in lire(data / "base_isin_actions_pea.csv")}
     corrections = lire(data / "corrections_pea.csv")
+    corrections_sri = lire(data / "corrections_sri.csv")
     sri = {r["ISIN"]: r for r in lire(data / "base_isin_sri.csv")}
     anomalies = lire(data / "anomalies.csv")
     histo = lire(data / "historique_couverture.csv")
@@ -220,8 +221,9 @@ def construire(data, top, seuil):
             methode,
             motif[:90],
             vigil[:120],
-            nombre(sri.get(isin, {}).get("SRI_estime")),
+            nombre(sri.get(isin, {}).get("SRI_retenu")),
             (sri.get(isin, {}).get("Ecart_officiel") or "")[:110],
+            (sri.get(isin, {}).get("Methode") or ""),
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -309,6 +311,11 @@ def construire(data, top, seuil):
         "__NB_ANO__": str(len(anomalies)),
         "__NB_ANO_INST__": str(len(ano_par_isin)),
         "__NB_CORR__": str(len(corrections)),
+        "__CORRECTIONS_SRI__": json.dumps(
+            {r["ISIN"]: [r.get("SRI_officiel", ""), r.get("Source", ""),
+                         r.get("Date_DIC", ""), r.get("Note", "")]
+             for r in corrections_sri if r.get("ISIN")},
+            ensure_ascii=False, separators=(",", ":")),
         "__CORRECTIONS__": json.dumps(
             {r["ISIN"]: [r.get("PEA_eligible", ""), r.get("Motif", ""),
                          r.get("Source", "")] for r in corrections
@@ -420,6 +427,8 @@ border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:12px;cursor:he
 .sri4,.sri5{background:#fdf1e0;color:#8a5a1c}
 .sri6,.sri7{background:#f6e2e2;color:#8a3d3d}
 .sri0{background:transparent;color:var(--encre-2)}
+/* Un SRI issu d'un DIC est une donnée officielle : le distinguer d'une estimation. */
+.sri.officiel{box-shadow:0 0 0 2px var(--encre) inset;font-weight:600}
 .vigil{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 font-weight:700;width:14px;height:14px;line-height:14px;text-align:center;
 border-radius:50%;background:var(--manquant);color:#fff;cursor:help}
@@ -466,6 +475,9 @@ button.mini{font-size:12px;padding:5px 10px}
 border-radius:3px;background:#fdf8f1}
 .corr[hidden]{display:none}
 .corr .champs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+/* La règle ci-dessus l'emporterait sur l'attribut hidden du navigateur : il
+   faut la neutraliser explicitement, sinon les deux modes s'affichent ensemble. */
+.corr .champs[hidden],.corr [hidden]{display:none}
 .corr select,.corr input[type=text]{font-family:inherit;font-size:13px;padding:6px 8px;
 border:1px solid var(--trait);border-radius:3px;background:#fff;color:inherit}
 .corr input[type=text]{flex:1 1 240px}
@@ -619,15 +631,29 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   </div>
 
   <div class="corr" id="corr" hidden>
-    <strong>Corriger l'éligibilité PEA</strong>
+    <strong>Corriger une donnée</strong>
+    <div class="champs" style="margin-bottom:0">
+      <select id="cType" aria-label="Donnée à corriger">
+        <option value="pea">Éligibilité PEA</option>
+        <option value="sri">SRI officiel relevé sur un DIC</option>
+      </select>
+    </div>
     <p class="note" style="margin-top:4px">
-      L'éligibilité est déduite de règles automatiques : régime foncier, nature
-      de l'instrument, pays d'émission. Ces règles se trompent — une correction
-      saisie ici <b>prime sur toutes</b>. Elle prend effet à la prochaine
-      exécution de <code>enrich_pea_actions.py</code>, après avoir remplacé
-      <code>data/corrections_pea.csv</code> par le fichier téléchargé.
+      <span id="cNotePea">L'éligibilité est déduite de règles automatiques :
+      régime foncier, nature de l'instrument, pays d'émission. Ces règles se
+      trompent — une correction saisie ici <b>prime sur toutes</b>. Elle prend
+      effet à la prochaine exécution de <code>enrich_pea_actions.py</code>,
+      après avoir remplacé <code>data/corrections_pea.csv</code> par le fichier
+      téléchargé.</span>
+      <span id="cNoteSri" hidden>Le SRI affiché est une <b>estimation</b>
+      calculée depuis la volatilité. Le chiffre du document d'informations clés
+      de l'émetteur est le SRI réglementaire : saisi ici, il <b>remplace</b>
+      l'estimation. Indiquer la date du DIC — un SRI est révisable, et un relevé
+      ancien reste un relevé ancien. Prend effet après avoir remplacé
+      <code>data/corrections_sri.csv</code> puis relancé
+      <code>sri.py</code>.</span>
     </p>
-    <div class="champs">
+    <div class="champs" id="cChampsPea">
       <select id="cVal" aria-label="Éligibilité corrigée">
         <option value="NON">NON — réservée au compte-titres</option>
         <option value="OUI">OUI — éligible au PEA</option>
@@ -637,9 +663,24 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
              aria-label="Motif de la correction">
       <button type="button" id="cAjouter">Appliquer à la sélection</button>
     </div>
+    <div class="champs" id="cChampsSri" hidden>
+      <select id="sVal" aria-label="SRI officiel">
+        <option value="1">SRI 1</option><option value="2">SRI 2</option>
+        <option value="3">SRI 3</option><option value="4" selected>SRI 4</option>
+        <option value="5">SRI 5</option><option value="6">SRI 6</option>
+        <option value="7">SRI 7</option>
+      </select>
+      <input type="text" id="sSource" placeholder="Source (ex. : amundietf.fr)"
+             aria-label="Source du DIC">
+      <input type="date" id="sDate" aria-label="Date du DIC"
+             style="font-family:inherit;font-size:13px;padding:6px 8px;
+                    border:1px solid var(--trait);border-radius:3px">
+      <button type="button" id="sAjouter">Appliquer à la sélection</button>
+    </div>
     <ul id="cListe"></ul>
     <p class="note" id="cVide">Aucune correction enregistrée.</p>
     <button type="button" id="cTelecharger">Télécharger corrections_pea.csv</button>
+    <button type="button" id="sTelecharger" hidden>Télécharger corrections_sri.csv</button>
     <button type="button" class="sec" id="cFermer">Fermer</button>
   </div>
 
@@ -765,7 +806,8 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 // Colonnes : 0 isin,1 nom,2 type,3 pays,4 pea,5 etat,6 score,7 couv,
 //            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
 //            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
-//            18 methode PEA,19 motif PEA,20 vigilance,21 SRI,22 reserve SRI
+//            18 methode PEA,19 motif PEA,20 vigilance,21 SRI retenu,
+//            22 reserve SRI,23 methode SRI
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -886,7 +928,8 @@ function rendre(){
         (r[20] ? ' <span class="vigil" title="' + esc(r[20]) + '">!</span>' : "") +
         "</td>" +
       '<td><span class="etat ' + esc(r[5]) + '">' + libelleEtat(r[5]) + "</span></td>" +
-      '<td class="nu"><span class="sri sri' + (r[21] || 0) + '" title="' +
+      '<td class="nu"><span class="sri sri' + (r[21] || 0) +
+        (r[23] === "dic_emetteur" ? " officiel" : "") + '" title="' +
         esc(r[22] || "") + '">' + (r[21] || "—") + "</span></td>" +
       '<td class="nu">' + cell(r[6]) + "</td>" +
       '<td class="nu masq-s">' + cell(r[8], "%") + "</td>" +
@@ -1079,21 +1122,73 @@ $("cmdAlloc").addEventListener("click", function(){
 // Corrections d'éligibilité. Elles priment sur les règles automatiques ;
 // le fichier téléchargé remplace data/corrections_pea.csv.
 var CORR = __CORRECTIONS__;
+var CORRSRI = __CORRECTIONS_SRI__;
 
 function majCorr(){
-  var cles = Object.keys(CORR);
-  var liste = $("cListe");
+  var sri = $("cType").value === "sri";
+  // Les deux corrections ne se mélangent pas : chacune a son fichier, sa
+  // priorité et son script. L'interface bascule entièrement d'un mode à l'autre.
+  $("cChampsPea").hidden = sri;
+  $("cChampsSri").hidden = !sri;
+  $("cNotePea").hidden = sri;
+  $("cNoteSri").hidden = !sri;
+  $("cTelecharger").hidden = sri;
+  $("sTelecharger").hidden = !sri;
+
+  var table = sri ? CORRSRI : CORR;
+  var cles = Object.keys(table);
   $("cVide").hidden = cles.length > 0;
+  $("cVide").textContent = sri
+    ? "Aucun SRI officiel enregistré."
+    : "Aucune correction enregistrée.";
   $("cTelecharger").disabled = cles.length === 0;
+  $("sTelecharger").disabled = cles.length === 0;
+
   var index = Object.create(null);
-  D.forEach(function(r){ if (CORR[r[0]]) index[r[0]] = r[1]; });
-  liste.innerHTML = cles.map(function(i){
-    var c = CORR[i];
-    return "<li><b>" + esc(c[0]) + "</b><span>" + esc(index[i] || i) +
-      '</span><span class="m">' + esc(c[1] || "") + "</span>" +
+  var estime = Object.create(null);
+  D.forEach(function(r){
+    if (table[r[0]]) { index[r[0]] = r[1]; estime[r[0]] = r[21]; }
+  });
+  $("cListe").innerHTML = cles.map(function(i){
+    var c = table[i];
+    var tete = sri ? ("SRI " + esc(c[0])) : esc(c[0]);
+    var detail = sri
+      ? esc((c[1] || "") + (c[2] ? " · DIC du " + c[2] : ""))
+      : esc(c[1] || "");
+    return "<li><b>" + tete + "</b><span>" + esc(index[i] || i) +
+      '</span><span class="m">' + detail + "</span>" +
       '<button type="button" class="sec" data-sup="' + esc(i) + '">retirer</button></li>';
   }).join("");
 }
+
+$("cType").addEventListener("change", majCorr);
+
+$("sAjouter").addEventListener("click", function(){
+  var isins = Object.keys(choix);
+  if (!isins.length){ retour(this, "Aucune ligne sélectionnée"); return; }
+  var v = $("sVal").value;
+  var src = $("sSource").value.trim() || "DIC émetteur";
+  var d = $("sDate").value;
+  isins.forEach(function(i){ CORRSRI[i] = [v, src, d, ""]; });
+  majCorr();
+  retour(this, isins.length + " SRI officiel(s) enregistré(s)");
+});
+
+$("sTelecharger").addEventListener("click", function(){
+  function champ(t){
+    t = String(t === null || t === undefined ? "" : t);
+    return (t.indexOf(";") >= 0 || t.indexOf('"') >= 0)
+      ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  var lignes = ["ISIN;SRI_officiel;Source;Date_DIC;Note"];
+  Object.keys(CORRSRI).sort().forEach(function(i){
+    var c = CORRSRI[i];
+    lignes.push([i, c[0], champ(c[1]), c[2] || "", champ(c[3] || "")].join(";"));
+  });
+  telecharger("corrections_sri.csv", lignes.join("\r\n") + "\r\n",
+              "text/csv;charset=utf-8");
+  retour(this, Object.keys(CORRSRI).length + " SRI exporté(s)");
+});
 
 $("corriger").addEventListener("click", function(){
   var bloc = $("corr");
@@ -1115,7 +1210,8 @@ $("cAjouter").addEventListener("click", function(){
 $("cListe").addEventListener("click", function(e){
   var b = e.target;
   if (!b.dataset || !b.dataset.sup) return;
-  delete CORR[b.dataset.sup];
+  if ($("cType").value === "sri") { delete CORRSRI[b.dataset.sup]; }
+  else { delete CORR[b.dataset.sup]; }
   majCorr();
 });
 

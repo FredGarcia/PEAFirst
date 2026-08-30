@@ -138,7 +138,7 @@ jobs:
                   data/anomalies.csv data/historique_couverture.csv \
                   data/openfigi_cache.csv data/base_isin_figi.csv \
                   data/base_isin_fonds_pea.csv data/base_isin_actions_pea.csv \
-                  data/corrections_pea.csv data/base_isin_sri.csv
+                  data/corrections_pea.csv data/base_isin_sri.csv data/corrections_sri.csv
           if git diff --cached --quiet; then
             echo "Aucune donnée nouvelle : rien à publier."
             exit 0
