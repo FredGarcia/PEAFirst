@@ -360,6 +360,47 @@ Le cache `data/marche_cache.json` permet la reprise : un instrument déjà
 collecté n'est jamais réinterrogé, et un symbole absent du fournisseur est
 marqué une fois pour toutes.
 
+### 4.4bis Indicateur de risque SRI
+
+```bash
+python3 scripts/sri.py --resume
+```
+
+Produit `data/base_isin_sri.csv` : estimation du SRI (1 à 7) des PRIIPS à partir
+de la volatilité annualisée, selon les bornes du règlement délégué (UE) 2017/653
+révisé par le règlement 2021/2268.
+
+| SRI | VEV | SRI | VEV |
+|---|---|---|---|
+| 1 | < 0,5 % | 5 | 20 – 30 % |
+| 2 | 0,5 – 5 % | 6 | 30 – 80 % |
+| 3 | 5 – 12 % | 7 | > 80 % |
+| 4 | 12 – 20 % | | |
+
+**Ce n'est pas le SRI officiel**, et l'écart est mesurable :
+
+- la VEV réglementaire corrige la volatilité de l'asymétrie et de
+  l'aplatissement par un développement de Cornish-Fisher. **Sans ces
+  corrections, la formule redonne exactement la volatilité annualisée** : notre
+  estimation est donc la méthode officielle sous hypothèse de rendements
+  normaux. Les collectes récentes enregistrent ces moments et la correction
+  s'applique alors ; la colonne `Methode` indique laquelle a servi ;
+- le règlement impose **cinq ans** d'historique hebdomadaire, nous en avons
+  environ dix-huit mois quotidiens : toutes les estimations actuelles sont de
+  fiabilité « faible » ;
+- le **risque de crédit** (CRM) n'est pas évalué : il peut relever le SRI d'un
+  fonds au-dessus de son seul risque de marché ;
+- le MRM officiel est la valeur la plus fréquente sur quatre mois, non une
+  valeur instantanée.
+
+> **Une action n'est pas un PRIIPS** et n'a donc aucun SRI officiel. L'échelle
+> lui est appliquée par analogie, pour permettre la comparaison ; la colonne
+> `Ecart_officiel` le signale ligne par ligne.
+
+Le tableau de bord affiche le SRI dans une colonne triable, avec un code
+couleur et la réserve en infobulle. Le DIC de l'émetteur reste la seule
+référence.
+
 ### 4.5 Scores
 
 ```bash

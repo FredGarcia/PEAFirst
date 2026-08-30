@@ -156,7 +156,21 @@ def indicateurs(closes, taux_sans_risque=0.0):
         sommet = max(sommet, c)
         dd_max = min(dd_max, c / sommet - 1)
 
+    # Moments d'ordre 3 et 4 : ils servent au calcul réglementaire de la VEV
+    # (développement de Cornish-Fisher) dans scripts/sri.py. Les instruments
+    # collectés avant l'ajout de ces colonnes en sont dépourvus ; le script de
+    # SRI retombe alors sur la volatilité seule.
+    ecart = statistics.pstdev(rendements)
+    if ecart > 0 and len(rendements) > 3:
+        centres = [(r - statistics.fmean(rendements)) / ecart for r in rendements]
+        asymetrie = sum(c ** 3 for c in centres) / len(centres)
+        aplatissement = sum(c ** 4 for c in centres) / len(centres) - 3
+    else:
+        asymetrie = aplatissement = 0.0
+
     return {
+        "Asymetrie": round(asymetrie, 4),
+        "Aplatissement_exces": round(aplatissement, 4),
         "Perf_periode_pct": round(perf * 100, 2),
         "Volatilite_annualisee_pct": round(vol_an * 100, 2),
         "Drawdown_max_pct": round(dd_max * 100, 2),
@@ -352,6 +366,8 @@ def ecrire_sortie(chemin, base, cache):
                 "Drawdown_max_pct": info.get("Drawdown_max_pct", ""),
                 "Sharpe": info.get("Sharpe", ""),
                 "Sortino": info.get("Sortino", ""),
+                "Asymetrie": info.get("Asymetrie", ""),
+                "Aplatissement_exces": info.get("Aplatissement_exces", ""),
                 "Nb_seances": info.get("Nb_seances", ""),
                 "Source_cours": info.get("source", ""),
                 "Date_MAJ": aujourdhui,

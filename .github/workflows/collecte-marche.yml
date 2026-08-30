@@ -116,6 +116,7 @@ jobs:
         run: |
           python3 scripts/enrich_pea_actions.py
           python3 scripts/scoring.py --top 10
+          python3 scripts/sri.py --resume
 
       - name: Détecter les anomalies et enregistrer la progression
         run: |
@@ -137,7 +138,7 @@ jobs:
                   data/anomalies.csv data/historique_couverture.csv \
                   data/openfigi_cache.csv data/base_isin_figi.csv \
                   data/base_isin_fonds_pea.csv data/base_isin_actions_pea.csv \
-                  data/corrections_pea.csv
+                  data/corrections_pea.csv data/base_isin_sri.csv
           if git diff --cached --quiet; then
             echo "Aucune donnée nouvelle : rien à publier."
             exit 0

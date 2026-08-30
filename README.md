@@ -19,6 +19,7 @@ Euronext jusqu'aux scores, aux allocations et au tableau de bord.
 | Identifiants | FIGI, ticker et nom complet via OpenFIGI |
 | Éligibilité PEA | relevés émetteurs + règles métier, avec traçabilité de la source |
 | Indicateurs | volatilité, drawdown, Sharpe, Sortino, performance |
+| Risque | SRI estimé (bornes PRIIPS), volatilité, drawdown |
 | Décision | score pondéré paramétrable, TOPSIS, moteur d'allocation SRI |
 | Simulation | versements programmés, horizons 2 à 10 ans, scénarios, fiscalité 2026 |
 | Restitution | tableau de bord HTML autonome, modules Apps Script |

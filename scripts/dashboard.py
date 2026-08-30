@@ -169,6 +169,7 @@ def construire(data, top, seuil):
     figi = {r["ISIN"]: r for r in lire(data / "base_isin_figi.csv")}
     actions_pea = {r["ISIN"]: r for r in lire(data / "base_isin_actions_pea.csv")}
     corrections = lire(data / "corrections_pea.csv")
+    sri = {r["ISIN"]: r for r in lire(data / "base_isin_sri.csv")}
     anomalies = lire(data / "anomalies.csv")
     histo = lire(data / "historique_couverture.csv")
 
@@ -219,6 +220,8 @@ def construire(data, top, seuil):
             methode,
             motif[:90],
             vigil[:120],
+            nombre(sri.get(isin, {}).get("SRI_estime")),
+            (sri.get(isin, {}).get("Ecart_officiel") or "")[:110],
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -411,6 +414,12 @@ font-family:"IBM Plex Sans Condensed",sans-serif;letter-spacing:.03em}
 .etat.collecte{background:#fdf1e0;color:#8a5a1c}
 .etat.attente{background:#eceff2;color:var(--encre-2)}
 .vieux{color:var(--manquant);font-weight:500}
+.sri{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;
+border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:12px;cursor:help}
+.sri1,.sri2,.sri3{background:#dfeeeb;color:#1d534f}
+.sri4,.sri5{background:#fdf1e0;color:#8a5a1c}
+.sri6,.sri7{background:#f6e2e2;color:#8a3d3d}
+.sri0{background:transparent;color:var(--encre-2)}
 .vigil{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 font-weight:700;width:14px;height:14px;line-height:14px;text-align:center;
 border-radius:50%;background:var(--manquant);color:#fff;cursor:help}
@@ -590,6 +599,7 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
       <th class="tri masq-s" data-c="3" tabindex="0">Pays <span class="fl">▲▼</span></th>
       <th class="tri" data-c="4" tabindex="0">PEA <span class="fl">▲▼</span></th>
       <th class="tri" data-c="5" tabindex="0">État <span class="fl">▲▼</span></th>
+      <th class="tri nu" data-c="21" tabindex="0">SRI <span class="fl">▲▼</span></th>
       <th class="tri nu" data-c="6" tabindex="0">Score <span class="fl">▲▼</span></th>
       <th class="tri nu masq-s" data-c="8" tabindex="0">Vol. <span class="fl">▲▼</span></th>
       <th class="tri nu masq-s" data-c="9" tabindex="0">Perf. <span class="fl">▲▼</span></th>
@@ -755,7 +765,7 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 // Colonnes : 0 isin,1 nom,2 type,3 pays,4 pea,5 etat,6 score,7 couv,
 //            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
 //            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
-//            18 methode PEA,19 motif PEA,20 vigilance
+//            18 methode PEA,19 motif PEA,20 vigilance,21 SRI,22 reserve SRI
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -859,7 +869,7 @@ function rendre(){
       var val = r[Number(grp)] || "—";
       if (val !== dernier){
         dernier = val;
-        lignes.push('<tr class="grp"><td colspan="10">' + esc(val) + "</td></tr>");
+        lignes.push('<tr class="grp"><td colspan="11">' + esc(val) + "</td></tr>");
       }
     }
     var age = r[13];
@@ -876,13 +886,15 @@ function rendre(){
         (r[20] ? ' <span class="vigil" title="' + esc(r[20]) + '">!</span>' : "") +
         "</td>" +
       '<td><span class="etat ' + esc(r[5]) + '">' + libelleEtat(r[5]) + "</span></td>" +
+      '<td class="nu"><span class="sri sri' + (r[21] || 0) + '" title="' +
+        esc(r[22] || "") + '">' + (r[21] || "—") + "</span></td>" +
       '<td class="nu">' + cell(r[6]) + "</td>" +
       '<td class="nu masq-s">' + cell(r[8], "%") + "</td>" +
       '<td class="nu masq-s">' + cell(r[9], "%") + "</td>" +
       "<td" + vieux + ">" + ageTxt + "</td></tr>");
   });
   corps.innerHTML = lignes.join("") ||
-    '<tr><td colspan="10">Aucune ligne ne correspond à ces filtres. ' +
+    '<tr><td colspan="11">Aucune ligne ne correspond à ces filtres. ' +
     "Élargir la recherche ou réinitialiser.</td></tr>";
   var pages = Math.max(1, Math.ceil(vue.length / PARPAGE));
   $("pagination").textContent = " page " + (page + 1) + " / " + pages + " ";
