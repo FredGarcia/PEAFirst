@@ -70,8 +70,12 @@ fiscalite_pea:
   # Après le seuil : gains exonérés d'impôt sur le revenu, seuls les
   # prélèvements sociaux s'appliquent. Avant : prélèvement forfaitaire unique.
   seuil_exoneration_ir_annees: 5
-  prelevements_sociaux_pct: 17.2
-  pfu_impot_pct: 12.8   # part « impôt » du PFU (12,8 % IR + 17,2 % PS = 30 %)
+  # Prélèvements sociaux portés de 17,2 % à 18,6 % au 1er janvier 2026 par la
+  # LFSS 2026 (loi n° 2025-1403 du 30 décembre 2025), la CSG passant de 9,2 %
+  # à 10,6 %. Le taux applicable est celui en vigueur au moment du retrait,
+  # y compris sur des gains antérieurs. L'assurance-vie conserve 17,2 %.
+  prelevements_sociaux_pct: 18.6
+  pfu_impot_pct: 12.8   # part « impôt » du PFU (12,8 % IR + 18,6 % PS = 31,4 %)
 
 # ------------------------------------------------------------
 # Couche de second ordre : auto-observation et auto-amélioration

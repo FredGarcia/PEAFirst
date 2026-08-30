@@ -1,7 +1,17 @@
 # Mode d'emploi — PEAFirst
 
-Chaîne de données du projet PEA Advisor : de la liste brute des instruments
-Euronext jusqu'au tableau de bord et aux propositions d'allocation.
+Guide complet du dépôt, qui réunit deux briques complémentaires :
+
+- **la chaîne de données** (`scripts/`) — de la liste brute des instruments
+  Euronext jusqu'aux scores, au SRI, aux allocations et au tableau de bord
+  statique. Sans aucune dépendance, exécutée quotidiennement par GitHub Actions.
+  Sections 1 à 10 ;
+- **l'application PEAdvisor** (`peadvisor/`) — API REST, base SQLite, interface
+  web, scoring paramétrable, watchlist, auto-observation et serveur MCP.
+  Sections 10bis et 10ter.
+
+Les deux se rejoignent par la source `peafirst` de l'application, qui lit le
+référentiel produit par la chaîne.
 
 **Aide à la décision — ni conseil en investissement, ni conseil fiscal.**
 Les scores et allocations produits ici classent des instruments selon des
@@ -697,43 +707,163 @@ sans modification du code : les critères sont déjà déclarés.
 
 ## 10bis. L'application PEAdvisor
 
-Le dépôt contient deux briques : la **chaîne de données** (`scripts/`), décrite
-ci-dessus, et l'**application PEAdvisor** (`peadvisor/`) — API REST FastAPI,
-base SQLite, interface web, scoring paramétrable depuis l'écran Paramètres,
-allocation, simulateur, watchlist, auto-observation et serveur MCP.
+Le dépôt réunit deux briques : la **chaîne de données** (`scripts/`), décrite
+plus haut, et l'**application PEAdvisor** (`peadvisor/`). Cette section couvre
+la seconde.
+
+### A. Installation et lancement
 
 ```bash
+python3 -m venv .venv && source .venv/bin/activate   # recommandé
 pip install -r requirements.txt
-python run.py                 # http://localhost:8000, Swagger sur /docs
-python -m pytest tests/       # 115 tests
+python run.py
 ```
 
-**Le lien entre les deux.** L'application lit ses données par des *sources*
-branchables. La source **`peafirst`** lit le référentiel produit par la chaîne :
+- Interface web : <http://localhost:8000>
+- Documentation interactive de l'API : <http://localhost:8000/docs>
+
+Au premier lancement, la base SQLite `peadvisor.db` est créée et alimentée
+depuis la source active. Elle n'est **pas versionnée** : la supprimer et
+relancer suffit à repartir de zéro.
+
+```bash
+python3 -m pytest tests/        # 115 tests
+python3 -m pytest tests/ -q -k peafirst   # seulement la source peafirst
+```
+
+### B. Les onze écrans
+
+| Écran | Contenu |
+|---|---|
+| Tableau de bord | KPI, répartitions par type, secteur et pays, tops, classement multicritère |
+| Actions / ETF / OPCVM | référentiel filtrable, colonnes choisies et mémorisées, fiche par actif |
+| Allocation | capital, risque 1-7, horizon, objectif → portefeuille sous contraintes |
+| Simulateur | versement initial et programmés, trois scénarios, fiscalité PEA, trajectoire |
+| Watchlist | suivi de valeurs, ajout et retrait en un clic |
+| Historique | journal des traitements et des imports |
+| Sources | état de chaque source, bouton **Tester** avec diagnostic |
+| Paramètres | pondérations du score, profils de scoring, profil investisseur |
+| Système | auto-observation : complétude, fraîcheur, anomalies, dérive des scores, suggestions de pondérations |
+
+### C. Les sources de données
+
+Dix sources branchables, choisies par `source_active` dans
+`config/settings.yaml` :
+
+| Source | Clé requise | Couverture | Remarque |
+|---|---|---|---|
+| **`peafirst`** | non | 371 instruments réels | **défaut** — lit le référentiel de `scripts/`, éligibilité PEA vérifiée, aucun quota |
+| `seed` | non | jeu illustratif | hors ligne, pour démonstration |
+| `stooq`, `yahoo` | non | variable | non officielles |
+| `eodhd`, `marketstack`, `alphavantage`, `twelvedata`, `financialmodelingprep` | oui | voir §2 | quotas gratuits limités |
+| `boursorama` | non | scraping | **voir l'avertissement en §10ter** |
+
+**Clés API de l'application** : copier `config/cles_api.exemple.yaml` vers
+`config/cles_api.yaml` (gitignoré), ou utiliser les variables d'environnement,
+**qui priment**. Ne jamais committer de clé : le dépôt est public.
+
+### D. Ce que la source `peafirst` apporte
 
 | | jeu `seed` | source `peafirst` |
 |---|---|---|
 | Données | illustratives | réelles, collectées quotidiennement |
-| Éligibilité PEA | déclarative | vérifiée (régime foncier, nature, pays, relevés émetteurs, corrections) |
+| Éligibilité PEA | déclarative | vérifiée : régime foncier, nature de l'instrument, pays, relevés émetteurs, corrections utilisateur |
+| Risque | valeur fixe | SRI estimé selon les bornes PRIIPS |
 | Réseau | aucun | aucun — la collecte a lieu en amont |
 
-`peafirst` est la source par défaut dans `config/settings.yaml`. Elle ne remonte
-que les instruments réellement collectés — 371 à ce jour sur 6 188 — car peupler
-la base de lignes vides donnerait un tableau de bord trompeur.
+Elle ne remonte que les instruments réellement collectés — **371 sur 6 188** —
+car peupler la base de lignes vides donnerait un tableau de bord trompeur. Les
+cinq critères sans source européenne gratuite restent **vides plutôt
+qu'inventés**, ce qui permet au score de renormaliser ses pondérations sur les
+critères présents.
 
-Les cinq critères sans source européenne gratuite (potentiel, PER, croissance,
-dividende, consensus) restent **vides plutôt qu'inventés** : le score de
-l'application renormalise alors ses pondérations sur les critères présents,
-exactement comme `scripts/scoring.py`.
+Seul le statut `OUI` vaut éligible : `PROBABLE` et `A_VERIFIER` ne suffisent
+pas. Dans le doute, un titre n'est pas présenté comme logeable en PEA.
 
-> Les deux briques calculent chacune un score et une allocation, selon des
-> méthodes voisines mais distinctes. C'est assumé : la chaîne produit un
-> classement reproductible et versionné, l'application permet d'explorer des
-> pondérations interactivement. Ne pas confondre leurs résultats.
+### E. Paramétrage sans toucher au code
 
-**Clés API de l'application** : copier `config/cles_api.exemple.yaml` vers
-`config/cles_api.yaml` (fichier gitignoré) ou utiliser les variables
-d'environnement, qui priment. Ne jamais committer de clé : le dépôt est public.
+`config/settings.yaml` :
+
+| Section | Ce qu'elle règle |
+|---|---|
+| `donnees` | source active, PEA-PME, plafond de remplissage initial |
+| `mise_a_jour` | planification automatique (APScheduler), fréquence, heure |
+| `allocation` | poids maximal par ligne et par secteur, nombre de lignes, part minimale de fonds |
+| `quantitatif` | profondeur d'historique, taux sans risque |
+| `simulation` | scénarios, volatilité par défaut |
+| `fiscalite_pea` | seuil d'exonération, prélèvements sociaux, part IR du PFU |
+| `meta` | auto-observation et auto-amélioration |
+
+`config/scoring.yaml` : pondérations et bornes de normalisation du score,
+modifiables aussi depuis l'écran **Paramètres** avec recalcul immédiat.
+
+> **Fiscalité.** `prelevements_sociaux_pct` vaut **18,6 %** depuis la LFSS 2026
+> (loi n° 2025-1403 du 30 décembre 2025), contre 17,2 % auparavant. Le PFU
+> ressort donc à **31,4 %**. Ce réglage est aligné sur `scripts/simulateur.py` :
+> les deux simulateurs donnent des montants identiques. Le modifier d'un côté
+> sans l'autre les ferait diverger.
+
+### F. L'API REST
+
+49 routes, documentées et testables sur <http://localhost:8000/docs>.
+Les principales :
+
+| Domaine | Routes |
+|---|---|
+| Référentiel | `GET /api/actifs`, `/api/actifs/{isin}`, `/api/actifs/{isin}/cours`, `/api/actifs/{isin}/sous-scores` |
+| Import | `POST /api/import`, `GET /api/sources`, `POST /api/sources/{nom}/tester` |
+| Décision | `GET /api/dashboard/synthese`, `/api/dashboard/classement`, `/api/dashboard/correlations` |
+| Allocation | `POST /api/allocation` |
+| Simulation | `POST /api/simulation` |
+| Scoring | `GET /api/scoring/criteres`, `PUT /api/parametres/scoring`, `POST /api/scores/recalculer` |
+| Watchlist | `GET/POST/DELETE /api/watchlist` |
+| Auto-observation | `POST /api/meta/observer`, `GET /api/meta/sante`, `/api/meta/anomalies`, `/api/meta/suggestions` |
+
+### G. Le serveur MCP
+
+`mcp_server.py` expose 18 outils permettant de piloter l'application depuis un
+client MCP tel que Claude Desktop : `lister_actifs`, `fiche_actif`,
+`synthese_dashboard`, `classement_multicritere`, `correlations`,
+`proposer_allocation`, `simuler_investissement`, `consulter_watchlist`,
+`gerer_watchlist`, `lancer_mise_a_jour`, `importer_valeur`,
+`journal_traitements`, `rapport_systeme`, `lister_anomalies`,
+`taux_sans_risque`, `resoudre_isin`, `ponderations_score`,
+`optimiser_ponderations`.
+
+Configuration détaillée dans [`docs/08-agent-mcp.md`](08-agent-mcp.md).
+
+### H. Documentation de conception
+
+Héritée de PEAdvisor, elle explique les choix plutôt que l'usage :
+
+| Document | Contenu |
+|---|---|
+| [01](01-choix-technologiques.md) | pourquoi Python, FastAPI, SQLite ; alternatives écartées |
+| [02](02-architecture.md) | architecture en 4 niveaux, flux de données |
+| [03](03-modele-donnees.md) | modèle de données |
+| [04](04-scoring-et-decision.md) | familles de critères, TOPSIS |
+| [05](05-allocation.md) | moteur d'allocation et contraintes |
+| [06](06-roadmap.md) | feuille de route |
+| [07](07-auto-observation.md) | auto-observation et auto-amélioration |
+| [08](08-agent-mcp.md) | serveur MCP |
+| [09](09-sources-donnees.md) | sources de données |
+
+## 10ter. Deux avertissements sur l'application
+
+**Deux scorings coexistent.** `scripts/scoring.py` produit un classement
+reproductible et versionné ; l'application recalcule le sien avec ses propres
+familles de critères. Les méthodes sont voisines mais distinctes : **ne pas
+confondre leurs résultats**. C'est une dette assumée — deux implémentations
+divergent avec le temps.
+
+**Le dépôt contient des scrapers Boursorama**
+(`peadvisor/sources/boursorama.py`, routes `/api/import/boursorama/…` et
+`/api/import/web/…`), hérités de PEAdvisor. Leur usage se heurte aux conditions
+d'utilisation du site, qui interdisent l'extraction automatisée, et à la
+licence Euronext sur les cours, que Boursorama n'a pas le droit de
+redistribuer. Ils ne sont **pas activés par défaut** : la source active est
+`peafirst`. Les conserver, les désactiver ou les retirer est une décision qui
+vous revient.
 
 ## 11. Simulateur
 
@@ -787,6 +917,13 @@ C'est une projection d'hypothèses, **pas une prévision**.
 La collecte tourne chaque jour ouvré à 06h15 UTC et publie elle-même les
 données, les anomalies, l'historique et le tableau de bord.
 
+### Lancer l'application
+
+```bash
+pip install -r requirements.txt
+python run.py          # http://localhost:8000
+```
+
 ### Quand vous le souhaitez
 
 | Envie | Geste |
@@ -794,6 +931,9 @@ données, les anomalies, l'historique et le tableau de bord.
 | Accélérer la collecte | Tableau de bord → **Piloter la collecte** → régler les paramètres → **Ouvrir Run workflow** |
 | Rafraîchir les identifiants | Piloter → mode `openfigi` (retraite toute la base et régénère l'éligibilité PEA) |
 | Simuler un plan de versements | `simulateur.py --capital … --versement … --periodicite trimestriel` |
+| Explorer les pondérations du score | application → écran **Paramètres** (recalcul immédiat) |
+| Piloter depuis Claude Desktop | serveur MCP, voir [docs/08](08-agent-mcp.md) |
+| Repartir d'une base propre | supprimer `peadvisor.db` et relancer `python run.py` |
 | Cibler des instruments précis | Tableau de bord → filtrer → cocher → **File d'attente** → `enrich_marche.py --file-attente` |
 | Sortir des données vers Excel | Tableau de bord → filtrer → **Exporter la vue (CSV)** |
 | Comparer deux ou trois fonds | Tableau de bord → cocher 2 à 5 lignes |

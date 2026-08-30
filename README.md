@@ -22,6 +22,22 @@ illustratif.
 
 ---
 
+## Les deux briques en un coup d'œil
+
+| | Chaîne de données (`scripts/`) | Application (`peadvisor/`) |
+|---|---|---|
+| Rôle | constituer et vérifier le référentiel | explorer, décider, simuler |
+| Exécution | ligne de commande, GitHub Actions | serveur web local |
+| Dépendances | **aucune** (bibliothèque standard) | FastAPI, SQLAlchemy, uvicorn |
+| Stockage | fichiers CSV versionnés | base SQLite locale (non versionnée) |
+| Sortie | `dashboard.html` autonome | 11 écrans, 49 routes REST, 18 outils MCP |
+| Reproductible | oui, tout est commité | non, la base est régénérée |
+| Validée par | `validate.yml` | `tests.yml` — 115 tests |
+
+Elles se rejoignent en un seul point : la source **`peafirst`** de l'application
+lit les fichiers produits par la chaîne. Aucune logique n'est dupliquée à ce
+niveau — mais voir l'avertissement plus bas sur le scoring.
+
 ## En bref
 
 | | |
@@ -128,6 +144,42 @@ classDiagram
     DonneeMarche ..> Score : critères notés
     Ponderations ..> Score : barème paramétrable
     Score ..> PointHistorique : agrégé quotidiennement
+
+    %% --- Application PEAdvisor : base SQLite alimentée par la source peafirst ---
+    class Actif {
+        +string isin
+        +string nom
+        +TypeActif type
+        +string source
+        +bool eligible_pea
+        +float cours
+        +float volatilite
+        +int niveau_risque
+        +float score
+    }
+    class HistoriqueCours {
+        +date jour
+        +float cloture
+    }
+    class HistoriqueScore {
+        +datetime horodatage
+        +float score
+    }
+    class Anomalie {
+        +string categorie
+        +string gravite
+        +string statut
+    }
+    class ElementWatchlist {
+        +string isin
+        +datetime ajoute_le
+    }
+
+    Instrument "1" ..> "0..1" Actif : source peafirst
+    Actif "1" --> "0..*" HistoriqueCours
+    Actif "1" --> "0..*" HistoriqueScore
+    Actif "1" --> "0..*" Anomalie
+    Actif "1" --> "0..1" ElementWatchlist
 ```
 
 `Score` n'existe que si l'instrument réunit au moins 2 critères et 30 % du
@@ -141,8 +193,8 @@ barème : un instrument insuffisamment documenté est **écarté, jamais noté z
 ```mermaid
 flowchart TD
     EN["Euronext<br/><i>listes officielles</i>"]:::src
-    OF["OpenFIGI<br/><i>250 req/min</i>"]:::src
-    EM["Fiches émetteurs<br/><i>Amundi, iShares, BNP</i>"]:::src
+    OF["OpenFIGI"]:::src
+    EM["Fiches émetteurs<br/><i>DIC, prospectus</i>"]:::src
     EO["EODHD<br/><i>20 req/jour</i>"]:::src
     MS["Marketstack<br/><i>100 req/mois</i>"]:::src
 
@@ -151,19 +203,23 @@ flowchart TD
     F[("base_isin_figi.csv")]:::dat
     SE["maj_pea_emetteurs.py"]:::scr
     P[("pea_emetteurs.csv<br/><i>fait autorité</i>")]:::dat
-    SP["enrich_pea.py"]:::scr
-    FP[("base_isin_fonds_pea.csv")]:::dat
+    CP[("corrections_pea.csv<br/>corrections_sri.csv")]:::dat
+    SP["enrich_pea.py<br/>enrich_pea_actions.py"]:::scr
+    FP[("éligibilité PEA<br/>actions et fonds")]:::dat
     SM["enrich_marche.py"]:::scr
     M[("base_isin_marche.csv")]:::dat
     SC["scoring.py"]:::scr
-    S[("base_isin_scores.csv")]:::dat
-    AN["anomalies.py"]:::scr
-    HI["historique.py"]:::scr
-    AL["allocation.py"]:::scr
-    SI["simulateur.py"]:::scr
+    SR["sri.py"]:::scr
+    S[("scores, SRI,<br/>anomalies, historique")]:::dat
+    AL["allocation.py<br/>simulateur.py"]:::scr
     DA["dashboard.py"]:::scr
     HT["dashboard.html"]:::out
-    GS["scoring.gs · allocation.gs<br/><i>modules Apps Script</i>"]:::out
+
+    SRC(["source peafirst"]):::pont
+    APP["PEAdvisor<br/><i>FastAPI · SQLite</i>"]:::app
+    WEB["Interface web<br/><i>11 écrans</i>"]:::out
+    API["API REST<br/><i>49 routes</i>"]:::out
+    MCP["Serveur MCP<br/><i>18 outils</i>"]:::out
 
     EN --> B
     OF --> SO --> F
@@ -171,33 +227,36 @@ flowchart TD
     B --> SP
     F --> SP
     P --> SP
+    CP --> SP
     SP --> FP
     EO --> SM
     MS --> SM
-    B --> SM
-    SM --> M
-    M --> SC
-    B --> SC
-    SC --> S
-    S --> AN
-    M --> AN
-    S --> HI
+    B --> SM --> M
+    M --> SC --> S
+    M --> SR --> S
     S --> AL
     FP --> AL
-    AL -.-> SI
     S --> DA
     FP --> DA
-    AN --> DA
-    HI --> DA
+    M --> DA
     DA --> HT
-    AL -.-> GS
-    SC -.-> GS
-    HT -. "file d'attente · aucune clé embarquée" .-> SM
+    HT -. "file d'attente" .-> SM
+
+    B --> SRC
+    FP --> SRC
+    M --> SRC
+    S --> SRC
+    SRC --> APP
+    APP --> WEB
+    APP --> API
+    APP --> MCP
 
     classDef src fill:#fdf1e0,stroke:#b8762a,color:#16202b
     classDef scr fill:#eef1f4,stroke:#3d4d5c,color:#16202b
     classDef dat fill:#dfeeeb,stroke:#2f6f6b,color:#16202b
     classDef out fill:#e5ecf2,stroke:#1f4a5c,color:#16202b
+    classDef app fill:#e6e2f2,stroke:#4b3f77,color:#16202b
+    classDef pont fill:#fff,stroke:#2f6f6b,stroke-width:3px,color:#16202b
 ```
 
 Le tableau de bord **n'appelle aucune source** : il est versionné, une clé y
@@ -257,12 +316,36 @@ sequenceDiagram
             WF->>RE: commit et push des données
         end
     end
+
+    Note over RE: L'application relit ensuite ces fichiers<br/>via la source « peafirst » : aucun appel réseau,<br/>éligibilité PEA déjà vérifiée.
 ```
 
 L'arrêt sur quota est **propre** : le cache est écrit avant de rendre la main,
 et l'exécution du lendemain reprend exactement où celle-ci s'est arrêtée.
 
 ---
+
+## Ce qu'il faut savoir avant de s'en servir
+
+**Deux scorings coexistent.** `scripts/scoring.py` produit un classement
+reproductible et versionné ; l'application recalcule le sien avec ses propres
+familles de critères, modifiables depuis l'écran Paramètres. Les deux méthodes
+sont voisines mais distinctes : **ne pas confondre leurs résultats**. C'est une
+dette assumée, à surveiller — deux implémentations divergent avec le temps.
+
+**371 instruments sur 6 188 sont exploitables.** Les quotas gratuits limitent la
+collecte à une vingtaine par jour. La source `peafirst` ne remonte que les
+instruments réellement collectés : peupler la base de lignes vides donnerait un
+tableau de bord trompeur.
+
+**Cinq critères du cahier des charges restent vides** — potentiel, valorisation,
+croissance, dividende, consensus — faute de source européenne gratuite. Ils sont
+laissés à `None` plutôt que remplis d'une valeur inventée, et les pondérations
+se renormalisent sur les critères présents.
+
+**Le dépôt contient des scrapers Boursorama** (`peadvisor/sources/boursorama.py`),
+hérités de PEAdvisor. Leur usage se heurte aux conditions d'utilisation du site
+et à la licence Euronext sur les cours. Ils ne sont pas activés par défaut.
 
 ## Contenu du dépôt
 
@@ -298,10 +381,21 @@ des options et des réglages est dans le [mode d'emploi](docs/MODE_EMPLOI.md).
 
 ## Intégration continue
 
-`validate.yml` s'exécute à chaque push : contrôle du schéma, cohérence des
-sous-fichiers avec la base, puis **régénération** de `base_isin_fonds_pea.csv`
-comparée au fichier commité. Modifier ce fichier à la main fait échouer le
-build : passer par `enrich_pea.py`.
+Trois workflows, volontairement séparés :
 
-`collecte-marche.yml` s'exécute chaque jour ouvré et publie les données
-collectées. Prérequis : le secret `EODHD_API_KEY`.
+| Workflow | Déclencheur | Rôle |
+|---|---|---|
+| `validate.yml` | chaque push | schéma du référentiel, cohérence des sous-fichiers, régénération de `base_isin_fonds_pea.csv` comparée au fichier commité |
+| `tests.yml` | push sur `peadvisor/`, `tests/`, `config/` | 115 tests, plus un garde-fou vérifiant que la source `peafirst` lit bien le référentiel |
+| `collecte-marche.yml` | chaque jour ouvré à 06h15 UTC | collecte, scores, SRI, anomalies, historique, tableau de bord, puis publication |
+
+`validate.yml` n'installe aucune dépendance : une panne de `pip` ne peut donc
+jamais masquer un problème d'intégrité du référentiel. C'est la raison de la
+séparation.
+
+Modifier `base_isin_fonds_pea.csv` à la main fait échouer le build : passer par
+`enrich_pea.py`.
+
+Prérequis de la collecte : les secrets `EODHD_API_KEY`, `MARKETSTACK_API_KEY` et
+`OPENFIGI_API_KEY` dans *Settings → Secrets and variables → Actions*. Le
+workflow vérifie le secret correspondant au mode choisi avant tout appel.

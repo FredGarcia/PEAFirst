@@ -53,7 +53,9 @@ def _trajectoire(capital0: float, versement: float, horizon: int,
 
 def _fiscalite(plus_value: float, horizon: int, cfg: dict) -> tuple[float, str, bool]:
     """Impôt estimé sur la plus-value selon la durée de détention (PEA)."""
-    ps = cfg.get("prelevements_sociaux_pct", 17.2) / 100
+    # Défaut aligné sur la LFSS 2026 ; la valeur reste paramétrable dans
+    # config/settings.yaml, la fiscalité changeant régulièrement.
+    ps = cfg.get("prelevements_sociaux_pct", 18.6) / 100
     pfu_ir = cfg.get("pfu_impot_pct", 12.8) / 100
     seuil = cfg.get("seuil_exoneration_ir_annees", 5)
     if plus_value <= 0:

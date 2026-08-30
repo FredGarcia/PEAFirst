@@ -46,17 +46,18 @@ def test_ecart_se_resserre_avec_horizon():
 
 
 def test_fiscalite_pea_avant_et_apres_seuil():
-    # Après 5 ans : exonéré d'IR, seuls les prélèvements sociaux (17,2 %).
+    # Après 5 ans : exonéré d'IR, seuls les prélèvements sociaux (18,6 %
+    # depuis la LFSS 2026). Le taux vient de config/settings.yaml.
     apres = simuler(DemandeSimulation(capital_initial=10000, horizon_annees=8,
                                       rendement_prix_pct=6)).scenarios["median"]
     assert apres.exonere_ir
-    assert abs(apres.impot_estime - apres.plus_value_brute * 0.172) < 0.5
+    assert abs(apres.impot_estime - apres.plus_value_brute * 0.186) < 0.5
 
-    # Avant 5 ans : PFU 30 %.
+    # Avant 5 ans : PFU 31,4 % (12,8 % IR + 18,6 % PS).
     avant = simuler(DemandeSimulation(capital_initial=10000, horizon_annees=3,
                                       rendement_prix_pct=6)).scenarios["median"]
     assert not avant.exonere_ir
-    assert abs(avant.impot_estime - avant.plus_value_brute * 0.30) < 0.5
+    assert abs(avant.impot_estime - avant.plus_value_brute * 0.314) < 0.5
 
 
 def test_reinvestissement_dividendes():
