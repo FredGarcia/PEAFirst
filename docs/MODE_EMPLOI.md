@@ -37,7 +37,9 @@ prospectus, ni l'avis d'un professionnel.
     - [4.1 Base ISIN (déjà constituée)](#41-base-isin-déjà-constituée)
     - [4.2 Identifiants OpenFIGI](#42-identifiants-openfigi)
     - [4.3 Éligibilité PEA](#43-éligibilité-pea)
+    - [4.3bis Éligibilité PEA des actions](#43bis-éligibilité-pea-des-actions)
     - [4.4 Données de marché et indicateurs](#44-données-de-marché-et-indicateurs)
+    - [4.4bis Indicateur de risque SRI](#44bis-indicateur-de-risque-sri)
     - [4.5 Scores](#45-scores)
     - [4.6 Anomalies](#46-anomalies)
     - [4.7 Progression](#47-progression)
@@ -48,10 +50,21 @@ prospectus, ni l'avis d'un professionnel.
   - [8. Réglages](#8-réglages)
   - [9. Problèmes courants](#9-problèmes-courants)
   - [10. Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
+  - [10bis. L'application PEAdvisor](#10bis-lapplication-peadvisor)
+    - [A. Installation et lancement](#a-installation-et-lancement)
+    - [B. Les onze écrans](#b-les-onze-écrans)
+    - [C. Les sources de données](#c-les-sources-de-données)
+    - [D. Ce que la source `peafirst` apporte](#d-ce-que-la-source-peafirst-apporte)
+    - [E. Paramétrage sans toucher au code](#e-paramétrage-sans-toucher-au-code)
+    - [F. L'API REST](#f-lapi-rest)
+    - [G. Le serveur MCP](#g-le-serveur-mcp)
+    - [H. Documentation de conception](#h-documentation-de-conception)
+  - [10ter. Deux avertissements sur l'application](#10ter-deux-avertissements-sur-lapplication)
   - [11. Simulateur](#11-simulateur)
   - [12. Aide-mémoire des actions](#12-aide-mémoire-des-actions)
     - [Une seule fois](#une-seule-fois)
     - [Sans rien faire](#sans-rien-faire)
+    - [Lancer l'application](#lancer-lapplication)
     - [Quand vous le souhaitez](#quand-vous-le-souhaitez)
     - [Avant d'acheter](#avant-dacheter)
 
@@ -718,6 +731,33 @@ python3 -m venv .venv && source .venv/bin/activate   # recommandé
 pip install -r requirements.txt
 python run.py
 ```
+Sous PowerShell, l'activation se fait ainsi :
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+Vous devriez voir (.venv) apparaître en début de ligne. Ensuite :
+
+```powershell
+pip install -r requirements.txt
+python run.py
+```
+Si l'activation est refusée avec un message sur les scripts désactivés, c'est la stratégie d'exécution de PowerShell qui bloque. À lancer une fois :
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Cela n'autorise que les scripts locaux et ceux signés — c'est le réglage recommandé par Microsoft, et il ne s'applique qu'à votre compte.
+
+Deux alternatives si vous préférez ne rien changer :
+Invite de commandes (cmd) : .venv\Scripts\activate.bat
+Git Bash : la commande d'origine fonctionne telle quelle, source .venv/bin/activate — attention, sous Windows le dossier est Scripts et non bin, donc ce sera source .venv/Scripts/activate
+
+Pour quitter l'environnement virtuel, deactivate dans tous les cas.
+
+Rappel utile : sous Windows, c'est python ou py, pas python3. Toutes les commandes du mode d'emploi sont écrites en python3 — remplacez par ce qui fonctionne chez vous. L'environnement virtuel n'est d'ailleurs pas obligatoire : pip install -r requirements.txt directement fonctionne aussi, il isole simplement moins bien les dépendances.
 
 - Interface web : <http://localhost:8000>
 - Documentation interactive de l'API : <http://localhost:8000/docs>
