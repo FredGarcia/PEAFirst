@@ -5,3 +5,90 @@ BE0974294267;NYRSTAR;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) :
 BE0974298300;CANDELA INVEST;Action;volatilite_extreme;alerte;volatilité 204 % (SRI 7) : liquidité à vérifier
 BE0974299316;INVIBES ADVERTSING;Action;volatilite_extreme;alerte;volatilité 118 % (SRI 7) : liquidité à vérifier
 BE0974328602;METRICS IN BALANCE;Action;volatilite_nulle;alerte;volatilité 0.0 % : cours probablement figé
+BE0974487192;OXURION;Action;volatilite_extreme;alerte;volatilité 106 % (SRI 7) : liquidité à vérifier
+BE0974496284;OPTION;Action;volatilite_extreme;alerte;volatilité 103 % (SRI 7) : liquidité à vérifier
+BE0974501331;MATERIALISE;Action;serie_courte;alerte;196 séances seulement : indicateurs peu fiables
+BE0974502347;FLORIDIENNE;Action;volatilite_extreme;alerte;volatilité 97 % (SRI 7) : liquidité à vérifier
+CY0201332216;PELAGIC CREDIT;Action;serie_courte;alerte;119 séances seulement : indicateurs peu fiables
+CY0201461213;PELICAN AQUA HLDNG;Action;serie_courte;alerte;34 séances seulement : indicateurs peu fiables
+CZ0009008942;COLT;Action;serie_courte;alerte;97 séances seulement : indicateurs peu fiables
+CZ0009008942;COLT;Action;volatilite_extreme;alerte;volatilité 636 % (SRI 7) : liquidité à vérifier
+CZ0009008942;COLT;Action;drawdown_incoherent;alerte;volatilité 636 % mais drawdown -83.1 % : série probablement lacunaire
+ES0105549002;MONTEPINO LOGISTIC;Action;serie_courte;alerte;89 séances seulement : indicateurs peu fiables
+ES0105664009;HOTELES BESTPRICE;Action;serie_courte;alerte;146 séances seulement : indicateurs peu fiables
+ES0105664009;HOTELES BESTPRICE;Action;volatilite_extreme;alerte;volatilité 89 % (SRI 7) : liquidité à vérifier
+ES0105698007;OK PROPERTIES;Action;serie_courte;alerte;37 séances seulement : indicateurs peu fiables
+ES0105698007;OK PROPERTIES;Action;volatilite_nulle;alerte;volatilité 0.0 % : cours probablement figé
+ES0105744009;ANDINO GLOBAL;Action;volatilite_extreme;alerte;volatilité 100 % (SRI 7) : liquidité à vérifier
+FR0000030769;PLACOPLATRE;Action;serie_courte;alerte;85 séances seulement : indicateurs peu fiables
+FR0000033888;GEVELOT;Action;serie_courte;alerte;195 séances seulement : indicateurs peu fiables
+FR0000035784;EVERGREEN;Action;volatilite_extreme;alerte;volatilité 222 % (SRI 7) : liquidité à vérifier
+FR0000037475;CFI;Action;volatilite_extreme;alerte;volatilité 126 % (SRI 7) : liquidité à vérifier
+FR0000037871;CH.FER DEPARTEMENT;Action;serie_courte;alerte;59 séances seulement : indicateurs peu fiables
+FR0000037871;CH.FER DEPARTEMENT;Action;volatilite_extreme;alerte;volatilité 105 % (SRI 7) : liquidité à vérifier
+FR0000037871;CH.FER DEPARTEMENT;Action;drawdown_incoherent;alerte;volatilité 105 % mais drawdown -18.2 % : série probablement lacunaire
+FR0000038184;FIPP;Action;volatilite_extreme;alerte;volatilité 87 % (SRI 7) : liquidité à vérifier
+FR0000053415;G.A.I.;Action;volatilite_extreme;alerte;volatilité 83 % (SRI 7) : liquidité à vérifier
+FR0000053738;HOTELIM;Action;serie_courte;alerte;72 séances seulement : indicateurs peu fiables
+FR0000053738;HOTELIM;Action;volatilite_extreme;alerte;volatilité 102 % (SRI 7) : liquidité à vérifier
+FR0000053738;HOTELIM;Action;drawdown_incoherent;alerte;volatilité 102 % mais drawdown -19.3 % : série probablement lacunaire
+FR0000054371;SPEED RABBIT PIZZA;Action;volatilite_extreme;alerte;volatilité 99 % (SRI 7) : liquidité à vérifier
+FR0000060451;INSTALLUX;Action;serie_courte;alerte;124 séances seulement : indicateurs peu fiables
+FR0000060451;INSTALLUX;Action;volatilite_extreme;alerte;volatilité 104 % (SRI 7) : liquidité à vérifier
+FR0000060451;INSTALLUX;Action;drawdown_incoherent;alerte;volatilité 104 % mais drawdown -13.8 % : série probablement lacunaire
+FR0000060824;FINANCIERE MARJOS;Action;volatilite_extreme;alerte;volatilité 114 % (SRI 7) : liquidité à vérifier
+FR0000060824;FINANCIERE MARJOS;Action;sharpe_aberrant;attention;Sharpe 7.11 : vérifier la régularité de la série
+FR0000060824;FINANCIERE MARJOS;Action;performance_extreme;attention;performance 821 % : vérifier split ou regroupement
+FR0000061418;FIDUCIAL OFF.SOL.;Action;drawdown_incoherent;alerte;volatilité 23 % mais drawdown -2.8 % : série probablement lacunaire
+FR0000061780;AUGROS COSMETIC;Action;volatilite_extreme;alerte;volatilité 84 % (SRI 7) : liquidité à vérifier
+FR0000063307;TBSO;Action;volatilite_extreme;alerte;volatilité 142 % (SRI 7) : liquidité à vérifier
+FR0000064446;CATERING INTL SCES;Action;sharpe_aberrant;attention;Sharpe 3.39 : vérifier la régularité de la série
+FR0000064529;NSC GROUPE;Action;serie_courte;alerte;127 séances seulement : indicateurs peu fiables
+FR0000066961;BERNARD LOISEAU;Action;volatilite_extreme;alerte;volatilité 90 % (SRI 7) : liquidité à vérifier
+FR0000072373;EGIDE;Action;volatilite_extreme;alerte;volatilité 107 % (SRI 7) : liquidité à vérifier
+FR0000074072;BIGBEN INTERACTIVE;Action;volatilite_extreme;alerte;volatilité 113 % (SRI 7) : liquidité à vérifier
+FR0000074775;STRADIM ESPAC.FIN;Action;volatilite_extreme;alerte;volatilité 85 % (SRI 7) : liquidité à vérifier
+FR0000075954;RIBER;Action;volatilite_extreme;alerte;volatilité 80 % (SRI 7) : liquidité à vérifier
+FR0000076952;ARTOIS NOM.;Action;serie_courte;alerte;97 séances seulement : indicateurs peu fiables
+FR0000078321;SODITECH;Action;serie_courte;alerte;141 séances seulement : indicateurs peu fiables
+FR0000120669;North Atlantic En.;Action;serie_courte;alerte;189 séances seulement : indicateurs peu fiables
+FR0004010338;GROUPE JAJ;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+FR0004052561;PROACTIS SA;Action;volatilite_extreme;alerte;volatilité 225 % (SRI 7) : liquidité à vérifier
+FR0004153930;ATON;Action;volatilite_extreme;alerte;volatilité 165 % (SRI 7) : liquidité à vérifier
+FR0004155208;LOCASYSTEM INTL;Action;volatilite_extreme;alerte;volatilité 85 % (SRI 7) : liquidité à vérifier
+FR0004155687;MASTRAD;Action;volatilite_extreme;alerte;volatilité 192 % (SRI 7) : liquidité à vérifier
+FR0004163111;GENFIT;Action;sharpe_aberrant;attention;Sharpe 5.60 : vérifier la régularité de la série
+FR0004163111;GENFIT;Action;performance_extreme;attention;performance 316 % : vérifier split ou regroupement
+FR0004165801;HOTELS DE PARIS;Action;volatilite_extreme;alerte;volatilité 91 % (SRI 7) : liquidité à vérifier
+FR0004174712;ONLINEFORMAPRO;Action;volatilite_extreme;alerte;volatilité 81 % (SRI 7) : liquidité à vérifier
+FR0005854700;I2S;Action;serie_courte;alerte;151 séances seulement : indicateurs peu fiables
+FR0007080254;LES HOTELS BAVEREZ;Action;serie_courte;alerte;146 séances seulement : indicateurs peu fiables
+FR0010086371;IMALLIANCE;Action;volatilite_extreme;alerte;volatilité 105 % (SRI 7) : liquidité à vérifier
+FR0010095596;VALERIO TX;Action;volatilite_extreme;alerte;volatilité 158 % (SRI 7) : liquidité à vérifier
+FR0010095596;VALERIO TX;Action;sharpe_aberrant;attention;Sharpe 7.31 : vérifier la régularité de la série
+FR0010095596;VALERIO TX;Action;performance_extreme;attention;performance 1167 % : vérifier split ou regroupement
+FR0010106039;BODY ONE;Action;volatilite_extreme;alerte;volatilité 98 % (SRI 7) : liquidité à vérifier
+FR0010120402;THERACLION;Action;volatilite_extreme;alerte;volatilité 86 % (SRI 7) : liquidité à vérifier
+FR0010209809;SOC FRANC CASINOS;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+FR0010340711;AQUILA;Action;serie_courte;alerte;197 séances seulement : indicateurs peu fiables
+FR0010397232;NOVACYT;Action;volatilite_extreme;alerte;volatilité 106 % (SRI 7) : liquidité à vérifier
+FR0010424697;ETHERO;Action;volatilite_extreme;alerte;volatilité 87 % (SRI 7) : liquidité à vérifier
+FR0010487272;FINAXO;Action;volatilite_extreme;alerte;volatilité 99 % (SRI 7) : liquidité à vérifier
+FR0010500363;MIGUET ET ASSOCIES;Action;volatilite_extreme;alerte;volatilité 349 % (SRI 7) : liquidité à vérifier
+FR0010500363;MIGUET ET ASSOCIES;Action;performance_extreme;attention;performance 315 % : vérifier split ou regroupement
+FR0010523167;ROCTOOL;Action;volatilite_extreme;alerte;volatilité 161 % (SRI 7) : liquidité à vérifier
+FR0010523167;ROCTOOL;Action;performance_extreme;attention;performance 441 % : vérifier split ou regroupement
+FR0010641449;AGROGENERATION;Action;volatilite_extreme;alerte;volatilité 86 % (SRI 7) : liquidité à vérifier
+FR0010688465;WEACCESS GROUP;Action;volatilite_extreme;alerte;volatilité 142 % (SRI 7) : liquidité à vérifier
+FR0010688465;WEACCESS GROUP;Action;performance_extreme;attention;performance 273 % : vérifier split ou regroupement
+FR0010722819;KALRAY;Action;volatilite_extreme;alerte;volatilité 146 % (SRI 7) : liquidité à vérifier
+FR0010722819;KALRAY;Action;sharpe_aberrant;attention;Sharpe 6.45 : vérifier la régularité de la série
+FR0010722819;KALRAY;Action;performance_extreme;attention;performance 956 % : vérifier split ou regroupement
+FR0010823724;FRANCE TOURISME;Action;volatilite_extreme;alerte;volatilité 176 % (SRI 7) : liquidité à vérifier
+FR0010823724;FRANCE TOURISME;Action;performance_extreme;attention;performance 524 % : vérifier split ou regroupement
+FR0010889386;QWAMPLIFY;Action;serie_courte;alerte;184 séances seulement : indicateurs peu fiables
+FR0010908723;INTEGRAGEN;Action;volatilite_extreme;alerte;volatilité 127 % (SRI 7) : liquidité à vérifier
+FR0010959684;COLIPAYS;Action;volatilite_extreme;alerte;volatilité 112 % (SRI 7) : liquidité à vérifier
+FR0011005933;BIOSYNEX;Action;volatilite_extreme;alerte;volatilité 104 % (SRI 7) : liquidité à vérifier
+FR0011038348;KLARSEN;Action;volatilite_extreme;alerte;volatilité 163 % (SRI 7) : liquidité à vérifier
+FR0011049824;MEDIANTECHNOLOGIES;Action;volatilite_extreme;alerte;volatilité 87 % (SRI 7) : liquidité à vérifier
