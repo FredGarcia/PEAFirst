@@ -695,6 +695,46 @@ sans modification du code : les critères sont déjà déclarés.
 
 ---
 
+## 10bis. L'application PEAdvisor
+
+Le dépôt contient deux briques : la **chaîne de données** (`scripts/`), décrite
+ci-dessus, et l'**application PEAdvisor** (`peadvisor/`) — API REST FastAPI,
+base SQLite, interface web, scoring paramétrable depuis l'écran Paramètres,
+allocation, simulateur, watchlist, auto-observation et serveur MCP.
+
+```bash
+pip install -r requirements.txt
+python run.py                 # http://localhost:8000, Swagger sur /docs
+python -m pytest tests/       # 115 tests
+```
+
+**Le lien entre les deux.** L'application lit ses données par des *sources*
+branchables. La source **`peafirst`** lit le référentiel produit par la chaîne :
+
+| | jeu `seed` | source `peafirst` |
+|---|---|---|
+| Données | illustratives | réelles, collectées quotidiennement |
+| Éligibilité PEA | déclarative | vérifiée (régime foncier, nature, pays, relevés émetteurs, corrections) |
+| Réseau | aucun | aucun — la collecte a lieu en amont |
+
+`peafirst` est la source par défaut dans `config/settings.yaml`. Elle ne remonte
+que les instruments réellement collectés — 371 à ce jour sur 6 188 — car peupler
+la base de lignes vides donnerait un tableau de bord trompeur.
+
+Les cinq critères sans source européenne gratuite (potentiel, PER, croissance,
+dividende, consensus) restent **vides plutôt qu'inventés** : le score de
+l'application renormalise alors ses pondérations sur les critères présents,
+exactement comme `scripts/scoring.py`.
+
+> Les deux briques calculent chacune un score et une allocation, selon des
+> méthodes voisines mais distinctes. C'est assumé : la chaîne produit un
+> classement reproductible et versionné, l'application permet d'explorer des
+> pondérations interactivement. Ne pas confondre leurs résultats.
+
+**Clés API de l'application** : copier `config/cles_api.exemple.yaml` vers
+`config/cles_api.yaml` (fichier gitignoré) ou utiliser les variables
+d'environnement, qui priment. Ne jamais committer de clé : le dépôt est public.
+
 ## 11. Simulateur
 
 ```bash

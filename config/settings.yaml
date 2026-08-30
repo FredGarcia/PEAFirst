@@ -1,0 +1,94 @@
+# ============================================================
+# PEAdvisor — Paramètres généraux
+# Tout le paramétrage se fait ici, sans modification du code.
+# ============================================================
+
+app:
+  nom: PEAdvisor
+  langue: fr
+
+donnees:
+  # Source de données active. Disponibles :
+  #   seed                  — jeu local de démonstration (sans réseau)
+  #   stooq                 — historiques réels, GRATUIT et SANS CLÉ
+  #   yahoo                 — via yfinance (non officiel)
+  #   alphavantage, twelvedata, financialmodelingprep, eodhd, marketstack
+  #                         — nécessitent une clé API (config/cles_api.yaml
+  #                           ou variable d'environnement ; voir l'écran
+  #                           Sources et docs/09-sources-donnees.md)
+  #   peafirst              — référentiel local produit par scripts/ : données
+  #                           réelles, éligibilité PEA vérifiée, aucun quota
+  #                           (source par défaut ; « seed » pour le jeu
+  #                           illustratif hors ligne)
+  source_active: peafirst
+  # Activer la poche PEA-PME (option du cahier des charges)
+  inclure_pea_pme: false
+  # Remplissage initial : plafond du nombre de VRAIES valeurs chargées par type
+  # depuis le référentiel réel (peadvisor/data/seed_assets.json). Aucune valeur
+  # n'est inventée ; les cours/indicateurs du seed sont indicatifs et remplacés
+  # par des données réelles via « Réactualiser » (scraping Boursorama par ticker).
+  remplissage_initial:
+    actions: 300
+    etf: 30
+    opcvm: 30
+
+mise_a_jour:
+  # Mise à jour automatique planifiée (APScheduler)
+  automatique: false
+  # "quotidienne" ou "hebdomadaire"
+  frequence: quotidienne
+  # Heure d'exécution (HH:MM, heure locale du serveur)
+  heure: "07:30"
+
+allocation:
+  # Contraintes de diversification appliquées par le moteur d'allocation
+  poids_max_par_ligne: 0.10   # 10 % maximum du capital sur une même ligne
+  lignes_min: 8               # nombre minimal de lignes proposées
+  lignes_max: 25              # nombre maximal de lignes proposées
+  poids_max_par_secteur: 0.30 # 30 % maximum sur un même secteur
+  part_min_etf_opcvm: 0.30    # part minimale de fonds (ETF/OPCVM) dans la poche cœur
+
+quantitatif:
+  # Taux sans risque annuel utilisé pour les ratios de Sharpe et Sortino
+  # (valeur de repli si la source macro est indisponible ou "fixe")
+  taux_sans_risque_pct: 2.5
+
+macro:
+  # Origine du taux sans risque : "fixe" (valeur ci-dessus) ou "bce"
+  # (rendement 10 ans des emprunts AAA de la zone euro, BCE, gratuit sans clé)
+  taux_sans_risque_source: fixe
+  # Devise de référence du portefeuille (conversions futures via la BCE)
+  devise_reference: EUR
+
+simulation:
+  # Écart de rendement annuel des scénarios = coefficient × volatilité / racine(horizon).
+  # La dispersion annualisée se resserre mécaniquement avec l'horizon.
+  coefficient_scenario: 1.0
+  volatilite_defaut_pct: 15.0
+
+fiscalite_pea:
+  # Après le seuil : gains exonérés d'impôt sur le revenu, seuls les
+  # prélèvements sociaux s'appliquent. Avant : prélèvement forfaitaire unique.
+  seuil_exoneration_ir_annees: 5
+  prelevements_sociaux_pct: 17.2
+  pfu_impot_pct: 12.8   # part « impôt » du PFU (12,8 % IR + 17,2 % PS = 30 %)
+
+# ------------------------------------------------------------
+# Couche de second ordre : auto-observation et auto-amélioration
+# ------------------------------------------------------------
+meta:
+  # Auto-diagnostic exécuté après chaque mise à jour planifiée
+  observer_apres_maj: true
+  # Données considérées périmées au-delà de N jours
+  fraicheur_max_jours: 7
+  # Variation de score entre deux mises à jour considérée comme une dérive
+  seuil_derive_score: 20
+  # Sous-note dont l'écart-type est inférieur à ce seuil = critère peu discriminant
+  seuil_discrimination: 5
+  optimisation:
+    # true : les pondérations optimisées sont appliquées automatiquement
+    # false : elles restent des suggestions à valider dans l'écran Système
+    auto_appliquer: false
+    pas: 5                 # pas d'exploration d'une pondération (points)
+    ajustement_max: 15     # écart maximal par critère vs pondération actuelle
+    gain_minimal: 0.02     # gain de corrélation minimal pour émettre une suggestion

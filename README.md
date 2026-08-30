@@ -1,7 +1,18 @@
 # PEAFirst
 
-Chaîne de données du projet **PEA Advisor** : de la liste brute des instruments
-Euronext jusqu'aux scores, aux allocations et au tableau de bord.
+Deux briques complémentaires réunies dans un même dépôt :
+
+- **la chaîne de données** (`scripts/`) — de la liste brute des instruments
+  Euronext jusqu'aux scores, au SRI et au tableau de bord statique. Sans aucune
+  dépendance, exécutée quotidiennement par GitHub Actions ;
+- **l'application PEAdvisor** (`peadvisor/`) — API REST FastAPI, base SQLite,
+  interface web, scoring paramétrable, allocation, simulateur, watchlist et
+  serveur MCP.
+
+Les deux se rejoignent en un point : la source **`peafirst`** de l'application
+lit le référentiel produit par la chaîne. L'application dispose ainsi de
+données réelles et d'une éligibilité PEA vérifiée, là où son jeu `seed` reste
+illustratif.
 
 > **[Mode d'emploi → `docs/MODE_EMPLOI.md`](docs/MODE_EMPLOI.md)**
 > Installation, clés d'API, chaîne de traitement pas à pas, réglages,
@@ -22,7 +33,8 @@ Euronext jusqu'aux scores, aux allocations et au tableau de bord.
 | Risque | SRI estimé (bornes PRIIPS), volatilité, drawdown |
 | Décision | score pondéré paramétrable, TOPSIS, moteur d'allocation SRI |
 | Simulation | versements programmés, horizons 2 à 10 ans, scénarios, fiscalité 2026 |
-| Restitution | tableau de bord HTML autonome, modules Apps Script |
+| Restitution | tableau de bord HTML autonome, API REST, interface web, modules Apps Script |
+| Agent | serveur MCP pour piloter l'application depuis Claude Desktop |
 
 Deux contraintes structurent tout le projet :
 
@@ -255,13 +267,29 @@ et l'exécution du lendemain reprend exactement où celle-ci s'est arrêtée.
 ## Contenu du dépôt
 
 ```
-data/        base ISIN, identifiants, éligibilité PEA, marché, scores,
+data/        base ISIN, identifiants, éligibilité PEA, marché, scores, SRI,
              anomalies, historique, tableau de bord, caches de reprise
-scripts/     collecte, analyse, décision, restitution (Python)
+scripts/     chaîne de données : collecte, analyse, décision, restitution
              scoring.gs, allocation.gs (modules Apps Script génériques)
-docs/        mode d'emploi
-.github/     validate.yml (à chaque push), collecte-marche.yml (quotidien)
+peadvisor/   application : modèles, routeurs, services, sources
+config/      settings.yaml, scoring.yaml, clés API (gitignorées)
+static/      interface web
+tests/       suite de tests de l'application
+docs/        mode d'emploi et dossier de conception
+.github/     validate.yml (référentiel), tests.yml (application),
+             collecte-marche.yml (collecte quotidienne)
 ```
+
+## Lancer l'application
+
+```bash
+pip install -r requirements.txt
+python run.py            # http://localhost:8000, Swagger sur /docs
+python -m pytest tests/  # 115 tests
+```
+
+Pour l'alimenter avec les données réelles plutôt que le jeu illustratif,
+choisir `source_active: peafirst` dans `config/settings.yaml`.
 
 Chaque script porte sa documentation en tête (`--help`). Le détail des commandes,
 des options et des réglages est dans le [mode d'emploi](docs/MODE_EMPLOI.md).

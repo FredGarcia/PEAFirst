@@ -1,3 +1,23 @@
+# --- PEAFirst : chaîne de données ---
 *.tmp
 .keys/
+
+# --- PEAdvisor : application ---
 __pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.coverage
+dist/
+build/
+*.egg-info/
+
+# Base locale, régénérée au lancement
+*.db
+*.sqlite3
+
+# Secrets : ne jamais committer. Le dépôt est public.
+config/cles_api.yaml
+config/profil.yaml
+config/profils_scoring.yaml

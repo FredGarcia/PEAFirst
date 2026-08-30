@@ -1,0 +1,252 @@
+/* PEAdvisor — thème clair/sombre, palette validée (voir docs) */
+
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --serie-1: #2a78d6;  /* ACTION */
+  --serie-2: #008300;  /* ETF */
+  --serie-3: #e87ba4;  /* OPCVM */
+  --bon: #0ca30c;
+  --critique: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --serie-1: #3987e5;
+    --serie-2: #008300;
+    --serie-3: #d55181;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  font-size: 14px;
+}
+.layout { display: flex; min-height: 100vh; }
+
+/* --- Navigation ---------------------------------------------------- */
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--grid);
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+/* Poignée de redimensionnement de la barre latérale. */
+.sidebar-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+}
+.sidebar-resize:hover { background: var(--serie-1); opacity: 0.4; }
+.logo { font-size: 20px; font-weight: 700; padding: 6px 10px 18px; }
+.logo span { color: var(--serie-1); }
+.nav-link {
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.nav-link:hover { background: var(--grid); }
+.nav-link.actif { background: var(--serie-1); color: #fff; }
+.sidebar-pied { margin-top: auto; padding: 10px; font-size: 12px; }
+.sidebar-pied a { color: var(--muted); }
+
+.contenu { flex: 1; padding: 24px 28px; max-width: 1200px; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 22px 0 10px; color: var(--ink-2); }
+.muted { color: var(--muted); }
+.sous-titre { color: var(--muted); margin: 0 0 18px; }
+
+/* --- Tuiles KPI ----------------------------------------------------- */
+.tuiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.tuile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.tuile .libelle { color: var(--muted); font-size: 12px; }
+.tuile .valeur { font-size: 26px; font-weight: 650; margin-top: 2px; }
+.tuile .unite { font-size: 14px; color: var(--ink-2); font-weight: 400; }
+
+/* --- Graphiques en barres (HTML pur) -------------------------------- */
+.cartes { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.carte {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+}
+.carte h3 { margin: 0 0 12px; font-size: 14px; }
+.barre-ligne { display: grid; grid-template-columns: 150px 1fr 42px; gap: 8px; align-items: center; margin: 6px 0; }
+.barre-ligne .etiquette { color: var(--ink-2); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barre-piste { display: block; background: none; height: 14px; position: relative; }
+.barre-piste::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--baseline); }
+.barre {
+  display: block;
+  height: 14px;
+  background: var(--serie-1);
+  border-radius: 0 4px 4px 0;
+  min-width: 2px;
+}
+.barre-ligne .nombre { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* --- Tableaux -------------------------------------------------------- */
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--grid); font-size: 13px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; }
+th.triable { cursor: pointer; user-select: none; white-space: nowrap; }
+th.triable:hover { filter: brightness(1.15); }
+
+/* Tableau de valeurs : en-tête figé au défilement + en-tête coloré. */
+.table-scroll.defilable { max-height: 68vh; overflow-y: auto; }
+table.valeurs thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--entete, var(--surface));
+  color: #fff;
+}
+table.valeurs thead th.triable:hover { filter: brightness(1.1); }
+.btn-suppr { color: var(--critique); border: none; background: none; cursor: pointer; font-size: 15px; }
+.btn-suppr:hover { filter: brightness(1.2); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: color-mix(in srgb, var(--serie-1) 6%, transparent); }
+
+/* Colonnes figées au défilement horizontal (Nom / ISIN / Secteur). */
+table.valeurs td.col-fixe, table.valeurs th.col-fixe {
+  position: sticky;
+  z-index: 3;
+  background: var(--surface);
+  border-right: 1px solid var(--grid);
+}
+table.valeurs thead th.col-fixe { z-index: 5; background: var(--entete, var(--surface)); }
+tr:hover td.col-fixe { background: color-mix(in srgb, var(--serie-1) 6%, var(--surface)); }
+
+/* Fenêtre modale (confirmations / erreurs). */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000; padding: 20px;
+  background: rgba(0, 0, 0, .45);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal {
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px 22px; max-width: 520px; width: 100%; max-height: 84vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .3);
+}
+.modal h3 { margin: 0 0 10px; flex: 0 0 auto; }
+.modal-corps { font-size: 14px; margin-bottom: 16px; overflow-y: auto; flex: 1 1 auto; }
+.modal-corps ul { margin: 6px 0 0; padding-left: 18px; }
+.modal-corps li { margin-bottom: 4px; word-break: break-word; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex: 0 0 auto; }
+
+.lien-source { color: var(--serie-1); text-decoration: none; }
+.lien-source:hover { text-decoration: underline; }
+
+/* Groupes de colonnes (Paramètres) : entête + boutons tout/réinit. */
+.groupe-colonnes .entete-groupe {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.actions-groupe { display: inline-flex; gap: 8px; }
+.actions-groupe button { padding: 4px 10px; font-size: 12px; }
+
+/* Boutons de source de la barre de recherche : état d'acquisition (diagnostic).
+   Bleu (défaut) = données disponibles · orange clair = test OK sans donnée ·
+   gris = indisponible. */
+.btn-source.src-disponible { background: var(--serie-1); color: #fff; }
+.btn-source.src-vide { background: #eba94f; color: #3a2a0e; }
+.btn-source.src-indispo { background: var(--grid); color: var(--muted); }
+.btn-source:disabled { cursor: default; filter: none; opacity: .8; }
+
+.pastille { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: baseline; }
+.pastille.ACTION { background: var(--serie-1); }
+.pastille.ETF { background: var(--serie-2); }
+.pastille.OPCVM { background: var(--serie-3); }
+
+.score-badge { font-weight: 650; font-variant-numeric: tabular-nums; }
+.hausse { color: var(--bon); }
+.baisse { color: var(--critique); }
+
+/* --- Formulaires ------------------------------------------------------ */
+form.panneau, .panneau {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.champs { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; }
+label.champ { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-2); }
+input, select, button {
+  font: inherit;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--baseline);
+  background: var(--page);
+  color: var(--ink);
+}
+button { background: var(--serie-1); color: #fff; border: none; cursor: pointer; }
+button:hover { filter: brightness(1.08); }
+button.secondaire { background: var(--grid); color: var(--ink); }
+
+.note-bas { font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+/* --- Interrupteurs segmentés (profil investisseur) -------------------- */
+.reglage { display: flex; align-items: center; gap: 14px; margin: 10px 0; flex-wrap: wrap; }
+.reglage .libelle-reglage { min-width: 170px; color: var(--ink-2); font-size: 13px; }
+.segments { display: inline-flex; border: 1px solid var(--baseline); border-radius: 8px; overflow: hidden; }
+.segments button {
+  border: none;
+  border-radius: 0;
+  background: var(--page);
+  color: var(--ink);
+  padding: 7px 14px;
+  cursor: pointer;
+  border-right: 1px solid var(--baseline);
+  font-size: 13px;
+}
+.segments button:last-child { border-right: none; }
+.segments button.actif { background: var(--serie-1); color: #fff; }
+
+/* --- Sélecteur de colonnes par tableau (Paramètres) ------------------- */
+.groupe-colonnes { margin-bottom: 14px; }
+.groupe-colonnes .libelle-reglage { display: block; margin-bottom: 6px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.cases-colonnes { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.case-colonne { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.case-colonne input { padding: 0; margin: 0; width: auto; }

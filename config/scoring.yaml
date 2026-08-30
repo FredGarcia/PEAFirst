@@ -1,0 +1,40 @@
+ponderations:
+  potentiel: 15.0
+  valorisation: 5.0
+  croissance: 20.0
+  qualite: 10.0
+  solidite: 5.0
+  momentum: 30.0
+  dividende: 0.0
+  volatilite: 5.0
+  consensus: 5.0
+  esg: 5.0
+bornes:
+  potentiel:
+    min: -20.0
+    max: 50.0
+  per:
+    min: 5.0
+    max: 40.0
+  croissance:
+    min: -10.0
+    max: 30.0
+  qualite:
+    min: 0.0
+    max: 25.0
+  solidite:
+    min: -0.5
+    max: 2.0
+  momentum:
+    min: -30.0
+    max: 40.0
+  dividende:
+    min: 0.0
+    max: 8.0
+  volatilite:
+    min: 5.0
+    max: 40.0
+  consensus:
+    min: 1.0
+    max: 5.0
+note_donnee_manquante: 50

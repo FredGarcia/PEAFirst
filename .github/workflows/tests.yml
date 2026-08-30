@@ -1,0 +1,54 @@
+name: Tests de l'application
+
+# La chaîne de données (scripts/) est validée par validate.yml, qui n'a besoin
+# d'aucune dépendance. Ce workflow-ci couvre l'application PEAdvisor, qui en a.
+# Les deux restent séparés pour qu'une panne d'installation de dépendances ne
+# masque jamais un problème d'intégrité du référentiel.
+
+on:
+  push:
+    paths:
+      - 'peadvisor/**'
+      - 'tests/**'
+      - 'config/**'
+      - 'mcp_server.py'
+      - 'run.py'
+      - 'requirements.txt'
+      - '.github/workflows/tests.yml'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Suite de tests
+        run: python3 -m pytest tests/ -q
+
+      - name: Vérifier que la source peafirst lit le référentiel réel
+        # Garde-fou d'intégration : le lien entre la chaîne de données et
+        # l'application est le point le plus fragile de ce dépôt, puisqu'il
+        # traverse deux univers de code qui évoluent séparément.
+        run: |
+          python3 - <<'PY'
+          from peadvisor.sources import REGISTRE
+          actifs = REGISTRE["peafirst"]().recuperer()
+          assert actifs, "la source peafirst ne remonte aucun actif"
+          sans_cours = [a for a in actifs if a["cours"] is None]
+          assert not sans_cours, f"{len(sans_cours)} actif(s) sans cours"
+          print(f"{len(actifs)} actifs, "
+                f"{sum(1 for a in actifs if a['eligible_pea'])} éligibles PEA")
+          PY
