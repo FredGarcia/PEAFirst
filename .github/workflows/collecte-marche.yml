@@ -98,6 +98,7 @@ jobs:
           if [ "$MODE" = "openfigi" ]; then
             python3 scripts/enrich_openfigi.py --tout
             python3 scripts/enrich_pea.py
+            python3 scripts/enrich_pea_actions.py --resume
           else
             python3 scripts/enrich_marche.py --etat --filtre "$FILTRE"
             args="--filtre $FILTRE --limite $LIMITE"
@@ -111,8 +112,10 @@ jobs:
             fi
           fi
 
-      - name: Recalculer les scores
-        run: python3 scripts/scoring.py --top 10
+      - name: Recalculer l'éligibilité et les scores
+        run: |
+          python3 scripts/enrich_pea_actions.py
+          python3 scripts/scoring.py --top 10
 
       - name: Détecter les anomalies et enregistrer la progression
         run: |
@@ -133,7 +136,8 @@ jobs:
                   data/base_isin_scores.csv data/dashboard.html \
                   data/anomalies.csv data/historique_couverture.csv \
                   data/openfigi_cache.csv data/base_isin_figi.csv \
-                  data/base_isin_fonds_pea.csv
+                  data/base_isin_fonds_pea.csv data/base_isin_actions_pea.csv \
+                  data/corrections_pea.csv
           if git diff --cached --quiet; then
             echo "Aucune donnée nouvelle : rien à publier."
             exit 0

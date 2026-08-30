@@ -163,10 +163,16 @@ def main():
         if chemin_fonds.exists():
             eligibles = {r["ISIN"] for r in lire_csv(chemin_fonds)
                          if r.get("PEA_eligible") == "OUI"}
-        base = {r["ISIN"]: r for r in lire_csv(data / "base_isin.csv")}
-        for isin, r in base.items():
-            if r["Type"] == "Action" and r.get("PEA_indicatif") == "OUI":
-                eligibles.add(isin)
+        # Les actions passent par base_isin_actions_pea.csv : PEA_indicatif
+        # repose sur le seul préfixe pays et retient des foncières et des bons
+        # qui ne sont pas éligibles.
+        chemin_actions = data / "base_isin_actions_pea.csv"
+        if chemin_actions.exists():
+            eligibles |= {r["ISIN"] for r in lire_csv(chemin_actions)
+                          if r.get("PEA_eligible") == "OUI"}
+        else:
+            print("base_isin_actions_pea.csv absent : lancer "
+                  "scripts/enrich_pea_actions.py pour une éligibilité fiable.")
 
     candidats = []
     for isin, s in scores.items():

@@ -167,6 +167,8 @@ def construire(data, top, seuil):
     scores = lire(data / "base_isin_scores.csv")
     scores_idx = {r["ISIN"]: r for r in scores}
     figi = {r["ISIN"]: r for r in lire(data / "base_isin_figi.csv")}
+    actions_pea = {r["ISIN"]: r for r in lire(data / "base_isin_actions_pea.csv")}
+    corrections = lire(data / "corrections_pea.csv")
     anomalies = lire(data / "anomalies.csv")
     histo = lire(data / "historique_couverture.csv")
 
@@ -186,7 +188,12 @@ def construire(data, top, seuil):
         m = marche_idx.get(isin, {})
         s = scores_idx.get(isin, {})
         f = fonds.get(isin, {})
-        pea = f.get("PEA_eligible") or ("OUI" if r.get("PEA_indicatif") == "OUI" else "NON")
+        # L'éligibilité vient des fichiers dédiés : le préfixe pays de l'ISIN
+        # classait « OUI » des foncières et des bons non éligibles.
+        a = actions_pea.get(isin, {})
+        pea = f.get("PEA_eligible") or a.get("PEA_eligible") or "A_VERIFIER"
+        methode = f.get("PEA_methode") or a.get("PEA_methode") or ""
+        motif = f.get("PEA_source") or a.get("PEA_source") or ""
         etat = "note" if s else ("collecte" if m else "attente")
         lignes.append([
             isin,
@@ -208,6 +215,8 @@ def construire(data, top, seuil):
             else ("attention" if ano_par_isin.get(isin) else ""),
             nombre(m.get("Sharpe")),
             nombre(m.get("Drawdown_max_pct")),
+            methode,
+            motif[:90],
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -294,6 +303,11 @@ def construire(data, top, seuil):
         "__NB_POINTS__": str(len(histo)),
         "__NB_ANO__": str(len(anomalies)),
         "__NB_ANO_INST__": str(len(ano_par_isin)),
+        "__NB_CORR__": str(len(corrections)),
+        "__CORRECTIONS__": json.dumps(
+            {r["ISIN"]: [r.get("PEA_eligible", ""), r.get("Motif", ""),
+                         r.get("Source", "")] for r in corrections
+             if r.get("ISIN")}, ensure_ascii=False, separators=(",", ":")),
         "__ANOMALIES__": "".join(
             f'<tr><td>{html.escape(a["Nom"][:30])}</td>'
             f'<td><span class="grav {html.escape(a["Gravite"])}">'
@@ -434,6 +448,20 @@ border:1px solid var(--trait);border-radius:3px}
 .actions .sep{flex:1}
 .actions .cnt{font-size:12.5px;color:var(--encre-2);font-family:"IBM Plex Mono",monospace}
 button.mini{font-size:12px;padding:5px 10px}
+.corr{margin-top:14px;padding:15px;border:1px solid var(--manquant);
+border-radius:3px;background:#fdf8f1}
+.corr[hidden]{display:none}
+.corr .champs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.corr select,.corr input[type=text]{font-family:inherit;font-size:13px;padding:6px 8px;
+border:1px solid var(--trait);border-radius:3px;background:#fff;color:inherit}
+.corr input[type=text]{flex:1 1 240px}
+.corr ul{list-style:none;margin:10px 0 0;padding:0;font-size:13px;
+max-height:190px;overflow-y:auto}
+.corr li{display:flex;gap:9px;align-items:baseline;padding:4px 0;
+border-bottom:1px solid #f0e6d8}
+.corr li b{font-family:"IBM Plex Mono",monospace}
+.corr li .m{flex:1;color:var(--encre-2)}
+.corr li button{padding:1px 7px;font-size:11px}
 .pilote{margin-top:14px;padding:15px;border:1px solid var(--couvert);
 border-radius:3px;background:#f2f8f7}
 .pilote h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:13px;
@@ -538,6 +566,7 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     <button type="button" class="sec mini" id="telecharger" disabled>File d'attente</button>
     <button type="button" class="sec mini" id="cmdAlloc" disabled>Commande d'allocation</button>
     <button type="button" class="sec mini" id="pilote">Piloter la collecte</button>
+    <button type="button" class="sec mini" id="corriger" disabled>Corriger l'éligibilité PEA</button>
     <span class="sep"></span>
     <button type="button" class="sec mini" id="vider" disabled>Vider la sélection</button>
   </div>
@@ -567,6 +596,31 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
       <span id="pagination"></span>
       <button type="button" class="sec" id="pagePlus">Suivant</button>
     </span>
+  </div>
+
+  <div class="corr" id="corr" hidden>
+    <strong>Corriger l'éligibilité PEA</strong>
+    <p class="note" style="margin-top:4px">
+      L'éligibilité est déduite de règles automatiques : régime foncier, nature
+      de l'instrument, pays d'émission. Ces règles se trompent — une correction
+      saisie ici <b>prime sur toutes</b>. Elle prend effet à la prochaine
+      exécution de <code>enrich_pea_actions.py</code>, après avoir remplacé
+      <code>data/corrections_pea.csv</code> par le fichier téléchargé.
+    </p>
+    <div class="champs">
+      <select id="cVal" aria-label="Éligibilité corrigée">
+        <option value="NON">NON — réservée au compte-titres</option>
+        <option value="OUI">OUI — éligible au PEA</option>
+        <option value="A_VERIFIER">A_VERIFIER — statut incertain</option>
+      </select>
+      <input type="text" id="cMotif" placeholder="Motif (ex. : foncière, statut SIIC)"
+             aria-label="Motif de la correction">
+      <button type="button" id="cAjouter">Appliquer à la sélection</button>
+    </div>
+    <ul id="cListe"></ul>
+    <p class="note" id="cVide">Aucune correction enregistrée.</p>
+    <button type="button" id="cTelecharger">Télécharger corrections_pea.csv</button>
+    <button type="button" class="sec" id="cFermer">Fermer</button>
   </div>
 
   <div class="pilote" id="pil" hidden>
@@ -690,7 +744,8 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 "use strict";
 // Colonnes : 0 isin,1 nom,2 type,3 pays,4 pea,5 etat,6 score,7 couv,
 //            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
-//            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown
+//            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
+//            18 methode PEA,19 motif PEA
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -804,7 +859,8 @@ function rendre(){
       "<td>" + esc(r[1]) + drapeau(r) + '<br><span class="ty">' + esc(r[0]) + "</span></td>" +
       '<td class="masq-s ty">' + esc(r[2]) + "</td>" +
       '<td class="masq-s ty">' + esc(r[3]) + "</td>" +
-      '<td class="ty">' + esc(r[4]) + "</td>" +
+      '<td class="ty" title="' + esc((r[18] || "") + (r[19] ? " — " + r[19] : "")) +
+        '">' + esc(r[4]) + "</td>" +
       '<td><span class="etat ' + esc(r[5]) + '">' + libelleEtat(r[5]) + "</span></td>" +
       '<td class="nu">' + cell(r[6]) + "</td>" +
       '<td class="nu masq-s">' + cell(r[8], "%") + "</td>" +
@@ -831,7 +887,7 @@ function majPanneaux(){
   $("compte").textContent = texte;
   $("cnt").textContent = texte;
   // Un bouton sans objet est désactivé plutôt que silencieusement inopérant.
-  ["copIsin", "telecharger", "cmdAlloc", "vider"].forEach(function(id){
+  ["copIsin", "telecharger", "cmdAlloc", "vider", "corriger"].forEach(function(id){
     $(id).disabled = (n === 0);
   });
   majComp();
@@ -992,6 +1048,66 @@ $("cmdAlloc").addEventListener("click", function(){
   presse("python3 scripts/allocation.py --capital 10000 --risque 5 \\\n" +
          "    --horizon 10 --objectif croissance --pea-uniquement",
          this, "Commande copiée");
+});
+
+// Corrections d'éligibilité. Elles priment sur les règles automatiques ;
+// le fichier téléchargé remplace data/corrections_pea.csv.
+var CORR = __CORRECTIONS__;
+
+function majCorr(){
+  var cles = Object.keys(CORR);
+  var liste = $("cListe");
+  $("cVide").hidden = cles.length > 0;
+  $("cTelecharger").disabled = cles.length === 0;
+  var index = Object.create(null);
+  D.forEach(function(r){ if (CORR[r[0]]) index[r[0]] = r[1]; });
+  liste.innerHTML = cles.map(function(i){
+    var c = CORR[i];
+    return "<li><b>" + esc(c[0]) + "</b><span>" + esc(index[i] || i) +
+      '</span><span class="m">' + esc(c[1] || "") + "</span>" +
+      '<button type="button" class="sec" data-sup="' + esc(i) + '">retirer</button></li>';
+  }).join("");
+}
+
+$("corriger").addEventListener("click", function(){
+  var bloc = $("corr");
+  bloc.hidden = !bloc.hidden;
+  if (!bloc.hidden) majCorr();
+});
+$("cFermer").addEventListener("click", function(){ $("corr").hidden = true; });
+
+$("cAjouter").addEventListener("click", function(){
+  var isins = Object.keys(choix);
+  if (!isins.length){ retour(this, "Aucune ligne sélectionnée"); return; }
+  var valeur = $("cVal").value;
+  var motif = $("cMotif").value.trim() || "correction manuelle";
+  isins.forEach(function(i){ CORR[i] = [valeur, motif, "tableau de bord"]; });
+  majCorr();
+  retour(this, isins.length + " correction(s) enregistrée(s)");
+});
+
+$("cListe").addEventListener("click", function(e){
+  var b = e.target;
+  if (!b.dataset || !b.dataset.sup) return;
+  delete CORR[b.dataset.sup];
+  majCorr();
+});
+
+$("cTelecharger").addEventListener("click", function(){
+  var jour = new Date().toISOString().slice(0, 10);
+  function champ(t){
+    t = String(t === null || t === undefined ? "" : t);
+    return (t.indexOf(";") >= 0 || t.indexOf('"') >= 0)
+      ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  var lignes = ["ISIN;PEA_eligible;Motif;Source;Date"];
+  Object.keys(CORR).sort().forEach(function(i){
+    var c = CORR[i];
+    lignes.push([i, c[0], champ(c[1]), champ(c[2] || "tableau de bord"), jour].join(";"));
+  });
+  telecharger("corrections_pea.csv", lignes.join("\r\n") + "\r\n",
+              "text/csv;charset=utf-8");
+  retour(this, Object.keys(CORR).length + " correction(s) exportée(s)");
 });
 
 function majPilote(){

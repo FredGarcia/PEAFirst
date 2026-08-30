@@ -273,6 +273,47 @@ réplication physique dont l'achat entraînerait la clôture du plan.
 liste émetteur, mention « PEA » dans le nom, classe d'actifs inéligible, pays
 hors EEE, indice européen, puis `A_VERIFIER` par défaut.
 
+### 4.3bis Éligibilité PEA des actions
+
+```bash
+python3 scripts/enrich_pea_actions.py --resume
+```
+
+Produit `data/base_isin_actions_pea.csv`. La colonne `PEA_indicatif` de la base
+repose sur le seul préfixe pays de l'ISIN : elle classait « OUI » des titres
+non éligibles. Ce script applique des règles plus fines, par priorité
+décroissante :
+
+| Priorité | Règle | Effet |
+|---|---|---|
+| 1 | correction utilisateur (`corrections_pea.csv`) | fait toujours foi |
+| 2 | régime foncier (`Type_instrument = REIT`) | **NON** |
+| 3 | bon ou droit de souscription | **NON** |
+| 4 | pays d'émission hors EEE | **NON** |
+| 5 | nature incertaine (préférence, certificat, action d'épargne…) | **A_VERIFIER** |
+| 6 | action ordinaire émise dans l'EEE | **OUI** |
+
+> **Foncières cotées.** Les SIIC ne sont plus éligibles au PEA depuis le
+> 21 octobre 2011, et il en va de même des régimes européens équivalents :
+> Sicafi/SIR belge, SOCIMI espagnol, FBI néerlandais, SIIQ italien, G-REIT
+> allemand, UK-REIT. La règle exclut donc 68 titres que l'ancienne méthode
+> retenait — Klépierre, Gecina, Unibail, Icade, Covivio et leurs équivalents
+> européens. Loger un titre inéligible dans un PEA expose à la clôture du plan.
+
+**Corriger une éligibilité.** Les règles se trompent : elles s'appuient sur la
+classification OpenFIGI, qui n'est ni exhaustive ni infaillible. Depuis le
+tableau de bord :
+
+1. filtrer et cocher les lignes concernées ;
+2. bouton **Corriger l'éligibilité PEA** ;
+3. choisir `OUI`, `NON` ou `A_VERIFIER`, saisir un motif ;
+4. **Appliquer à la sélection**, puis **Télécharger corrections_pea.csv** ;
+5. remplacer `data/corrections_pea.csv` par le fichier obtenu ;
+6. relancer `python3 scripts/enrich_pea_actions.py`.
+
+Le fichier est cumulatif : il contient toutes les corrections, y compris celles
+déjà enregistrées. Une correction prime sur toutes les règles automatiques.
+
 ### 4.4 Données de marché et indicateurs
 
 ```bash
@@ -408,6 +449,7 @@ hors ligne.
 | **Commande d'allocation** | copie une commande `allocation.py` prête à ajuster | si sélection |
 | **Vider la sélection** | décoche tout | si sélection |
 | **Piloter la collecte** | ouvre un panneau qui compose les paramètres du workflow et donne le lien vers *Run workflow* | toujours |
+| **Corriger l'éligibilité PEA** | marque les lignes sélectionnées OUI/NON/A_VERIFIER et exporte `corrections_pea.csv` | si sélection |
 
   Les boutons sans objet sont **désactivés** plutôt que silencieusement
   inopérants, et chaque action confirme son effet sur le bouton lui-même
@@ -638,6 +680,7 @@ données, les anomalies, l'historique et le tableau de bord.
 | Tester une allocation | `allocation.py --capital … --risque … --horizon … --objectif …` |
 | Changer les pondérations du score | éditer `data/scoring_params.json`, puis `scoring.py` |
 | Confirmer l'éligibilité d'un ETF | fiche de l'émetteur, puis `maj_pea_emetteurs.py --merge` |
+| Corriger l'éligibilité d'une action | Tableau de bord → cocher → **Corriger l'éligibilité PEA** → télécharger → `enrich_pea_actions.py` |
 
 ### Avant d'acheter
 

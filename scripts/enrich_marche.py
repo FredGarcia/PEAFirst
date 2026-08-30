@@ -408,9 +408,11 @@ def main():
         if chemin_fonds.exists():
             eligibles = {r["ISIN"] for r in lire_csv(chemin_fonds)
                          if r.get("PEA_eligible") in ("OUI", "PROBABLE")}
-        univers = [r for r in base
-                   if r["ISIN"] in eligibles
-                   or (r["Type"] == "Action" and r.get("PEA_indicatif") == "OUI")]
+        chemin_actions = data / "base_isin_actions_pea.csv"
+        if chemin_actions.exists():
+            eligibles |= {r["ISIN"] for r in lire_csv(chemin_actions)
+                          if r.get("PEA_eligible") in ("OUI", "A_VERIFIER")}
+        univers = [r for r in base if r["ISIN"] in eligibles]
 
     # Lot explicite : le tableau de bord permet de sélectionner des lignes et
     # d'exporter leurs ISIN. Il prime sur --filtre, et conserve l'ordre demandé.
