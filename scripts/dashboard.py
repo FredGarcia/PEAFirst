@@ -421,6 +421,25 @@ font-family:"IBM Plex Sans Condensed",sans-serif;letter-spacing:.03em}
 .etat.collecte{background:#fdf1e0;color:#8a5a1c}
 .etat.attente{background:#eceff2;color:var(--encre-2)}
 .vieux{color:var(--manquant);font-weight:500}
+.onglets{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;
+border-bottom:1px solid var(--trait);overflow-x:auto}
+.onglet{background:transparent;color:var(--encre-2);border:1px solid transparent;
+border-bottom:none;border-radius:3px 3px 0 0;padding:9px 15px;font-size:13.5px;
+margin-bottom:-1px;cursor:pointer}
+.onglet:hover{color:var(--encre)}
+.onglet.actif{background:var(--carte);border-color:var(--trait);
+border-bottom:1px solid var(--carte);color:var(--encre);font-weight:600}
+.vue[hidden]{display:none}
+.formulaire{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:14px 0}
+.formulaire label{display:flex;flex-direction:column;gap:4px;font-size:12px;
+color:var(--encre-2)}
+.formulaire label.case{flex-direction:row;align-items:center;gap:6px;font-size:13px}
+.formulaire input,.formulaire select{font-family:inherit;font-size:13.5px;
+padding:7px 9px;border:1px solid var(--trait);border-radius:3px;background:#fff;
+color:var(--encre);min-width:120px}
+.formulaire input[type=checkbox]{min-width:0}
+.avert{border-left:3px solid var(--manquant);padding:9px 0 9px 13px;
+margin:12px 0;font-size:13px;color:var(--encre-2);background:#fdf8f1}
 .sri{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;
 border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:12px;cursor:help}
 .sri1,.sri2,.sri3{background:#dfeeeb;color:#1d534f}
@@ -507,7 +526,9 @@ border-radius:3px;background:#f2f8f7}
 .mieux{font-weight:600;color:var(--couvert)}
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tbl-wrap table{min-width:520px}
-@media (max-width:760px){.duo{grid-template-columns:1fr}.abs-t{min-width:0}
+@media (max-width:760px){.duo{grid-template-columns:1fr}
+.formulaire label,.formulaire input,.formulaire select{flex:1 1 100%;min-width:0}
+.onglet{padding:8px 11px;font-size:12.5px}.abs-t{min-width:0}
 .masq-s{display:none}#tbl{font-size:12.5px}
 .lot code{white-space:pre-wrap;word-break:break-all}
 .outils input[type=search],.outils select{flex:1 1 100%}}
@@ -530,6 +551,17 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   <div class="fr-item"><div class="fr-l">Cours le plus ancien</div><div class="fr-v">__COURS_PLUS_VIEUX__</div></div>
   <div class="fr-item alerte"><div class="fr-l">Périmés (&gt; __SEUIL__ j)</div><div class="fr-v">__PERIMES__</div></div>
 </div>
+
+<nav class="onglets" role="tablist" aria-label="Sections">
+  <button type="button" class="onglet actif" data-vue="synthese" role="tab">Synthèse</button>
+  <button type="button" class="onglet" data-vue="explorateur" role="tab">Explorateur</button>
+  <button type="button" class="onglet" data-vue="allocation" role="tab">Allocation</button>
+  <button type="button" class="onglet" data-vue="simulateur" role="tab">Simulateur</button>
+  <button type="button" class="onglet" data-vue="watchlist" role="tab">Watchlist</button>
+  <button type="button" class="onglet" data-vue="systeme" role="tab">Système</button>
+</nav>
+
+<section class="vue" id="vue-synthese">
 
 <div class="carte">
   <h2>Progression de la collecte (__NB_POINTS__ relevés)</h2>
@@ -566,6 +598,49 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   <div class="kpi"><div class="v">__ESG__</div><div class="l">avec classification ESG</div></div>
 </div>
 
+<div class="duo">
+  <div class="carte">
+    <h2>Nature des instruments</h2>
+    <div class="barre">__BARRE_TYPE__</div>
+    <ul class="leg">__LEG_TYPE__</ul>
+  </div>
+  <div class="carte">
+    <h2>Pays d'émission</h2>
+    <div class="barre">__BARRE_PAYS__</div>
+    <ul class="leg">__LEG_PAYS__</ul>
+  </div>
+</div>
+
+<div class="carte">
+  <h2>Éligibilité PEA des fonds (__NB_FONDS__ ETF et OPCVM)</h2>
+  <div class="barre">__BARRE_ELIG__</div>
+  <ul class="leg">__LEG_ELIG__</ul>
+  <p class="note">Aucune liste officielle d'ETF éligibles n'existe : l'éligibilité
+  est un engagement de la société de gestion dans le prospectus. Les fonds
+  « à vérifier » attendent une confirmation sur la fiche de l'émetteur.</p>
+</div>
+
+<div class="duo">
+  <div class="carte">
+    <h2>Meilleurs scores pondérés</h2>
+    <table><thead><tr><th></th><th>Instrument</th><th>Type</th>
+      <th class="nu">Score</th><th class="nu">Couv.</th></tr></thead>
+      <tbody>__TOP_SCORES__</tbody></table>
+  </div>
+  <div class="carte">
+    <h2>Matrice multicritère TOPSIS</h2>
+    <table><thead><tr><th></th><th>Instrument</th>
+      <th class="nu">Coef.</th><th class="nu">Score</th></tr></thead>
+      <tbody>__TOPSIS__</tbody></table>
+    <p class="note">Distance à la solution idéale, méthode indépendante du score
+    pondéré. Un écart de rang entre les deux signale un instrument dont la note
+    dépend fortement des pondérations choisies.</p>
+  </div>
+</div>
+
+</section>
+
+<section class="vue" id="vue-explorateur" hidden>
 <div class="carte">
   <h2>Explorateur — tri, regroupement et constitution de lots</h2>
   <div class="outils">
@@ -737,45 +812,86 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   </div>
 </div>
 
-<div class="duo">
-  <div class="carte">
-    <h2>Nature des instruments</h2>
-    <div class="barre">__BARRE_TYPE__</div>
-    <ul class="leg">__LEG_TYPE__</ul>
-  </div>
-  <div class="carte">
-    <h2>Pays d'émission</h2>
-    <div class="barre">__BARRE_PAYS__</div>
-    <ul class="leg">__LEG_PAYS__</ul>
-  </div>
-</div>
+</section>
 
+<section class="vue" id="vue-allocation" hidden>
 <div class="carte">
-  <h2>Éligibilité PEA des fonds (__NB_FONDS__ ETF et OPCVM)</h2>
-  <div class="barre">__BARRE_ELIG__</div>
-  <ul class="leg">__LEG_ELIG__</ul>
-  <p class="note">Aucune liste officielle d'ETF éligibles n'existe : l'éligibilité
-  est un engagement de la société de gestion dans le prospectus. Les fonds
-  « à vérifier » attendent une confirmation sur la fiche de l'émetteur.</p>
+  <h2>Allocation de portefeuille</h2>
+  <p class="note" style="margin-top:0">
+    Répartit un capital selon les quatre entrées du cahier des charges. Le
+    profil de risque suit les bornes de volatilité <b>PRIIPS (indicateur SRI)</b>,
+    comparables à celles des documents d'information des fonds. Un horizon court
+    resserre automatiquement le plafond : moins de temps pour absorber une baisse.
+  </p>
+  <div class="formulaire">
+    <label>Capital (€)<input type="number" id="aCapital" value="10000" min="100" step="500"></label>
+    <label>Profil de risque
+      <select id="aRisque">
+        <option value="1">1 — prudent</option><option value="2">2</option>
+        <option value="3">3</option><option value="4">4</option>
+        <option value="5" selected>5</option><option value="6">6</option>
+        <option value="7">7 — offensif</option>
+      </select></label>
+    <label>Horizon (ans)<input type="number" id="aHorizon" value="10" min="1" max="40"></label>
+    <label>Objectif
+      <select id="aObjectif">
+        <option value="croissance">Croissance</option>
+        <option value="equilibre" selected>Équilibré</option>
+        <option value="revenus">Revenus</option>
+      </select></label>
+    <label>Lignes visées<input type="number" id="aLignes" value="10" min="2" max="25"></label>
+    <label class="case"><input type="checkbox" id="aPea" checked> Éligibles PEA seulement</label>
+    <button type="button" id="aCalculer">Calculer</button>
+  </div>
+  <div id="aResultat"></div>
 </div>
+</section>
 
-<div class="duo">
-  <div class="carte">
-    <h2>Meilleurs scores pondérés</h2>
-    <table><thead><tr><th></th><th>Instrument</th><th>Type</th>
-      <th class="nu">Score</th><th class="nu">Couv.</th></tr></thead>
-      <tbody>__TOP_SCORES__</tbody></table>
+<section class="vue" id="vue-simulateur" hidden>
+<div class="carte">
+  <h2>Simulateur d'investissement</h2>
+  <p class="note" style="margin-top:0">
+    Projection d'hypothèses, <b>pas une prévision</b>. Les taux des scénarios
+    sont des paramètres : aucun modèle ne sait ce que fera un marché sur dix ans.
+  </p>
+  <div class="formulaire">
+    <label>Versement initial (€)<input type="number" id="sCapital" value="10000" min="0" step="500"></label>
+    <label>Versement programmé (€)<input type="number" id="sVersement" value="500" min="0" step="50"></label>
+    <label>Périodicité
+      <select id="sPeriode">
+        <option value="1">Mensuelle</option>
+        <option value="3" selected>Trimestrielle</option>
+        <option value="12">Annuelle</option>
+      </select></label>
+    <label>Enveloppe
+      <select id="sEnveloppe">
+        <option value="pea" selected>PEA</option>
+        <option value="cto">Compte-titres</option>
+      </select></label>
+    <label>Frais de gestion (%/an)<input type="number" id="sFraisG" value="0.30" step="0.05" min="0"></label>
+    <label>Frais par versement (%)<input type="number" id="sFraisO" value="0.50" step="0.05" min="0"></label>
+    <label>Inflation (%/an)<input type="number" id="sInflation" value="2.0" step="0.1" min="0"></label>
+    <button type="button" id="sCalculer">Calculer</button>
   </div>
-  <div class="carte">
-    <h2>Matrice multicritère TOPSIS</h2>
-    <table><thead><tr><th></th><th>Instrument</th>
-      <th class="nu">Coef.</th><th class="nu">Score</th></tr></thead>
-      <tbody>__TOPSIS__</tbody></table>
-    <p class="note">Distance à la solution idéale, méthode indépendante du score
-    pondéré. Un écart de rang entre les deux signale un instrument dont la note
-    dépend fortement des pondérations choisies.</p>
-  </div>
+  <div id="sResultat"></div>
 </div>
+</section>
+
+<section class="vue" id="vue-watchlist" hidden>
+<div class="carte">
+  <h2>Watchlist</h2>
+  <p class="note" style="margin-top:0">
+    Sélectionner des lignes dans l'<b>Explorateur</b> les fait apparaître ici.
+    La liste vit le temps de la session : l'exporter pour la conserver, cette
+    page n'écrivant rien sur votre appareil.
+  </p>
+  <div id="wListe"></div>
+  <button type="button" id="wExport">Exporter la watchlist (CSV)</button>
+  <button type="button" class="sec" id="wVider">Vider</button>
+</div>
+</section>
+
+<section class="vue" id="vue-systeme" hidden>
 
 <div class="carte">
   <h2>Anomalies détectées (__NB_ANO__ sur __NB_ANO_INST__ instrument(s))</h2>
@@ -795,6 +911,8 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   source les alimentera. Ils figurent ici pour que leur absence soit un constat,
   pas un oubli.</p>
 </div>
+
+</section>
 
 <footer>Aide à la décision — ni conseil en investissement, ni conseil fiscal.
 Généré par <code>scripts/dashboard.py</code>.</footer>
@@ -1291,7 +1409,257 @@ $("telecharger").addEventListener("click", function(){
   retour(this, isins.length + " ISIN exportés");
 });
 
+
+// ---------------------------------------------------------------- navigation
+document.querySelectorAll(".onglet").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".onglet").forEach(function(x){ x.classList.remove("actif"); });
+    document.querySelectorAll(".vue").forEach(function(v){ v.hidden = true; });
+    b.classList.add("actif");
+    $("vue-" + b.dataset.vue).hidden = false;
+    if (b.dataset.vue === "watchlist") majWatchlist();
+  });
+});
+
+function euros(x){
+  return Math.round(x).toLocaleString("fr-FR") + " €";
+}
+
+// ---------------------------------------------------------------- allocation
+// Transposition de scripts/allocation.py : mêmes bornes PRIIPS, mêmes plafonds,
+// même resserrement sur horizon court. Les deux doivent donner le même résultat.
+var BANDES_SRI = {1:[0,0.5],2:[0.5,5],3:[5,12],4:[12,20],5:[20,30],6:[30,80],7:[80,1000]};
+var PLAFOND_LIGNE = {1:0.15,2:0.15,3:0.20,4:0.20,5:0.25,6:0.30,7:0.35};
+var MIN_LIGNES = 5;
+
+function plafondVolatilite(risque, horizon){
+  var haut = BANDES_SRI[risque][1];
+  if (horizon < 3) return Math.min(haut, BANDES_SRI[Math.max(1, risque - 2)][1]);
+  if (horizon < 5) return Math.min(haut, BANDES_SRI[Math.max(1, risque - 1)][1]);
+  return haut;
+}
+
+function repartir(retenus, risque){
+  var plafond = PLAFOND_LIGNE[risque], poids = {}, total = 0, i;
+  for (i = 0; i < retenus.length; i += 1) total += Math.max(retenus[i].score, 1);
+  if (total <= 0) return poids;
+  for (i = 0; i < retenus.length; i += 1)
+    poids[retenus[i].isin] = Math.max(retenus[i].score, 1) / total;
+  // Le plafonnement est réappliqué : redistribuer l'excédent d'une ligne
+  // écrêtée peut faire dépasser le plafond à une autre.
+  for (var t = 0; t < 20; t += 1){
+    var exc = 0, libres = [];
+    for (var k in poids){
+      if (!poids.hasOwnProperty(k)) continue;
+      if (poids[k] > plafond){ exc += poids[k] - plafond; poids[k] = plafond; }
+      else libres.push(k);
+    }
+    if (exc <= 1e-9 || !libres.length) break;
+    var base = 0;
+    for (i = 0; i < libres.length; i += 1) base += poids[libres[i]];
+    if (base <= 0){
+      for (i = 0; i < libres.length; i += 1) poids[libres[i]] += exc / libres.length;
+      break;
+    }
+    for (i = 0; i < libres.length; i += 1) poids[libres[i]] += exc * poids[libres[i]] / base;
+  }
+  return poids;
+}
+
+$("aCalculer").addEventListener("click", function(){
+  var capital = parseFloat($("aCapital").value) || 0;
+  var risque = parseInt($("aRisque").value, 10);
+  var horizon = parseInt($("aHorizon").value, 10) || 8;
+  var objectif = $("aObjectif").value;
+  var maxLignes = parseInt($("aLignes").value, 10) || 10;
+  var peaSeul = $("aPea").checked;
+  var volMax = plafondVolatilite(risque, horizon);
+
+  var candidats = D.filter(function(r){
+    return r[6] !== null && r[8] !== null && (!peaSeul || r[4] === "OUI");
+  }).map(function(r){
+    return {isin: r[0], nom: r[1], score: r[6], vol: r[8], couv: r[7]};
+  }).filter(function(c){ return c.vol <= volMax; });
+
+  if (objectif === "croissance") candidats.sort(function(a,b){ return b.score - a.score; });
+  else if (objectif === "revenus") candidats.sort(function(a,b){ return (a.vol-b.vol) || (b.score-a.score); });
+  else candidats.sort(function(a,b){ return (b.score-b.vol/4) - (a.score-a.vol/4); });
+
+  var retenus = candidats.slice(0, maxLignes);
+  var avert = [];
+  if (volMax < BANDES_SRI[risque][1])
+    avert.push("Volatilité plafonnée à " + volMax + " % : horizon de " + horizon +
+               " ans jugé court pour le profil " + risque + ".");
+  if (objectif === "revenus")
+    avert.push("Objectif « revenus » : sans données de dividendes, la sélection " +
+               "privilégie la régularité et non le rendement distribué.");
+
+  if (!retenus.length){
+    $("aResultat").innerHTML = '<div class="avert">Aucun instrument sous ' + volMax +
+      " % de volatilité" + (peaSeul ? " parmi les titres éligibles PEA" : "") +
+      ". Élargir l'univers collecté ou relever le profil de risque.</div>";
+    return;
+  }
+  if (retenus.length < MIN_LIGNES)
+    avert.push(retenus.length + " ligne(s) seulement : diversification insuffisante " +
+               "pour un portefeuille réel.");
+
+  var poids = repartir(retenus, risque), volP = 0, couvP = 0;
+  var lignes = retenus.map(function(c){
+    var w = poids[c.isin] || 0;
+    volP += w * c.vol; couvP += c.couv || 0;
+    return {c: c, w: w};
+  }).sort(function(a,b){ return b.w - a.w; });
+
+  var html = '<table><thead><tr><th>Poids</th><th>Montant</th><th>Instrument</th>' +
+    '<th class="nu">Score</th><th class="nu">Vol.</th></tr></thead><tbody>' +
+    lignes.map(function(l){
+      return '<tr><td class="nu">' + (l.w*100).toFixed(1) + '%</td><td class="nu">' +
+        euros(capital * l.w) + "</td><td>" + esc(l.c.nom) + '</td><td class="nu">' +
+        l.c.score.toFixed(1) + '</td><td class="nu">' + l.c.vol.toFixed(1) + "%</td></tr>";
+    }).join("") + "</tbody></table>";
+  avert.push("Volatilité moyenne pondérée " + volP.toFixed(1) +
+             " % — majorant : les corrélations ne sont pas modélisées, un " +
+             "portefeuille réellement diversifié sera moins volatil.");
+  avert.push("Couverture moyenne du barème : " + Math.round(couvP/retenus.length) +
+             " %. Aide à la décision, ni conseil en investissement ni conseil fiscal.");
+  $("aResultat").innerHTML = '<div class="tbl-wrap">' + html + "</div>" +
+    avert.map(function(a){ return '<div class="avert">' + esc(a) + "</div>"; }).join("");
+});
+
+// ---------------------------------------------------------------- simulateur
+// Transposition de scripts/simulateur.py, fiscalité comprise.
+var SCENARIOS = {prudent: 2.0, "médian": 5.0, optimiste: 8.0};
+var HORIZONS = [2, 3, 5, 7, 8, 10];
+var PS = 18.6, PFU_IR = 12.8;   // LFSS 2026 : prélèvements sociaux 17,2 % -> 18,6 %
+
+function capitalisation(capital, versement, moisPar, annees, taux, fraisG, fraisO){
+  var tm = Math.pow(1 + taux/100, 1/12) - 1;
+  var fm = Math.pow(1 + fraisG/100, 1/12) - 1;
+  var valeur = capital ? capital * (1 - fraisO/100) : 0, verse = capital;
+  var mois = Math.round(annees * 12);
+  for (var m = 1; m <= mois; m += 1){
+    valeur *= (1 + tm);
+    valeur *= (1 - fm);
+    if (versement && moisPar && m % moisPar === 0){
+      valeur += versement * (1 - fraisO/100);
+      verse += versement;
+    }
+  }
+  return {valeur: valeur, verse: verse};
+}
+
+function fiscalite(valeur, verse, annees, enveloppe){
+  var gain = Math.max(0, valeur - verse), taux, motif;
+  if (enveloppe === "pea" && annees >= 5){
+    taux = PS; motif = "après 5 ans : exonération d'IR, PS 18,6 % seuls";
+  } else if (enveloppe === "pea"){
+    taux = PFU_IR + PS;
+    motif = "retrait avant 5 ans : PFU 12,8 % + PS 18,6 %, plan clôturé";
+  } else {
+    taux = PFU_IR + PS; motif = "compte-titres : PFU 31,4 % quelle que soit la durée";
+  }
+  var impot = gain * taux / 100;
+  return {gain: gain, impot: impot, net: valeur - impot, taux: taux, motif: motif};
+}
+
+$("sCalculer").addEventListener("click", function(){
+  var capital = parseFloat($("sCapital").value) || 0;
+  var versement = parseFloat($("sVersement").value) || 0;
+  var moisPar = parseInt($("sPeriode").value, 10);
+  var env = $("sEnveloppe").value;
+  var fraisG = parseFloat($("sFraisG").value) || 0;
+  var fraisO = parseFloat($("sFraisO").value) || 0;
+  var infl = parseFloat($("sInflation").value) || 0;
+
+  var noms = Object.keys(SCENARIOS);
+  var html = "<table><thead><tr><th>Horizon</th><th class=\"nu\">Versé</th>" +
+    noms.map(function(n){ return '<th class="nu">' + n + "</th>"; }).join("") +
+    '<th class="nu">Impôt (méd.)</th><th class="nu">Net (méd.)</th>' +
+    '<th class="nu">Réel (méd.)</th></tr></thead><tbody>';
+
+  HORIZONS.forEach(function(an){
+    var vals = {}, verse = 0;
+    noms.forEach(function(n){
+      var r = capitalisation(capital, versement, moisPar, an, SCENARIOS[n], fraisG, fraisO);
+      vals[n] = r.valeur; verse = r.verse;
+    });
+    var f = fiscalite(vals["médian"], verse, an, env);
+    var reel = f.net / Math.pow(1 + infl/100, an);
+    html += "<tr><td>" + an + ' ans</td><td class="nu">' + euros(verse) + "</td>" +
+      noms.map(function(n){ return '<td class="nu">' + euros(vals[n]) + "</td>"; }).join("") +
+      '<td class="nu">' + euros(f.impot) + '</td><td class="nu">' + euros(f.net) +
+      '</td><td class="nu">' + euros(reel) + "</td></tr>";
+  });
+  html += "</tbody></table>";
+
+  var notes = [];
+  if (env === "pea"){
+    notes.push("Horizons 2 et 3 ans : le gain est taxé à 31,4 % au lieu de 18,6 %, " +
+               "et le plan est clôturé — l'antériorité fiscale acquise est perdue.");
+    notes.push("À partir de 5 ans : exonération d'impôt sur le revenu, seuls les " +
+               "prélèvements sociaux de 18,6 % s'appliquent.");
+  } else {
+    notes.push("Compte-titres : PFU de 31,4 % sur les gains quelle que soit la durée.");
+  }
+  notes.push("Colonne « Réel » : le net ramené en euros d'aujourd'hui, à " + infl +
+             " % d'inflation annuelle.");
+  notes.push("Projection d'hypothèses, non une prévision. Fiscalité au 1er janvier " +
+             "2026 (LFSS 2026), à vérifier : elle change et dépend de votre situation.");
+  $("sResultat").innerHTML = '<div class="tbl-wrap">' + html + "</div>" +
+    notes.map(function(n){ return '<div class="avert">' + esc(n) + "</div>"; }).join("");
+});
+
+// ----------------------------------------------------------------- watchlist
+function majWatchlist(){
+  var isins = Object.keys(choix);
+  var index = Object.create(null);
+  D.forEach(function(r){ if (choix[r[0]]) index[r[0]] = r; });
+  if (!isins.length){
+    $("wListe").innerHTML = '<div class="avert">Aucune valeur suivie. ' +
+      "Cocher des lignes dans l'Explorateur pour les ajouter ici.</div>";
+    $("wExport").disabled = true; $("wVider").disabled = true;
+    return;
+  }
+  $("wExport").disabled = false; $("wVider").disabled = false;
+  $("wListe").innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Instrument</th><th>PEA</th>' +
+    '<th class="nu">SRI</th><th class="nu">Score</th><th class="nu">Vol.</th>' +
+    '<th class="nu">Perf.</th><th class="nu">Âge</th></tr></thead><tbody>' +
+    isins.map(function(i){
+      var r = index[i];
+      if (!r) return "";
+      return "<tr><td>" + esc(r[1]) + '<br><span class="ty">' + esc(r[0]) +
+        '</span></td><td class="ty">' + esc(r[4]) + '</td><td class="nu">' +
+        (r[21] || "—") + '</td><td class="nu">' + cell(r[6]) + '</td><td class="nu">' +
+        cell(r[8], "%") + '</td><td class="nu">' + cell(r[9], "%") +
+        '</td><td class="nu">' + (r[13] === null || r[13] === undefined ? "—" : r[13] + " j") +
+        "</td></tr>";
+    }).join("") + "</tbody></table></div>";
+}
+
+$("wExport").addEventListener("click", function(){
+  var index = Object.create(null);
+  D.forEach(function(r){ if (choix[r[0]]) index[r[0]] = r; });
+  var lignes = ["ISIN;Nom;Type;PEA;SRI;Score;Volatilite_pct;Perf_pct;Age_jours"];
+  Object.keys(choix).forEach(function(i){
+    var r = index[i];
+    if (r) lignes.push([r[0], r[1], r[2], r[4], r[21] || "", r[6] === null ? "" : r[6],
+                        r[8] === null ? "" : r[8], r[9] === null ? "" : r[9],
+                        r[13] === null || r[13] === undefined ? "" : r[13]].join(";"));
+  });
+  telecharger("watchlist.csv", "\ufeff" + lignes.join("\r\n") + "\r\n",
+              "text/csv;charset=utf-8");
+  retour(this, Object.keys(choix).length + " valeur(s) exportée(s)");
+});
+
+$("wVider").addEventListener("click", function(){
+  choix = Object.create(null);
+  rendre();
+  majWatchlist();
+});
+
 filtrer();
+majWatchlist();
 })();
 </script>
 </body>
