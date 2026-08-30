@@ -28,7 +28,7 @@ prospectus, ni l'avis d'un professionnel.
   - [2. Clés d'API](#2-clés-dapi)
     - [Couverture réelle, testée sur instruments européens](#couverture-réelle-testée-sur-instruments-européens)
   - [3. Démarrage rapide](#3-démarrage-rapide)
-  - [Depuis Android](#depuis-android)
+3ter. [Depuis un téléphone](#3ter-depuis-un-téléphone)
   - [3bis. Actions initiales](#3bis-actions-initiales)
     - [A. Activer la collecte automatique (5 minutes)](#a-activer-la-collecte-automatique-5-minutes)
     - [B. Vérifier le droit d'écriture du jeton (si vous poussez depuis un poste)](#b-vérifier-le-droit-décriture-du-jeton-si-vous-poussez-depuis-un-poste)
@@ -84,6 +84,90 @@ python3 scripts/validate_base.py     # doit afficher : OK
 Si `validate_base.py` affiche « OK : tous les contrôles passent », le dépôt est
 sain et vous pouvez travailler. Ce script est aussi le garde-fou de
 l'intégration continue : **le lancer avant tout commit** évite un build rouge.
+
+---
+
+## 1bis. Sous Windows
+
+Toutes les commandes de ce guide sont écrites pour Linux et macOS. Voici les
+équivalents Windows ; le reste du document s'applique tel quel.
+
+### Python : `python` et non `python3`
+
+```powershell
+python --version
+```
+
+Si la commande échoue, essayer `py --version`. Utiliser ensuite ce nom partout
+où le guide écrit `python3`.
+
+### Environnement virtuel
+
+L'environnement virtuel est **facultatif** : `pip install -r requirements.txt`
+fonctionne directement, il isole simplement moins bien les dépendances.
+
+| Terminal | Activation |
+|---|---|
+| PowerShell | `.venv\Scripts\Activate.ps1` |
+| Invite de commandes (cmd) | `.venv\Scripts\activate.bat` |
+| Git Bash | `source .venv/Scripts/activate` |
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python run.py
+```
+
+`(.venv)` apparaît alors en début de ligne. Pour en sortir : `deactivate`.
+
+Sous Git Bash, noter que le dossier est `Scripts` et non `bin` : la commande
+Linux `source .venv/bin/activate` ne fonctionne pas telle quelle.
+
+### Si l'activation est refusée
+
+Un message sur les scripts désactivés vient de la stratégie d'exécution de
+PowerShell. À lancer une seule fois :
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Ce réglage n'autorise que les scripts locaux et ceux signés — c'est celui que
+Microsoft recommande, et il ne s'applique qu'à votre compte.
+
+### Variables d'environnement
+
+Le guide utilise `export`, qui n'existe pas sous Windows.
+
+```powershell
+setx EODHD_API_KEY "votre_cle"
+setx OPENFIGI_API_KEY "votre_cle"
+setx MARKETSTACK_API_KEY "votre_cle"
+```
+
+`setx` écrit dans le registre, donc de façon permanente — mais **les variables
+ne sont visibles que dans les fenêtres ouvertes ensuite** : fermer et rouvrir le
+terminal. Vérification : `echo $env:EODHD_API_KEY`.
+
+Pour la session en cours seulement : `$env:EODHD_API_KEY = "votre_cle"`.
+
+Par l'interface : touche Windows → « variables d'environnement » → *Modifier
+les variables d'environnement pour votre compte*.
+
+Sous Git Bash, `export` et `~/.bashrc` fonctionnent comme sous Linux.
+
+### Chemins
+
+PowerShell accepte les deux séparateurs pour les arguments Python :
+`python scripts\dashboard.py` et `python scripts/dashboard.py` sont
+équivalents.
+
+### Rien de tout cela n'est nécessaire pour consulter
+
+Les clés ne servent qu'à **collecter** des données, ce que le robot GitHub fait
+déjà chaque jour ouvré. Ouvrir `data/dashboard.html`, lancer le simulateur ou
+l'allocation n'en demande aucune.
 
 ---
 
@@ -159,10 +243,44 @@ python3 scripts/dashboard.py
 `--limite 18` laisse une marge sous le quota de 20/jour.
 
 ---
-## Depuis Android
 
-https://htmlpreview.github.io/?
-https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
+## 3ter. Depuis un téléphone
+
+Rien à installer : le robot collecte seul et le tableau de bord est une page
+web. Le téléphone sert à **consulter et déclencher**, pas à calculer.
+
+### Consulter le tableau de bord
+
+Ouvrir dans le navigateur (une seule ligne, sans retour) :
+
+```
+https://htmlpreview.github.io/?https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
+```
+
+Puis menu ⋮ → *Ajouter à l'écran d'accueil* pour obtenir une icône. La page est
+responsive et testée en 390 px : tri, filtres, regroupement, comparateur et
+export CSV fonctionnent au doigt.
+
+> Ce service tiers rend la page depuis GitHub et peut être lent ou
+> indisponible. L'alternative fiable est d'activer **GitHub Pages**
+> (*Settings → Pages*, source `main`), ce qui donne une URL propre du type
+> `fredgarcia.github.io/PEAFirst/data/dashboard.html`.
+
+### Déclencher une collecte
+
+Application **GitHub** ou github.com dans le navigateur → dépôt **PEAFirst** →
+onglet **Actions** → *Collecte quotidienne* → **Run workflow**. Les clés étant
+des secrets du dépôt, tout s'exécute chez GitHub.
+
+Pour cibler des instruments : dans le tableau de bord, filtrer, cocher, ouvrir
+**Piloter la collecte**, puis **Copier les paramètres** et les coller dans le
+formulaire *Run workflow*.
+
+### Ce qui n'est pas disponible
+
+Les scripts Python — simulateur, allocation, scoring local — et l'application
+PEAdvisor. Techniquement possible via Termux, mais peu confortable :
+**ordinateur pour travailler, téléphone pour consulter et déclencher**.
 
 ## 3bis. Actions initiales
 
@@ -731,45 +849,8 @@ python3 -m venv .venv && source .venv/bin/activate   # recommandé
 pip install -r requirements.txt
 python run.py
 ```
-Sous PowerShell, l'activation se fait ainsi :
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-Vous devriez voir (.venv) apparaître en début de ligne. Ensuite :
-
-```powershell
-pip install -r requirements.txt
-python run.py
-```
-Si l'activation est refusée avec un message sur les scripts désactivés, c'est la stratégie d'exécution de PowerShell qui bloque. À lancer une fois :
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-
-Cela n'autorise que les scripts locaux et ceux signés — c'est le réglage recommandé par Microsoft, et il ne s'applique qu'à votre compte.
-
-Deux alternatives si vous préférez ne rien changer :
-Invite de commandes (cmd) : .venv\Scripts\activate.bat
-Git Bash : la commande d'origine fonctionne telle quelle, source .venv/bin/activate — attention, sous Windows le dossier est Scripts et non bin, donc ce sera source .venv/Scripts/activate
-
-Pour quitter l'environnement virtuel, deactivate dans tous les cas.
-
-Rappel utile : sous Windows, c'est python ou py, pas python3. Toutes les commandes du mode d'emploi sont écrites en python3 — remplacez par ce qui fonctionne chez vous. L'environnement virtuel n'est d'ailleurs pas obligatoire : pip install -r requirements.txt directement fonctionne aussi, il isole simplement moins bien les dépendances.
-
-- Interface web : <http://localhost:8000>
-- Documentation interactive de l'API : <http://localhost:8000/docs>
-
-Au premier lancement, la base SQLite `peadvisor.db` est créée et alimentée
-depuis la source active. Elle n'est **pas versionnée** : la supprimer et
-relancer suffit à repartir de zéro.
-
-```bash
-python3 -m pytest tests/        # 115 tests
-python3 -m pytest tests/ -q -k peafirst   # seulement la source peafirst
-```
+> **Sous Windows**, `source` n'existe pas et la commande est `python`, pas
+> `python3` : voir [§1bis](#1bis-sous-windows).
 
 ### B. Les onze écrans
 
