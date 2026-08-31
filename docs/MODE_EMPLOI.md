@@ -709,6 +709,7 @@ cette page n'écrit rien sur votre appareil. Les exporter pour les conserver —
 | **Vider la sélection** | décoche tout | si sélection |
 | **Piloter la collecte** | ouvre un panneau qui compose les paramètres du workflow et donne le lien vers *Run workflow* | toujours |
 | **Corriger l'éligibilité PEA** | marque les lignes sélectionnées OUI/NON/A_VERIFIER et exporte `corrections_pea.csv` | si sélection |
+| **Ajouter depuis Boursorama** | prépare la requête d'ajout d'une valeur par scraping, exécutée par l'application | toujours |
 
   Les boutons sans objet sont **désactivés** plutôt que silencieusement
   inopérants, et chaque action confirme son effet sur le bouton lui-même
@@ -1006,6 +1007,31 @@ Héritée de PEAdvisor, elle explique les choix plutôt que l'usage :
 | [07](07-auto-observation.md) | auto-observation et auto-amélioration |
 | [08](08-agent-mcp.md) | serveur MCP |
 | [09](09-sources-donnees.md) | sources de données |
+
+### Ajouter une valeur depuis le web
+
+Bouton **Ajouter depuis Boursorama** dans l'Explorateur. Saisir un nom, un ISIN
+ou un code ; le bouton *Depuis la sélection* reprend les lignes cochées.
+
+La page **ne scrape rien** : elle prépare la requête, l'application l'exécute.
+Trois façons de la lancer :
+
+| Moyen | Condition |
+|---|---|
+| **Essayer maintenant** | ne fonctionne que si le navigateur autorise l'appel entre la page et l'application (page servie par l'application, ou CORS ouvert). Depuis un fichier local, l'appel est bloqué et le message l'explique |
+| **Copier la commande** | `curl -X POST "http://localhost:8000/api/import/web/boursorama/FR0000120073"` — fonctionne toujours dans un terminal, l'application étant lancée |
+| **Ouvrir l'API** | formulaire Swagger de la route |
+
+Six sites sont déclarés dans l'application, mais **seul Boursorama est
+validé** ; les autres sont proposés en l'état.
+
+La valeur ajoutée entre dans la **base de l'application**, jamais dans le
+référentiel versionné : elle n'apparaîtra donc pas dans cette page, qui lit les
+fichiers de `data/`. La consulter dans l'application.
+
+> Le scraping de Boursorama se heurte à ses conditions d'utilisation, qui
+> interdisent l'extraction automatisée, et à la licence Euronext sur les cours,
+> que le site n'a pas le droit de redistribuer.
 
 ## 10ter. Deux avertissements sur l'application
 

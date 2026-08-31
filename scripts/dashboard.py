@@ -545,6 +545,10 @@ border-radius:3px;background:#f2f8f7}
 .tbl-wrap table{min-width:520px}
 @media (max-width:760px){.duo{grid-template-columns:1fr}
 .formulaire label,.formulaire input,.formulaire select{flex:1 1 100%;min-width:0}
+/* Les panneaux de l'explorateur contiennent des champs à largeur fixe : sur
+   petit écran ils doivent se replier plutôt qu'élargir la page. */
+.pilote .champs>*,.corr .champs>*{flex:1 1 100%;min-width:0;width:auto}
+.pilote code,.corr code{white-space:pre-wrap;word-break:break-all}
 .onglet{padding:8px 11px;font-size:12.5px}.abs-t{min-width:0}
 .masq-s{display:none}#tbl{font-size:12.5px}
 .lot code{white-space:pre-wrap;word-break:break-all}
@@ -693,6 +697,7 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     <button type="button" class="sec mini" id="cmdAlloc" disabled>Commande d'allocation</button>
     <button type="button" class="sec mini" id="pilote">Piloter la collecte</button>
     <button type="button" class="sec mini" id="corriger" disabled>Corriger l'éligibilité PEA</button>
+    <button type="button" class="sec mini" id="ajoutWeb">Ajouter depuis Boursorama</button>
     <span class="sep"></span>
     <button type="button" class="sec mini" id="vider" disabled>Vider la sélection</button>
   </div>
@@ -723,6 +728,45 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
       <span id="pagination"></span>
       <button type="button" class="sec" id="pagePlus">Suivant</button>
     </span>
+  </div>
+
+  <div class="pilote" id="web" hidden>
+    <h3>Ajouter une valeur depuis le web</h3>
+    <p class="note" style="margin-top:4px">
+      L'ajout est réalisé par l'<b>application PEAdvisor</b>, qui scrape la fiche
+      puis recalcule les scores. Cette page ne fait aucun appel réseau : elle
+      prépare la requête, l'application l'exécute. Elle doit donc tourner
+      (<code>python run.py</code>).
+    </p>
+    <div class="champs">
+      <select id="wSource" aria-label="Site source">
+        <option value="boursorama">Boursorama — seul scraper validé</option>
+        <option value="boursier">Boursier — non validé</option>
+        <option value="zonebourse">Zonebourse — non validé</option>
+        <option value="boursedirect">Bourse Direct — non validé</option>
+        <option value="ouestfrance">Ouest-France — non validé</option>
+        <option value="euronext">Euronext Paris — non validé</option>
+      </select>
+      <input type="text" id="wRequete" placeholder="Nom, ISIN ou code (ex. FR0000120073)"
+             aria-label="Valeur à ajouter" style="flex:1 1 240px;font-family:inherit;
+             font-size:13px;padding:6px 8px;border:1px solid var(--trait);border-radius:3px">
+      <input type="text" id="wBase" value="http://localhost:8000"
+             aria-label="Adresse de l'application" style="width:170px;font-family:inherit;
+             font-size:13px;padding:6px 8px;border:1px solid var(--trait);border-radius:3px">
+      <button type="button" id="wDeSelection">Depuis la sélection</button>
+    </div>
+    <code id="wCmd"></code>
+    <button type="button" id="wEssayer">Essayer maintenant</button>
+    <button type="button" class="sec" id="wCopier">Copier la commande</button>
+    <a class="bouton" id="wDoc" href="#" target="_blank" rel="noopener">Ouvrir l'API</a>
+    <button type="button" class="sec" id="wFermer">Fermer</button>
+    <div id="wRetour"></div>
+    <div class="avert">
+      Le scraping de Boursorama se heurte à ses conditions d'utilisation, qui
+      interdisent l'extraction automatisée, et à la licence Euronext sur les
+      cours, que le site n'a pas le droit de redistribuer. Ces valeurs entrent
+      dans la base de l'application, jamais dans le référentiel versionné.
+    </div>
   </div>
 
   <div class="corr" id="corr" hidden>
@@ -1916,6 +1960,88 @@ $("pReset").addEventListener("click", function(){
   recalculerScores(PONDERATIONS);
   filtrer();
   $("pResultat").innerHTML = '<div class="avert">Pondérations d\'origine rétablies.</div>';
+});
+
+// ------------------------------------------------- ajout depuis le web
+// La page ne scrape rien : elle prépare la requête que l'application exécute.
+// « Essayer maintenant » ne réussit que si le navigateur autorise l'appel
+// (page servie par l'application, ou CORS ouvert) — sinon la commande reste
+// utilisable telle quelle dans un terminal.
+function urlWeb(){
+  var base = $("wBase").value.trim().replace(/\/+$/, "");
+  var src = $("wSource").value;
+  var q = $("wRequete").value.trim();
+  return base + "/api/import/web/" + src + "/" + encodeURIComponent(q);
+}
+
+function majWeb(){
+  var q = $("wRequete").value.trim();
+  var pret = q.length > 0;
+  $("wEssayer").disabled = !pret;
+  $("wCopier").disabled = !pret;
+  $("wCmd").textContent = pret
+    ? "curl -X POST \"" + urlWeb() + "\""
+    : "Saisir un nom, un ISIN ou un code.";
+  $("wDoc").href = $("wBase").value.trim().replace(/\/+$/, "") + "/docs#/Administration";
+}
+
+$("ajoutWeb").addEventListener("click", function(){
+  var b = $("web");
+  b.hidden = !b.hidden;
+  if (!b.hidden) majWeb();
+});
+$("wFermer").addEventListener("click", function(){ $("web").hidden = true; });
+["wSource", "wRequete", "wBase"].forEach(function(id){
+  $(id).addEventListener("input", majWeb);
+  $(id).addEventListener("change", majWeb);
+});
+
+$("wDeSelection").addEventListener("click", function(){
+  var isins = Object.keys(choix);
+  if (!isins.length){ retour(this, "Aucune ligne sélectionnée"); return; }
+  // Une requête par valeur : la route n'accepte qu'un identifiant à la fois.
+  $("wRequete").value = isins[0];
+  majWeb();
+  if (isins.length > 1){
+    $("wCmd").textContent = isins.map(function(i){
+      var base = $("wBase").value.trim().replace(/\/+$/, "");
+      return "curl -X POST \"" + base + "/api/import/web/" + $("wSource").value +
+             "/" + encodeURIComponent(i) + "\"";
+    }).join("\n");
+  }
+  retour(this, isins.length + " ISIN repris");
+});
+
+$("wCopier").addEventListener("click", function(){
+  presse($("wCmd").textContent, this, "Commande copiée");
+});
+
+$("wEssayer").addEventListener("click", function(){
+  var bouton = this;
+  bouton.disabled = true;
+  $("wRetour").innerHTML = '<div class="avert">Appel en cours…</div>';
+  fetch(urlWeb(), {method: "POST"})
+    .then(function(r){
+      return r.json().then(function(d){ return {ok: r.ok, statut: r.status, corps: d}; });
+    })
+    .then(function(res){
+      if (res.ok){
+        $("wRetour").innerHTML = '<div class="avert">Valeur ajoutée à la base de ' +
+          "l'application. Elle n'apparaîtra pas dans cette page, qui lit le " +
+          "référentiel versionné : la consulter dans l'application.</div>";
+      } else {
+        $("wRetour").innerHTML = '<div class="avert">Refus de l\'application (HTTP ' +
+          res.statut + ") : " + esc(JSON.stringify(res.corps).slice(0, 180)) + "</div>";
+      }
+    })
+    .catch(function(){
+      $("wRetour").innerHTML = '<div class="avert">Appel impossible depuis cette ' +
+        "page. Deux causes usuelles : l'application n'est pas lancée " +
+        "(<code>python run.py</code>), ou le navigateur bloque l'appel entre un " +
+        "fichier local et localhost. La commande ci-dessus fonctionne dans un " +
+        "terminal.</div>";
+    })
+    .then(function(){ bouton.disabled = false; });
 });
 
 filtrer();
