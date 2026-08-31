@@ -30,7 +30,7 @@ illustratif.
 | Exécution | ligne de commande, GitHub Actions | serveur web local |
 | Dépendances | **aucune** (bibliothèque standard) | FastAPI, SQLAlchemy, uvicorn |
 | Stockage | fichiers CSV versionnés | base SQLite locale (non versionnée) |
-| Sortie | `dashboard.html` autonome, 6 onglets | 11 écrans, 49 routes REST, 18 outils MCP |
+| Sortie | `dashboard.html` autonome, 9 onglets | 11 écrans, 49 routes REST, 18 outils MCP |
 | Reproductible | oui, tout est commité | non, la base est régénérée |
 | Validée par | `validate.yml` | `tests.yml` — 115 tests |
 

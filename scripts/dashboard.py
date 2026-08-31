@@ -46,6 +46,9 @@ PAYS = {
     "XS": "International", "AN": "Antilles nl.", "BM": "Bermudes",
 }
 
+# Classification SFDR : l'article 9 est plus exigeant que l'article 8.
+ECHELLE_ESG = {"ESG ETF art. 9": 1.0, "ESG ETF art. 8": 0.6}
+
 NON_ALIMENTES = [
     ("Répartition sectorielle", "aucun champ secteur dans les listes Euronext"),
     ("Rendement moyen", "dividendes européens indisponibles en gratuit"),
@@ -173,6 +176,9 @@ def construire(data, top, seuil):
     sri = {r["ISIN"]: r for r in lire(data / "base_isin_sri.csv")}
     anomalies = lire(data / "anomalies.csv")
     histo = lire(data / "historique_couverture.csv")
+    chemin_pond = data / "scoring_params.json"
+    ponderations = (json.loads(chemin_pond.read_text(encoding="utf-8"))
+                    if chemin_pond.exists() else {})
 
     # Anomalies groupées par instrument : la ligne de l'explorateur porte un
     # marqueur, le détail reste dans la carte dédiée.
@@ -224,6 +230,9 @@ def construire(data, top, seuil):
             nombre(sri.get(isin, {}).get("SRI_retenu")),
             (sri.get(isin, {}).get("Ecart_officiel") or "")[:110],
             (sri.get(isin, {}).get("Methode") or ""),
+            nombre(m.get("Sortino")),
+            ECHELLE_ESG.get((r.get("ESG_classification") or "").strip()),
+            m.get("Source_cours") or "",
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -310,6 +319,14 @@ def construire(data, top, seuil):
         "__NB_POINTS__": str(len(histo)),
         "__NB_ANO__": str(len(anomalies)),
         "__NB_ANO_INST__": str(len(ano_par_isin)),
+        "__HISTORIQUE__": json.dumps(
+            [[p.get("Date", ""), nombre(p.get("Instruments")), nombre(p.get("Collectes")),
+              nombre(p.get("Notes")), nombre(p.get("Couverture_moy_pct")),
+              nombre(p.get("Score_moy")), nombre(p.get("Cours_perimes"))]
+             for p in histo], ensure_ascii=False, separators=(",", ":")),
+        "__PONDERATIONS__": json.dumps(
+            {k: v for k, v in ponderations.items() if not str(k).startswith("_")},
+            ensure_ascii=False, separators=(",", ":")),
         "__NB_CORR__": str(len(corrections)),
         "__CORRECTIONS_SRI__": json.dumps(
             {r["ISIN"]: [r.get("SRI_officiel", ""), r.get("Source", ""),
@@ -558,6 +575,9 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   <button type="button" class="onglet" data-vue="allocation" role="tab">Allocation</button>
   <button type="button" class="onglet" data-vue="simulateur" role="tab">Simulateur</button>
   <button type="button" class="onglet" data-vue="watchlist" role="tab">Watchlist</button>
+  <button type="button" class="onglet" data-vue="historique" role="tab">Historique</button>
+  <button type="button" class="onglet" data-vue="sources" role="tab">Sources</button>
+  <button type="button" class="onglet" data-vue="parametres" role="tab">Paramètres</button>
   <button type="button" class="onglet" data-vue="systeme" role="tab">Système</button>
 </nav>
 
@@ -891,6 +911,64 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
 </div>
 </section>
 
+<section class="vue" id="vue-historique" hidden>
+<div class="carte">
+  <h2>Historique de la collecte</h2>
+  <p class="note" style="margin-top:0">
+    Un relevé par jour de collecte, reconstitué depuis l'historique Git puis
+    complété par le robot quotidien. C'est l'indicateur de santé du projet :
+    une progression qui stagne signale un quota épuisé ou un workflow en échec,
+    ce qu'aucun score ne montrerait.
+  </p>
+  <div class="tbl-wrap"><table id="hTable"></table></div>
+  <button type="button" class="sec" id="hExport">Exporter l'historique (CSV)</button>
+</div>
+</section>
+
+<section class="vue" id="vue-sources" hidden>
+<div class="carte">
+  <h2>Sources des données</h2>
+  <p class="note" style="margin-top:0">
+    Origine réelle des cours présents dans la base, et quotas constatés sur les
+    comptes gratuits. Cette page ne teste pas les sources : elle n'embarque
+    aucune clé. Pour un diagnostic en direct, utiliser l'écran <i>Sources</i> de
+    l'application, ou l'onglet <i>Explorateur → Piloter la collecte</i>.
+  </p>
+  <div class="tbl-wrap"><table id="srcTable"></table></div>
+  <h2 style="margin-top:22px">Quotas constatés (comptes gratuits)</h2>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Source</th><th>Quota</th><th>Couverture Euronext</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td>EODHD</td><td class="nu">20 / jour</td><td>Paris, Amsterdam, Bruxelles, Lisbonne, Oslo, Milan, Dublin</td><td>historique et indicateurs</td></tr>
+      <tr><td>Marketstack</td><td class="nu">100 / mois</td><td>4 places, grandes capitalisations</td><td>cours en masse, lots de 50</td></tr>
+      <tr><td>OpenFIGI</td><td class="nu">250 / min</td><td>mondiale</td><td>identifiants, tickers, noms</td></tr>
+      <tr><td>Alpha Vantage</td><td class="nu">25 / jour</td><td>partielle</td><td>repli</td></tr>
+      <tr><td>FMP, Finnhub, Tiingo, Polygon</td><td class="nu">—</td><td><b>aucune</b> en gratuit</td><td>à réserver au compte-titres</td></tr>
+    </tbody>
+  </table></div>
+  <div class="avert">Aucune de ces sources ne fournit l'éligibilité PEA :
+  elle vient des relevés émetteurs et des règles métier.</div>
+</div>
+</section>
+
+<section class="vue" id="vue-parametres" hidden>
+<div class="carte">
+  <h2>Pondérations du score</h2>
+  <p class="note" style="margin-top:0">
+    Le score est recalculé <b>dans le navigateur</b> : modifier une pondération
+    et recalculer met à jour l'Explorateur, les classements et l'Allocation.
+    Rien n'est écrit sur votre appareil — exporter le fichier pour rendre le
+    changement durable, puis relancer <code>scripts/scoring.py</code>.
+  </p>
+  <div class="formulaire" id="pChamps"></div>
+  <div id="pDispo" class="note"></div>
+  <button type="button" id="pRecalculer">Recalculer les scores</button>
+  <button type="button" class="sec" id="pExport">Exporter scoring_params.json</button>
+  <button type="button" class="sec" id="pReset">Rétablir</button>
+  <div id="pResultat"></div>
+</div>
+</section>
+
 <section class="vue" id="vue-systeme" hidden>
 
 <div class="carte">
@@ -925,7 +1003,7 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 //            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
 //            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
 //            18 methode PEA,19 motif PEA,20 vigilance,21 SRI retenu,
-//            22 reserve SRI,23 methode SRI
+//            22 reserve SRI,23 methode SRI,24 sortino,25 esg,26 source cours
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -1656,6 +1734,188 @@ $("wVider").addEventListener("click", function(){
   choix = Object.create(null);
   rendre();
   majWatchlist();
+});
+
+// ---------------------------------------------------------------- historique
+var HISTO = __HISTORIQUE__;
+
+(function(){
+  if (!HISTO.length){
+    $("hTable").innerHTML = "<tr><td>Aucun relevé enregistré.</td></tr>";
+    $("hExport").disabled = true;
+    return;
+  }
+  var entetes = ["Date","Instruments","Collectés","Notés","Couverture","Score moyen","Cours périmés"];
+  var corps = HISTO.map(function(p, i){
+    var prec = i > 0 ? HISTO[i-1] : null;
+    var delta = prec ? p[2] - prec[2] : null;
+    return "<tr><td>" + esc(p[0]) + '</td><td class="nu">' + (p[1] || "—") +
+      '</td><td class="nu">' + (p[2] || "—") +
+      (delta ? ' <span class="ty">(+' + delta + ")</span>" : "") +
+      '</td><td class="nu">' + (p[3] || "—") + '</td><td class="nu">' +
+      (p[4] === null ? "—" : p[4].toFixed(1) + " %") + '</td><td class="nu">' +
+      (p[5] === null ? "—" : p[5].toFixed(1)) + '</td><td class="nu">' +
+      (p[6] === null ? "—" : p[6]) + "</td></tr>";
+  }).reverse().join("");
+  $("hTable").innerHTML = "<thead><tr>" +
+    entetes.map(function(e){ return "<th>" + e + "</th>"; }).join("") +
+    "</tr></thead><tbody>" + corps + "</tbody>";
+})();
+
+$("hExport").addEventListener("click", function(){
+  var lignes = ["Date;Instruments;Collectes;Notes;Couverture_moy_pct;Score_moy;Cours_perimes"];
+  HISTO.forEach(function(p){ lignes.push(p.join(";")); });
+  telecharger("historique_couverture.csv", "\ufeff" + lignes.join("\r\n") + "\r\n",
+              "text/csv;charset=utf-8");
+  retour(this, HISTO.length + " relevé(s) exporté(s)");
+});
+
+// ------------------------------------------------------------------- sources
+(function(){
+  var comptes = {};
+  D.forEach(function(r){
+    if (!r[26]) return;
+    if (!comptes[r[26]]) comptes[r[26]] = {n: 0, ages: []};
+    comptes[r[26]].n += 1;
+    if (r[13] !== null && r[13] !== undefined) comptes[r[26]].ages.push(r[13]);
+  });
+  var cles = Object.keys(comptes);
+  if (!cles.length){
+    $("srcTable").innerHTML = "<tr><td>Aucun cours collecté.</td></tr>";
+    return;
+  }
+  $("srcTable").innerHTML = "<thead><tr><th>Source</th><th class=\"nu\">Instruments</th>" +
+    "<th class=\"nu\">Cours le plus récent</th><th class=\"nu\">Le plus ancien</th></tr></thead><tbody>" +
+    cles.map(function(k){
+      var a = comptes[k].ages;
+      return "<tr><td>" + esc(k) + '</td><td class="nu">' + comptes[k].n +
+        '</td><td class="nu">' + (a.length ? Math.min.apply(null, a) + " j" : "—") +
+        '</td><td class="nu">' + (a.length ? Math.max.apply(null, a) + " j" : "—") +
+        "</td></tr>";
+    }).join("") + "</tbody>";
+})();
+
+// ---------------------------------------------------------------- paramètres
+// Recalcul fidèle à scripts/scoring.py : rang percentile au sein du même Type,
+// renormalisation sur les critères disponibles, et les deux garde-fous.
+var PONDERATIONS = __PONDERATIONS__;
+var PONDERATIONS_INITIALES = JSON.parse(JSON.stringify(PONDERATIONS));
+var MIN_CRITERES = 2, MIN_COUVERTURE = 30, MIN_POPULATION = 5;
+// Critère -> [indice dans la ligne, sens]. Sens -1 : plus bas est meilleur.
+var CRITERES_JS = {
+  performance: [9, 1], volatilite: [8, -1], sharpe: [16, 1],
+  sortino: [24, 1], drawdown: [17, 1], esg: [25, 1]
+};
+
+(function(){
+  var champs = Object.keys(PONDERATIONS).map(function(k){
+    var dispo = CRITERES_JS[k] ? "" : " ✕";
+    return '<label>' + esc(k) + dispo +
+      '<input type="number" data-p="' + esc(k) + '" value="' + PONDERATIONS[k] +
+      '" min="0" step="1"></label>';
+  }).join("");
+  $("pChamps").innerHTML = champs;
+  var absents = Object.keys(PONDERATIONS).filter(function(k){ return !CRITERES_JS[k]; });
+  $("pDispo").textContent = absents.length
+    ? "Les critères marqués ✕ (" + absents.join(", ") + ") n'ont aucune source " +
+      "européenne gratuite : leur poids est retiré et les autres renormalisés, " +
+      "jamais attribué par défaut."
+    : "";
+})();
+
+function rangs(valeurs){
+  var n = valeurs.length, r = {};
+  if (!n) return r;
+  if (n === 1){ r[valeurs[0]] = 0.5; return r; }
+  var tries = valeurs.slice().sort(function(a,b){ return a - b; });
+  var i = 0;
+  while (i < n){
+    var j = i;
+    while (j + 1 < n && tries[j+1] === tries[i]) j += 1;
+    r[tries[i]] = ((i + j) / 2) / (n - 1);
+    i = j + 1;
+  }
+  return r;
+}
+
+function recalculerScores(poids){
+  var total = 0, actifs = {};
+  Object.keys(poids).forEach(function(k){
+    var p = parseFloat(poids[k]);
+    if (CRITERES_JS[k] && p > 0){ actifs[k] = p; }
+    if (p > 0) total += p;   // le barème complet, critères sans source inclus
+  });
+  var groupes = {};
+  D.forEach(function(r, i){
+    if (!groupes[r[2]]) groupes[r[2]] = [];
+    groupes[r[2]].push(i);
+  });
+  var notes = D.map(function(){ return {}; });
+  Object.keys(groupes).forEach(function(t){
+    var idx = groupes[t];
+    Object.keys(actifs).forEach(function(c){
+      var col = CRITERES_JS[c][0], sens = CRITERES_JS[c][1];
+      var presents = [], vals = [];
+      idx.forEach(function(i){
+        var v = D[i][col];
+        if (typeof v === "number"){ presents.push(i); vals.push(v); }
+      });
+      if (presents.length < MIN_POPULATION) return;
+      var rg = rangs(vals);
+      presents.forEach(function(i, k){
+        var x = rg[vals[k]];
+        notes[i][c] = (sens > 0 ? x : 1 - x) * 100;
+      });
+    });
+  });
+  var notes_ok = 0;
+  D.forEach(function(r, i){
+    var cs = Object.keys(notes[i]);
+    if (cs.length < MIN_CRITERES){ r[6] = null; r[7] = null; return; }
+    var pd = 0, cumul = 0;
+    cs.forEach(function(c){ pd += actifs[c]; cumul += notes[i][c] * actifs[c]; });
+    var couv = 100 * pd / total;
+    if (couv < MIN_COUVERTURE){ r[6] = null; r[7] = null; return; }
+    r[6] = Math.round((cumul / pd) * 10) / 10;
+    r[7] = Math.round(couv * 10) / 10;
+    notes_ok += 1;
+  });
+  return notes_ok;
+}
+
+$("pRecalculer").addEventListener("click", function(){
+  var poids = {};
+  document.querySelectorAll("#pChamps input[data-p]").forEach(function(inp){
+    poids[inp.dataset.p] = parseFloat(inp.value) || 0;
+  });
+  PONDERATIONS = poids;
+  var n = recalculerScores(poids);
+  filtrer();
+  var couvs = D.filter(function(r){ return r[7] !== null; }).map(function(r){ return r[7]; });
+  var moy = couvs.length ? couvs.reduce(function(a,b){ return a+b; },0) / couvs.length : 0;
+  $("pResultat").innerHTML = '<div class="avert">' + n +
+    " instrument(s) notés, couverture moyenne " + moy.toFixed(1) + " %. " +
+    "Les classements et l'Allocation utilisent désormais ces pondérations. " +
+    "Ce recalcul ne quitte pas le navigateur : exporter le fichier pour le rendre durable.</div>";
+  retour(this, "Recalculé");
+});
+
+$("pExport").addEventListener("click", function(){
+  var obj = {_commentaire: "Pondérations du score sur 100. Un critère sans donnée est retiré et les autres sont renormalisés ; son poids n'est jamais attribué par défaut."};
+  Object.keys(PONDERATIONS).forEach(function(k){ obj[k] = PONDERATIONS[k]; });
+  telecharger("scoring_params.json", JSON.stringify(obj, null, 2) + "\n",
+              "application/json;charset=utf-8");
+  retour(this, "Fichier exporté");
+});
+
+$("pReset").addEventListener("click", function(){
+  PONDERATIONS = JSON.parse(JSON.stringify(PONDERATIONS_INITIALES));
+  document.querySelectorAll("#pChamps input[data-p]").forEach(function(inp){
+    inp.value = PONDERATIONS[inp.dataset.p];
+  });
+  recalculerScores(PONDERATIONS);
+  filtrer();
+  $("pResultat").innerHTML = '<div class="avert">Pondérations d\'origine rétablies.</div>';
 });
 
 filtrer();

@@ -648,8 +648,8 @@ python3 scripts/dashboard.py --top 12 --seuil-fraicheur 7
 ```
 
 Ouvrir `data/dashboard.html` dans un navigateur. Page autonome, consultable
-hors ligne, organisée en **six onglets** qui reprennent les écrans de
-l'application PEAdvisor accessibles sans serveur :
+hors ligne, organisée en **neuf onglets** qui reprennent les écrans de
+l'application PEAdvisor réalisables sans serveur :
 
 | Onglet | Contenu |
 |---|---|
@@ -658,19 +658,35 @@ l'application PEAdvisor accessibles sans serveur :
 | **Allocation** | capital, risque 1-7, horizon, objectif → portefeuille calculé dans le navigateur |
 | **Simulateur** | versements programmés, six horizons, trois scénarios, frais, inflation, fiscalité PEA ou compte-titres |
 | **Watchlist** | valeurs cochées dans l'Explorateur, export CSV |
+| **Historique** | un relevé par jour de collecte, progression, export CSV |
+| **Sources** | origine réelle des cours en base, fraîcheur par source, quotas constatés |
+| **Paramètres** | pondérations du score, **recalcul immédiat dans le navigateur**, export du fichier |
 | **Système** | anomalies détectées, indicateurs prévus non alimentés |
 
-Les onglets Allocation et Simulateur sont des **transpositions fidèles** de
-`scripts/allocation.py` et `scripts/simulateur.py` : à paramètres identiques,
-les résultats sont les mêmes au centime près. Ils calculent dans le navigateur,
+Correspondance avec les onze écrans de l'application :
+
+| Écran PEAdvisor | Onglet statique |
+|---|---|
+| dashboard | Synthèse |
+| actions, etf, opcvm | Explorateur (filtre par nature) |
+| allocation, simulateur, watchlist, historique, sources, parametres, systeme | onglet de même nom |
+
+Les onglets Allocation, Simulateur et Paramètres sont des **transpositions
+fidèles** de `scripts/allocation.py`, `scripts/simulateur.py` et
+`scripts/scoring.py` : à paramètres identiques, les résultats sont les mêmes.
+Le recalcul des scores reprend la méthode exacte — rang percentile au sein du
+même type, renormalisation sur les critères disponibles, minimum de 2 critères
+et 30 % du barème couvert. Ils calculent dans le navigateur,
 donc sans serveur ni clé — utilisable depuis un téléphone.
 
 Deux écrans de l'application n'ont pas d'équivalent ici, faute de données :
 les **corrélations** (les séries de rendements ne sont pas dans les CSV) et la
 **répartition sectorielle** (aucun champ secteur dans les listes Euronext).
 
-La watchlist vit le temps de la session : cette page n'écrit rien sur votre
-appareil. L'exporter pour la conserver.
+La watchlist et les pondérations modifiées vivent le temps de la session :
+cette page n'écrit rien sur votre appareil. Les exporter pour les conserver —
+`scoring_params.json` remplace alors le fichier du dépôt, et
+`scripts/scoring.py` reprend les nouvelles pondérations.
 
 - **Bandeau de fraîcheur** : génération, MAJ base, cours le plus récent et le
   plus ancien, nombre de cours périmés.
