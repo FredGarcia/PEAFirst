@@ -1018,16 +1018,40 @@ Trois façons de la lancer :
 
 | Moyen | Condition |
 |---|---|
-| **Essayer maintenant** | ne fonctionne que si le navigateur autorise l'appel entre la page et l'application (page servie par l'application, ou CORS ouvert). Depuis un fichier local, l'appel est bloqué et le message l'explique |
+| **Essayer maintenant** | affiche une barre de progression et reporte les résultats dans le tableau. Nécessite que la page soit **servie par l'application** : ouvrir <http://localhost:8000/tableau-de-bord> plutôt que le fichier local, sinon le navigateur bloque l'appel — le message le dit et donne l'adresse |
 | **Copier la commande** | `curl -X POST "http://localhost:8000/api/import/web/boursorama/FR0000120073"` — fonctionne toujours dans un terminal, l'application étant lancée |
 | **Ouvrir l'API** | formulaire Swagger de la route |
 
 Six sites sont déclarés dans l'application, mais **seul Boursorama est
 validé** ; les autres sont proposés en l'état.
 
-La valeur ajoutée entre dans la **base de l'application**, jamais dans le
-référentiel versionné : elle n'apparaîtra donc pas dans cette page, qui lit les
-fichiers de `data/`. La consulter dans l'application.
+**Progression et résultats.** Une valeur sélectionnée par ligne donne une barre
+de progression réelle (« Import 2 sur 5 ») ; pour une valeur unique, la barre
+reste indéterminée, la durée du scraping n'étant pas connue d'avance. À la fin,
+le **potentiel** relevé sur le site est reporté dans la colonne du même nom de
+l'Explorateur, à côté du **SRI**.
+
+Les deux jeux de données sont complémentaires, et c'est tout l'intérêt :
+
+| | référentiel `data/` | Boursorama |
+|---|---|---|
+| SRI, volatilité, drawdown, Sharpe | ✅ calculés sur l'historique | ❌ |
+| Potentiel, objectif de cours, consensus, PER, rendement, ESG | ❌ aucune source gratuite | ✅ |
+
+Le SRI affiché reste donc celui du référentiel : le site ne le fournit pas.
+L'import ne l'écrase pas.
+
+Trois issues possibles, distinguées dans le compte rendu :
+
+- **potentiel reporté** — la valeur est dans le référentiel et le site publie un
+  objectif de cours ;
+- **sans potentiel publié** — une petite capitalisation n'a souvent aucun
+  objectif d'analyste, la colonne reste vide ;
+- **absente du référentiel** — la valeur n'existe que dans la base de
+  l'application, à consulter là-bas.
+
+Le potentiel affiché ici vit le temps de la session : il n'est pas écrit dans
+`data/`. La valeur importée, elle, reste dans la base de l'application.
 
 > Le scraping de Boursorama se heurte à ses conditions d'utilisation, qui
 > interdisent l'extraction automatisée, et à la licence Euronext sur les cours,

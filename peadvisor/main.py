@@ -16,6 +16,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi import HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from peadvisor import __version__
@@ -73,4 +75,22 @@ app.include_router(administration.router)
 app.include_router(meta.router)
 
 # Le tableau de bord web est servi à la racine.
+# Le tableau de bord statique produit par scripts/dashboard.py, servi par
+# l'application. Depuis cette adresse il partage son origine avec l'API : ses
+# boutons d'import peuvent donc l'appeler, ce qu'un fichier ouvert en local ne
+# permet pas (le navigateur bloque l'appel). Aucune ouverture CORS nécessaire.
+CHEMIN_TABLEAU = Path(__file__).resolve().parents[1] / "data" / "dashboard.html"
+
+
+@app.get("/tableau-de-bord", include_in_schema=False)
+def tableau_de_bord():
+    if not CHEMIN_TABLEAU.exists():
+        raise HTTPException(
+            404,
+            "data/dashboard.html absent : le produire avec "
+            "python3 scripts/dashboard.py",
+        )
+    return FileResponse(CHEMIN_TABLEAU, media_type="text/html")
+
+
 app.mount("/", StaticFiles(directory=DOSSIER_STATIC, html=True), name="static")

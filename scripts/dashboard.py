@@ -233,6 +233,7 @@ def construire(data, top, seuil):
             nombre(m.get("Sortino")),
             ECHELLE_ESG.get((r.get("ESG_classification") or "").strip()),
             m.get("Source_cours") or "",
+            None,   # 27 potentiel — alimenté par l'import web, en session
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -457,6 +458,12 @@ color:var(--encre);min-width:120px}
 .formulaire input[type=checkbox]{min-width:0}
 .avert{border-left:3px solid var(--manquant);padding:9px 0 9px 13px;
 margin:12px 0;font-size:13px;color:var(--encre-2);background:#fdf8f1}
+.barre-prog{height:18px;border:1px solid var(--encre);border-radius:2px;
+overflow:hidden;background:#fff;margin:12px 0 5px}
+.barre-prog-plein{height:100%;width:0;background:var(--couvert);
+transition:width .25s ease}
+@media (prefers-reduced-motion:reduce){.barre-prog-plein{transition:none}}
+td.potentiel{color:var(--couvert);font-weight:600}
 .sri{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;
 border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:12px;cursor:help}
 .sri1,.sri2,.sri3{background:#dfeeeb;color:#1d534f}
@@ -713,6 +720,7 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
       <th class="tri" data-c="5" tabindex="0">État <span class="fl">▲▼</span></th>
       <th class="tri nu" data-c="21" tabindex="0">SRI <span class="fl">▲▼</span></th>
       <th class="tri nu" data-c="6" tabindex="0">Score <span class="fl">▲▼</span></th>
+      <th class="tri nu" data-c="27" tabindex="0">Potentiel <span class="fl">▲▼</span></th>
       <th class="tri nu masq-s" data-c="8" tabindex="0">Vol. <span class="fl">▲▼</span></th>
       <th class="tri nu masq-s" data-c="9" tabindex="0">Perf. <span class="fl">▲▼</span></th>
       <th class="tri nu" data-c="13" tabindex="0">Âge <span class="fl">▲▼</span></th>
@@ -760,6 +768,10 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
     <button type="button" class="sec" id="wCopier">Copier la commande</button>
     <a class="bouton" id="wDoc" href="#" target="_blank" rel="noopener">Ouvrir l'API</a>
     <button type="button" class="sec" id="wFermer">Fermer</button>
+    <div id="wProgres" hidden>
+      <div class="barre-prog"><div class="barre-prog-plein" id="wProgPlein"></div></div>
+      <div class="note" id="wProgTexte"></div>
+    </div>
     <div id="wRetour"></div>
     <div class="avert">
       Le scraping de Boursorama se heurte à ses conditions d'utilisation, qui
@@ -1047,7 +1059,8 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 //            8 vol,9 perf,10 sharpe,11 drawdown,12 date cours,13 age,
 //            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
 //            18 methode PEA,19 motif PEA,20 vigilance,21 SRI retenu,
-//            22 reserve SRI,23 methode SRI,24 sortino,25 esg,26 source cours
+//            22 reserve SRI,23 methode SRI,24 sortino,25 esg,26 source cours,
+//            27 potentiel (import web, non persiste)
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -1151,7 +1164,7 @@ function rendre(){
       var val = r[Number(grp)] || "—";
       if (val !== dernier){
         dernier = val;
-        lignes.push('<tr class="grp"><td colspan="11">' + esc(val) + "</td></tr>");
+        lignes.push('<tr class="grp"><td colspan="12">' + esc(val) + "</td></tr>");
       }
     }
     var age = r[13];
@@ -1172,12 +1185,16 @@ function rendre(){
         (r[23] === "dic_emetteur" ? " officiel" : "") + '" title="' +
         esc(r[22] || "") + '">' + (r[21] || "—") + "</span></td>" +
       '<td class="nu">' + cell(r[6]) + "</td>" +
+      '<td class="nu' + (r[27] !== null && r[27] !== undefined ? " potentiel" : "") +
+        '" title="' + (r[27] !== null && r[27] !== undefined
+          ? "objectif de cours Boursorama, relevé en session" : "") + '">' +
+        cell(r[27], "%") + "</td>" +
       '<td class="nu masq-s">' + cell(r[8], "%") + "</td>" +
       '<td class="nu masq-s">' + cell(r[9], "%") + "</td>" +
       "<td" + vieux + ">" + ageTxt + "</td></tr>");
   });
   corps.innerHTML = lignes.join("") ||
-    '<tr><td colspan="11">Aucune ligne ne correspond à ces filtres. ' +
+    '<tr><td colspan="12">Aucune ligne ne correspond à ces filtres. ' +
     "Élargir la recherche ou réinitialiser.</td></tr>";
   var pages = Math.max(1, Math.ceil(vue.length / PARPAGE));
   $("pagination").textContent = " page " + (page + 1) + " / " + pages + " ";
@@ -2016,32 +2033,113 @@ $("wCopier").addEventListener("click", function(){
   presse($("wCmd").textContent, this, "Commande copiée");
 });
 
+// Import séquentiel : une requête par valeur, la route n'en acceptant qu'une.
+// La progression est réelle (n sur total) et non simulée ; pour une valeur
+// unique, la barre reste indéterminée le temps du scraping, sa durée n'étant
+// pas connue d'avance.
+var IDX_PAR_ISIN = null;
+
+function indexIsin(){
+  if (IDX_PAR_ISIN) return IDX_PAR_ISIN;
+  IDX_PAR_ISIN = Object.create(null);
+  D.forEach(function(r, i){ IDX_PAR_ISIN[r[0]] = i; });
+  return IDX_PAR_ISIN;
+}
+
+function appliquerImport(res){
+  // Le potentiel et l'objectif de cours viennent du site ; le SRI et la
+  // volatilité restent ceux du référentiel, calculés sur l'historique. Les deux
+  // jeux sont complémentaires, on ne remplace donc pas l'un par l'autre.
+  var ex = res.donnees_extraites || {};
+  var idx = indexIsin();
+  var i = idx[res.isin];
+  if (i === undefined) return "absent";
+  if (typeof ex.potentiel !== "number") return "sans_potentiel";
+  D[i][27] = ex.potentiel;
+  return "ok";
+}
+
+function progres(fait, total, message){
+  $("wProgres").hidden = false;
+  var pct = total ? Math.round(100 * fait / total) : 0;
+  $("wProgPlein").style.width = (total > 1 ? pct : (fait ? 100 : 40)) + "%";
+  $("wProgTexte").textContent = message;
+}
+
 $("wEssayer").addEventListener("click", function(){
   var bouton = this;
+  var base = $("wBase").value.trim().replace(/\/+$/, "");
+  var src = $("wSource").value;
+  var saisie = $("wRequete").value.trim();
+  // « Depuis la sélection » remplit le champ avec le premier ISIN mais la
+  // sélection complète est traitée si elle est encore active.
+  var cibles = Object.keys(choix);
+  if (!cibles.length || cibles.indexOf(saisie) < 0) cibles = [saisie];
+  cibles = cibles.filter(function(x){ return x; });
+  if (!cibles.length) return;
+
   bouton.disabled = true;
-  $("wRetour").innerHTML = '<div class="avert">Appel en cours…</div>';
-  fetch(urlWeb(), {method: "POST"})
-    .then(function(r){
-      return r.json().then(function(d){ return {ok: r.ok, statut: r.status, corps: d}; });
-    })
-    .then(function(res){
-      if (res.ok){
-        $("wRetour").innerHTML = '<div class="avert">Valeur ajoutée à la base de ' +
-          "l'application. Elle n'apparaîtra pas dans cette page, qui lit le " +
-          "référentiel versionné : la consulter dans l'application.</div>";
-      } else {
-        $("wRetour").innerHTML = '<div class="avert">Refus de l\'application (HTTP ' +
-          res.statut + ") : " + esc(JSON.stringify(res.corps).slice(0, 180)) + "</div>";
-      }
-    })
+  $("wRetour").innerHTML = "";
+  var ok = 0, echecs = [], majTable = 0, sansPotentiel = 0, horsBase = 0, i = 0;
+
+  function suivant(){
+    if (i >= cibles.length){
+      $("wProgPlein").style.width = "100%";
+      $("wProgTexte").textContent = "Terminé.";
+      bouton.disabled = false;
+      if (majTable){ filtrer(); }
+      var msg = ok + " valeur(s) importée(s) dans la base de l'application.";
+      if (majTable) msg += " " + majTable + " potentiel(s) reporté(s) dans le " +
+        "tableau ci-dessous. Le SRI affiché reste celui du référentiel, calculé " +
+        "sur l'historique : le site ne le fournit pas.";
+      if (sansPotentiel) msg += " " + sansPotentiel + " valeur(s) sans potentiel " +
+        "publié — une petite capitalisation n'a souvent aucun objectif de cours " +
+        "d'analyste, la colonne reste donc vide.";
+      if (horsBase) msg += " " + horsBase + " valeur(s) absente(s) du référentiel " +
+        "versionné : à consulter dans l'application.";
+      if (echecs.length) msg += " Échecs : " + echecs.join(", ") + ".";
+      $("wRetour").innerHTML = '<div class="avert">' + esc(msg) + "</div>";
+      return;
+    }
+    var cible = cibles[i];
+    progres(i, cibles.length, cibles.length > 1
+      ? "Import " + (i + 1) + " sur " + cibles.length + " — " + cible
+      : "Interrogation de " + src + " pour " + cible + "…");
+    fetch(base + "/api/import/web/" + src + "/" + encodeURIComponent(cible),
+          {method: "POST"})
+      .then(function(r){
+        return r.json().then(function(d){ return {ok: r.ok, statut: r.status, d: d}; });
+      })
+      .then(function(res){
+        if (res.ok){
+          ok += 1;
+          var etat = appliquerImport(res.d);
+          if (etat === "ok") majTable += 1;
+          else if (etat === "sans_potentiel") sansPotentiel += 1;
+          else horsBase += 1;
+        }
+        else echecs.push(cible + " (HTTP " + res.statut + ")");
+      })
+      .catch(function(){
+        echecs.push(cible + " (appel bloqué)");
+      })
+      .then(function(){ i += 1; suivant(); });
+  }
+
+  // Un échec immédiat sur la première valeur vient presque toujours du contexte
+  // d'ouverture de la page : le dire plutôt que d'égrener les échecs.
+  fetch(base + "/api/meta/sante", {method: "GET"})
+    .then(function(){ suivant(); })
     .catch(function(){
-      $("wRetour").innerHTML = '<div class="avert">Appel impossible depuis cette ' +
-        "page. Deux causes usuelles : l'application n'est pas lancée " +
-        "(<code>python run.py</code>), ou le navigateur bloque l'appel entre un " +
-        "fichier local et localhost. La commande ci-dessus fonctionne dans un " +
-        "terminal.</div>";
-    })
-    .then(function(){ bouton.disabled = false; });
+      $("wProgres").hidden = true;
+      bouton.disabled = false;
+      $("wRetour").innerHTML = '<div class="avert">Application injoignable depuis ' +
+        "cette page. Soit elle n'est pas lancée (<code>python run.py</code>), " +
+        "soit la page est ouverte comme fichier local et le navigateur bloque " +
+        "l'appel. Ouvrir alors <code>" + esc(base) + "/tableau-de-bord</code> : " +
+        "servie par l'application, cette même page peut l'appeler. La commande " +
+        "ci-dessus fonctionne dans tous les cas depuis un terminal.</div>";
+    });
 });
 
 filtrer();
