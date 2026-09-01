@@ -1,372 +1,374 @@
 ISIN;Nom;Type;Score_global;Couverture_pct;Criteres_notes;Rang;Date_MAJ
-FR0000061418;FIDUCIAL OFF.SOL.;Action;93.2;60.0;drawdown|performance|sharpe|sortino|volatilite;1;2026-08-30
-BE0003898187;SIPEF;Action;91.5;60.0;drawdown|performance|sharpe|sortino|volatilite;2;2026-08-30
-FR0010588079;FREY;Action;91.3;60.0;drawdown|performance|sharpe|sortino|volatilite;3;2026-08-30
-BE0974264930;AGEAS;Action;91.1;60.0;drawdown|performance|sharpe|sortino|volatilite;4;2026-08-30
-BE0974287196;IMMO MCC;Action;89.7;60.0;drawdown|performance|sharpe|sortino|volatilite;5;2026-08-30
-FR0000064446;CATERING INTL SCES;Action;87.8;60.0;drawdown|performance|sharpe|sortino|volatilite;6;2026-08-30
-FR0000120966;BIC;Action;87.0;60.0;drawdown|performance|sharpe|sortino|volatilite;7;2026-08-30
-BE0974263924;TEXAF;Action;86.5;60.0;drawdown|performance|sharpe|sortino|volatilite;8;2026-08-30
-BE0974293251;AB INBEV;Action;86.5;60.0;drawdown|performance|sharpe|sortino|volatilite;9;2026-08-30
-FR0000053043;ADVINI;Action;86.2;60.0;drawdown|performance|sharpe|sortino|volatilite;10;2026-08-30
-FR0000074254;BOURSE DIRECT;Action;85.4;60.0;drawdown|performance|sharpe|sortino|volatilite;11;2026-08-30
-FR0005057635;ARDOIN ST AMAND A;Action;85.4;60.0;drawdown|performance|sharpe|sortino|volatilite;12;2026-08-30
-FR0010193979;CBO TERRITORIA;Action;84.8;60.0;drawdown|performance|sharpe|sortino|volatilite;13;2026-08-30
-FR0000062101;FERM.CAS.MUN.CANNE;Action;84.7;60.0;drawdown|performance|sharpe|sortino|volatilite;14;2026-08-30
-FR0010717090;AMUNDI ETF EMU HDV;ETF;84.7;60.0;drawdown|performance|sharpe|sortino|volatilite;15;2026-08-30
-BE0974282148;TINC;Action;84.4;60.0;drawdown|performance|sharpe|sortino|volatilite;16;2026-08-30
-FR0010483768;CRCAM BRIE PIC2CCI;Action;83.8;60.0;drawdown|performance|sharpe|sortino|volatilite;17;2026-08-30
-BE0974413453;DEME GROUP;Action;83.7;60.0;drawdown|performance|sharpe|sortino|volatilite;18;2026-08-30
-CY0200352116;FRONTLINE;Action;83.4;60.0;drawdown|performance|sharpe|sortino|volatilite;19;2026-08-30
-BE0974401334;WHITESTONE GROUP;Action;82.9;60.0;drawdown|performance|sharpe|sortino|volatilite;20;2026-08-30
-FR0010151589;CAFOM;Action;82.7;60.0;drawdown|performance|sharpe|sortino|volatilite;21;2026-08-30
-FR0010756114;AMUETFCM9IMETFP;ETF;82.4;60.0;drawdown|performance|sharpe|sortino|volatilite;22;2026-08-30
-FR0004163111;GENFIT;Action;82.3;60.0;drawdown|performance|sharpe|sortino|volatilite;23;2026-08-30
-FR0004175842;SELECTIRENTE;Action;81.9;60.0;drawdown|performance|sharpe|sortino|volatilite;24;2026-08-30
-FR0000030769;PLACOPLATRE;Action;81.5;60.0;drawdown|performance|sharpe|sortino|volatilite;25;2026-08-30
-FR0000038242;LUMIBIRD;Action;81.2;60.0;drawdown|performance|sharpe|sortino|volatilite;26;2026-08-30
-FR0010528059;STREAMWIDE;Action;81.1;60.0;drawdown|performance|sharpe|sortino|volatilite;27;2026-08-30
-FR0010010827;AMUNDI FTSE MIB;ETF;81.0;60.0;drawdown|performance|sharpe|sortino|volatilite;28;2026-08-30
-FR0010241638;MERCIALYS;Action;80.6;60.0;drawdown|performance|sharpe|sortino|volatilite;29;2026-08-30
-FR0010655746;AMUNDI ETF MS SPA;ETF;80.6;60.0;drawdown|performance|sharpe|sortino|volatilite;30;2026-08-30
-FR0000066607;LACROIX GROUP;Action;80.5;60.0;drawdown|performance|sharpe|sortino|volatilite;31;2026-08-30
-BE0974274061;KINEPOLIS GROUP;Action;80.2;60.0;drawdown|performance|sharpe|sortino|volatilite;32;2026-08-30
-FR0010214064;GPE GROUP PIZZORNO;Action;79.6;60.0;drawdown|performance|sharpe|sortino|volatilite;33;2026-08-30
-BE0974271034;VIOHALCO;Action;79.3;60.0;drawdown|performance|sharpe|sortino|volatilite;34;2026-08-30
-FR0006563904;HOTL.IMMOB.NICE;Action;79.3;60.0;drawdown|performance|sharpe|sortino|volatilite;35;2026-08-30
-FR0000060451;INSTALLUX;Action;78.6;60.0;drawdown|performance|sharpe|sortino|volatilite;36;2026-08-30
-FR0000076655;ACTIA GROUP;Action;78.5;60.0;drawdown|performance|sharpe|sortino|volatilite;37;2026-08-30
-FR0010481960;ARGAN;Action;78.4;60.0;drawdown|performance|sharpe|sortino|volatilite;38;2026-08-30
-FR0000031973;FSDV;Action;78.2;60.0;drawdown|performance|sharpe|sortino|volatilite;39;2026-08-30
-FR0011027135;PATRIMOINE ET COMM;Action;78.2;60.0;drawdown|performance|sharpe|sortino|volatilite;40;2026-08-30
-FR0000045528;CRCAM PARIS ET IDF;Action;78.1;60.0;drawdown|performance|sharpe|sortino|volatilite;41;2026-08-30
-BE0974303357;CENERGY;Action;78.0;60.0;drawdown|performance|sharpe|sortino|volatilite;42;2026-08-30
-BE0974499312;ENERGYVISION;Action;77.6;60.0;drawdown|performance|sharpe|sortino|volatilite;43;2026-08-30
-FR0004016699;SMTPC;Action;77.3;60.0;drawdown|performance|sharpe|sortino|volatilite;44;2026-08-30
-FR0000073041;PIERRE VACANCES;Action;77.1;60.0;drawdown|performance|sharpe|sortino|volatilite;45;2026-08-30
-FR0000044364;CRCAM NORM.SEINE;Action;77.0;60.0;drawdown|performance|sharpe|sortino|volatilite;46;2026-08-30
-FR0000133308;ORANGE;Action;76.9;60.0;drawdown|performance|sharpe|sortino|volatilite;47;2026-08-30
-CY0102630916;PETROLIA;Action;76.6;60.0;drawdown|performance|sharpe|sortino|volatilite;48;2026-08-30
-FR0000050353;LISI;Action;76.5;60.0;drawdown|performance|sharpe|sortino|volatilite;49;2026-08-30
-FR0000060790;SIGNAUX GIROD;Action;76.5;60.0;drawdown|performance|sharpe|sortino|volatilite;50;2026-08-30
-FR0004187367;FREELANCE.COM;Action;76.5;60.0;drawdown|performance|sharpe|sortino|volatilite;51;2026-08-30
-ES0105549002;MONTEPINO LOGISTIC;Action;76.4;60.0;drawdown|performance|sharpe|sortino|volatilite;52;2026-08-30
-FR0010790980;AMUNDI ETF STOXX50;ETF;76.4;60.0;drawdown|performance|sharpe|sortino|volatilite;53;2026-08-30
-FR0000064164;EXACOMPTA CLAIREF.;Action;75.7;60.0;drawdown|performance|sharpe|sortino|volatilite;54;2026-08-30
-FR0000120073;AIR LIQUIDE;Action;75.3;60.0;drawdown|performance|sharpe|sortino|volatilite;55;2026-08-30
-FR0000185514;CRCAM NORD CCI;Action;75.1;60.0;drawdown|performance|sharpe|sortino|volatilite;56;2026-08-30
-FR0000051070;MAUREL ET PROM;Action;74.8;60.0;drawdown|performance|sharpe|sortino|volatilite;57;2026-08-30
-FR0000054421;BOURRELIER GROUP;Action;74.8;60.0;drawdown|performance|sharpe|sortino|volatilite;58;2026-08-30
-FR0011033083;MOULINVEST;Action;74.8;60.0;drawdown|performance|sharpe|sortino|volatilite;59;2026-08-30
-FR0004065639;NSE;Action;74.7;60.0;drawdown|performance|sharpe|sortino|volatilite;60;2026-08-30
-FR0010380626;PROLOGUE;Action;74.7;60.0;drawdown|performance|sharpe|sortino|volatilite;61;2026-08-30
-FR0000039216;ALTAREIT;Action;74.6;60.0;drawdown|performance|sharpe|sortino|volatilite;62;2026-08-30
-FR0006174348;BUREAU VERITAS;Action;74.4;60.0;drawdown|performance|sharpe|sortino|volatilite;63;2026-08-30
-FR0006239109;SCBSM;Action;74.4;60.0;drawdown|performance|sharpe|sortino|volatilite;64;2026-08-30
-FR0010291245;VERIMATRIX;Action;73.7;60.0;drawdown|performance|sharpe|sortino|volatilite;65;2026-08-30
-FR0000120669;North Atlantic En.;Action;72.9;60.0;drawdown|performance|sharpe|sortino|volatilite;66;2026-08-30
-FR0000061129;BOIRON;Action;72.6;60.0;drawdown|performance|sharpe|sortino|volatilite;67;2026-08-30
-FR0004170017;LNA SANTE;Action;72.5;60.0;drawdown|performance|sharpe|sortino|volatilite;68;2026-08-30
-FR0000044471;RAMSAY GEN SANTE;Action;72.3;60.0;drawdown|performance|sharpe|sortino|volatilite;69;2026-08-30
-FR0000120404;ACCOR;Action;72.3;60.0;drawdown|performance|sharpe|sortino|volatilite;70;2026-08-30
-FR0010436584;DNXCORP;Action;72.1;60.0;drawdown|performance|sharpe|sortino|volatilite;71;2026-08-30
-FR0000050049;VIEL ET COMPAGNIE;Action;72.0;60.0;drawdown|performance|sharpe|sortino|volatilite;72;2026-08-30
-BE0974273055;CARE PROPERTY INV.;Action;71.9;60.0;drawdown|performance|sharpe|sortino|volatilite;73;2026-08-30
-FR0000033888;GEVELOT;Action;71.6;60.0;drawdown|performance|sharpe|sortino|volatilite;74;2026-08-30
-FR0000060824;FINANCIERE MARJOS;Action;71.6;60.0;drawdown|performance|sharpe|sortino|volatilite;75;2026-08-30
-BE0974256852;COLRUYT;Action;71.1;60.0;drawdown|performance|sharpe|sortino|volatilite;76;2026-08-30
-FR0000065864;SOGECLAIR;Action;71.1;60.0;drawdown|performance|sharpe|sortino|volatilite;77;2026-08-30
-BE0974265945;FLUXYS BELGIUM D;Action;71.0;60.0;drawdown|performance|sharpe|sortino|volatilite;78;2026-08-30
-FR0000121295;LEBON;Action;70.6;60.0;drawdown|performance|sharpe|sortino|volatilite;79;2026-08-30
-FR0000063737;AUBAY;Action;70.4;60.0;drawdown|performance|sharpe|sortino|volatilite;80;2026-08-30
-FR0010823724;FRANCE TOURISME;Action;70.3;60.0;drawdown|performance|sharpe|sortino|volatilite;81;2026-08-30
-FR0000075954;RIBER;Action;70.1;60.0;drawdown|performance|sharpe|sortino|volatilite;82;2026-08-30
-DK0060520450;NAPATECH;Action;70.0;60.0;drawdown|performance|sharpe|sortino|volatilite;83;2026-08-30
-FR0000033599;LEXIBOOK LINGUIST.;Action;69.9;60.0;drawdown|performance|sharpe|sortino|volatilite;84;2026-08-30
-FR0000075343;LABO EUROMEDIS;Action;69.9;60.0;drawdown|performance|sharpe|sortino|volatilite;85;2026-08-30
-BE0974501331;MATERIALISE;Action;69.4;60.0;drawdown|performance|sharpe|sortino|volatilite;86;2026-08-30
-FR0010095596;VALERIO TX;Action;69.1;60.0;drawdown|performance|sharpe|sortino|volatilite;87;2026-08-30
-CY0108052115;ADS MARITIME HOLD;Action;69.0;60.0;drawdown|performance|sharpe|sortino|volatilite;88;2026-08-30
-BE0974272040;QRF;Action;68.9;60.0;drawdown|performance|sharpe|sortino|volatilite;89;2026-08-30
-FR0000031023;ELEC.STRASBOURG;Action;68.8;60.0;drawdown|performance|sharpe|sortino|volatilite;90;2026-08-30
-FR0010688465;WEACCESS GROUP;Action;68.7;60.0;drawdown|performance|sharpe|sortino|volatilite;91;2026-08-30
-FR0000077992;PACTE NOVATION;Action;68.6;60.0;drawdown|performance|sharpe|sortino|volatilite;92;2026-08-30
-FR0000021842;AMUNDI ETF BEL 20;ETF;68.5;60.0;drawdown|performance|sharpe|sortino|volatilite;93;2026-08-30
-FR0000038606;MANITOU BF;Action;68.5;60.0;drawdown|performance|sharpe|sortino|volatilite;94;2026-08-30
-FR0000037871;CH.FER DEPARTEMENT;Action;68.4;60.0;drawdown|performance|sharpe|sortino|volatilite;95;2026-08-30
-FR0010341032;FONCIERE INEA;Action;68.4;60.0;drawdown|performance|sharpe|sortino|volatilite;96;2026-08-30
-FR0010722819;KALRAY;Action;68.3;60.0;drawdown|performance|sharpe|sortino|volatilite;97;2026-08-30
-FR0000034894;GAUMONT;Action;67.9;60.0;drawdown|performance|sharpe|sortino|volatilite;98;2026-08-30
-FR0010106039;BODY ONE;Action;67.9;60.0;drawdown|performance|sharpe|sortino|volatilite;99;2026-08-30
-ES0105025003;MERLIN PROPERTIES;Action;67.5;60.0;drawdown|performance|sharpe|sortino|volatilite;100;2026-08-30
-BE0974328602;METRICS IN BALANCE;Action;67.4;60.0;drawdown|performance|sharpe|sortino|volatilite;101;2026-08-30
-ES0105698007;OK PROPERTIES;Action;67.4;60.0;drawdown|performance|sharpe|sortino|volatilite;102;2026-08-30
-FR0000061459;PERRIER (GERARD);Action;67.4;60.0;drawdown|performance|sharpe|sortino|volatilite;103;2026-08-30
-FR0011049824;MEDIANTECHNOLOGIES;Action;67.3;60.0;drawdown|performance|sharpe|sortino|volatilite;104;2026-08-30
-CY0200751713;THEON INTERNAT;Action;67.2;60.0;drawdown|performance|sharpe|sortino|volatilite;105;2026-08-30
-FR0010298620;MEMSCAP REGPT;Action;67.1;60.0;drawdown|performance|sharpe|sortino|volatilite;106;2026-08-30
-FR0000031775;VICAT;Action;67.0;60.0;drawdown|performance|sharpe|sortino|volatilite;107;2026-08-30
-FR0010523167;ROCTOOL;Action;67.0;60.0;drawdown|performance|sharpe|sortino|volatilite;108;2026-08-30
-FR0010261198;AMUNDI MSCI EUR;ETF;66.7;60.0;drawdown|performance|sharpe|sortino|volatilite;109;2026-08-30
-FR0000051302;HOCHE BAINS L.BAIN;Action;66.4;60.0;drawdown|performance|sharpe|sortino|volatilite;110;2026-08-30
-FR0010755611;AMUNDI ETF LEV USA;ETF;66.2;60.0;drawdown|performance|sharpe|sortino|volatilite;111;2026-08-30
-FR0010609263;MAUNA KEA TECH;Action;66.1;60.0;drawdown|performance|sharpe|sortino|volatilite;112;2026-08-30
-DK0061412772;CADELER;Action;66.0;60.0;drawdown|performance|sharpe|sortino|volatilite;113;2026-08-30
-FR0000063935;BONDUELLE;Action;65.4;60.0;drawdown|performance|sharpe|sortino|volatilite;114;2026-08-30
-FR0004065605;MEDINCELL;Action;65.4;60.0;drawdown|performance|sharpe|sortino|volatilite;115;2026-08-30
-FR0000120107;SAVENCIA;Action;65.1;60.0;drawdown|performance|sharpe|sortino|volatilite;116;2026-08-30
-FR0000076960;GROUPE CARNIVOR;Action;64.6;60.0;drawdown|performance|sharpe|sortino|volatilite;117;2026-08-30
-FR0010766667;VENTE UNIQUE.COM;Action;64.6;60.0;drawdown|performance|sharpe|sortino|volatilite;118;2026-08-30
-FR0000045304;CRCAM TOURAINE CCI;Action;64.3;60.0;drawdown|performance|sharpe|sortino|volatilite;119;2026-08-30
-FR0000053225;METROPOLE TV;Action;64.1;60.0;drawdown|performance|sharpe|sortino|volatilite;120;2026-08-30
-FR0000060121;SAINT JEAN GROUPE;Action;63.9;60.0;drawdown|performance|sharpe|sortino|volatilite;121;2026-08-30
-FR0010417345;DBV TECHNOLOGIES;Action;63.8;60.0;drawdown|performance|sharpe|sortino|volatilite;122;2026-08-30
-ES0105590006;IMPULSE FITNESS;Action;63.6;60.0;drawdown|performance|sharpe|sortino|volatilite;123;2026-08-30
-FR0010828137;CARMILA;Action;63.5;60.0;drawdown|performance|sharpe|sortino|volatilite;124;2026-08-30
-FR0010461053;CRCAM LANGUED CCI;Action;63.3;60.0;drawdown|performance|sharpe|sortino|volatilite;125;2026-08-30
-FR0000052680;OENEO;Action;63.1;60.0;drawdown|performance|sharpe|sortino|volatilite;126;2026-08-30
-FR0000060303;COVIVIO HOTELS;Action;63.1;60.0;drawdown|performance|sharpe|sortino|volatilite;127;2026-08-30
-FR0000060535;FIDUCIAL REAL EST.;Action;62.9;60.0;drawdown|performance|sharpe|sortino|volatilite;128;2026-08-30
-FR0000072373;EGIDE;Action;62.9;60.0;drawdown|performance|sharpe|sortino|volatilite;129;2026-08-30
-FR0000045346;CRCAM SUD R.A.CCI;Action;62.6;60.0;drawdown|performance|sharpe|sortino|volatilite;130;2026-08-30
-FR0004031763;COHERIS;Action;62.6;60.0;drawdown|performance|sharpe|sortino|volatilite;131;2026-08-30
-FR0000045213;CRCAM ILLE-VIL.CCI;Action;62.4;60.0;drawdown|performance|sharpe|sortino|volatilite;132;2026-08-30
-BE0974299316;INVIBES ADVERTSING;Action;62.3;60.0;drawdown|performance|sharpe|sortino|volatilite;133;2026-08-30
-FR0000045544;CA TOULOUSE 31 CCI;Action;62.1;60.0;drawdown|performance|sharpe|sortino|volatilite;134;2026-08-30
-FR0004153930;ATON;Action;62.1;60.0;drawdown|performance|sharpe|sortino|volatilite;135;2026-08-30
-FR0007054358;AMUNDI ESTOXX50;ETF;62.0;60.0;drawdown|performance|sharpe|sortino|volatilite;136;2026-08-30
-FR0010500363;MIGUET ET ASSOCIES;Action;62.0;60.0;drawdown|performance|sharpe|sortino|volatilite;137;2026-08-30
-FR0004174712;ONLINEFORMAPRO;Action;61.8;60.0;drawdown|performance|sharpe|sortino|volatilite;138;2026-08-30
-FR0000061137;BURELLE;Action;61.7;60.0;drawdown|performance|sharpe|sortino|volatilite;139;2026-08-30
-FR0000060873;MBWS;Action;61.4;60.0;drawdown|performance|sharpe|sortino|volatilite;140;2026-08-30
-FR0000060428;CIE DU MONT BLANC;Action;61.3;60.0;drawdown|performance|sharpe|sortino|volatilite;141;2026-08-30
-FR0000033904;JACQUET METALS;Action;61.2;60.0;drawdown|performance|sharpe|sortino|volatilite;142;2026-08-30
-FR0000054132;DELFINGEN;Action;61.1;60.0;drawdown|performance|sharpe|sortino|volatilite;143;2026-08-30
-FR0000039232;AUREA;Action;60.9;60.0;drawdown|performance|sharpe|sortino|volatilite;144;2026-08-30
-FR0010209809;SOC FRANC CASINOS;Action;60.8;60.0;drawdown|performance|sharpe|sortino|volatilite;145;2026-08-30
-FR0000031106;TROC ILE;Action;60.3;60.0;drawdown|performance|sharpe|sortino|volatilite;146;2026-08-30
-FR0005691656;TRIGANO;Action;59.8;60.0;drawdown|performance|sharpe|sortino|volatilite;147;2026-08-30
-FR0000038465;PASSAT;Action;59.4;60.0;drawdown|performance|sharpe|sortino|volatilite;148;2026-08-30
-FR0000063307;TBSO;Action;59.4;60.0;drawdown|performance|sharpe|sortino|volatilite;149;2026-08-30
-CY0101550917;S.D. STANDARD ETC;Action;59.3;60.0;drawdown|performance|sharpe|sortino|volatilite;150;2026-08-30
-FR0000038184;FIPP;Action;59.3;60.0;drawdown|performance|sharpe|sortino|volatilite;151;2026-08-30
-FR0000039091;ROBERTET;Action;59.2;60.0;drawdown|performance|sharpe|sortino|volatilite;152;2026-08-30
-FR0004034072;XILAM ANIMATION;Action;59.2;60.0;drawdown|performance|sharpe|sortino|volatilite;153;2026-08-30
-FR0000038531;HF COMPANY;Action;59.1;60.0;drawdown|performance|sharpe|sortino|volatilite;154;2026-08-30
-CY0101162119;SED ENERGY HOLDING;Action;58.9;60.0;drawdown|performance|sharpe|sortino|volatilite;155;2026-08-30
-BE0974258874;BEKAERT;Action;58.8;60.0;drawdown|performance|sharpe|sortino|volatilite;156;2026-08-30
-FR0004045847;VOYAGEURS DU MONDE;Action;58.4;60.0;drawdown|performance|sharpe|sortino|volatilite;157;2026-08-30
-FR0000053415;G.A.I.;Action;58.3;60.0;drawdown|performance|sharpe|sortino|volatilite;158;2026-08-30
-FR0010086371;IMALLIANCE;Action;58.0;60.0;drawdown|performance|sharpe|sortino|volatilite;159;2026-08-30
-FR0000066961;BERNARD LOISEAU;Action;57.7;60.0;drawdown|performance|sharpe|sortino|volatilite;160;2026-08-30
-FR0000054231;HIGH CO;Action;57.4;60.0;drawdown|performance|sharpe|sortino|volatilite;161;2026-08-30
-FR0004029411;KEYRUS;Action;57.4;60.0;drawdown|performance|sharpe|sortino|volatilite;162;2026-08-30
-FR0000066540;HERIGE;Action;56.6;60.0;drawdown|performance|sharpe|sortino|volatilite;163;2026-08-30
-FR0000053738;HOTELIM;Action;56.0;60.0;drawdown|performance|sharpe|sortino|volatilite;164;2026-08-30
-FR0000030074;MALTERIES FCO-BEL.;Action;55.9;60.0;drawdown|performance|sharpe|sortino|volatilite;165;2026-08-30
-FR0000076952;ARTOIS NOM.;Action;55.9;60.0;drawdown|performance|sharpe|sortino|volatilite;166;2026-08-30
-FR0000065260;DOCK.PETR.AMBES AM;Action;55.7;60.0;drawdown|performance|sharpe|sortino|volatilite;167;2026-08-30
-FR0010340711;AQUILA;Action;55.7;60.0;drawdown|performance|sharpe|sortino|volatilite;168;2026-08-30
-FR0010337865;UPERGY;Action;55.6;60.0;drawdown|performance|sharpe|sortino|volatilite;169;2026-08-30
-FR0010425595;CELLECTIS;Action;55.6;60.0;drawdown|performance|sharpe|sortino|volatilite;170;2026-08-30
-FR0010821819;AMUNDI ETF EU X EM;ETF;55.6;60.0;drawdown|performance|sharpe|sortino|volatilite;171;2026-08-30
-FR0000077885;DAMARIS;Action;55.4;60.0;drawdown|performance|sharpe|sortino|volatilite;172;2026-08-30
-FR0000051807;TELEPERFORMANCE;Action;55.3;60.0;drawdown|performance|sharpe|sortino|volatilite;173;2026-08-30
-FR0000071797;INFOTEL;Action;55.2;60.0;drawdown|performance|sharpe|sortino|volatilite;174;2026-08-30
-FR0010654087;TXCOM;Action;54.9;60.0;drawdown|performance|sharpe|sortino|volatilite;175;2026-08-30
-FR0004052561;PROACTIS SA;Action;54.8;60.0;drawdown|performance|sharpe|sortino|volatilite;176;2026-08-30
-FR0000064271;STEF;Action;54.7;60.0;drawdown|performance|sharpe|sortino|volatilite;177;2026-08-30
-FR0000075442;GROUPE LDLC;Action;54.5;60.0;drawdown|performance|sharpe|sortino|volatilite;178;2026-08-30
-BE0974374069;INCLUSIO SA/NV;Action;54.4;60.0;drawdown|performance|sharpe|sortino|volatilite;179;2026-08-30
-FR0000074148;ASSYSTEM;Action;54.3;60.0;drawdown|performance|sharpe|sortino|volatilite;180;2026-08-30
-FR0000044323;CRCAM ALP.PROV.CCI;Action;54.2;60.0;drawdown|performance|sharpe|sortino|volatilite;181;2026-08-30
-FR0000078321;SODITECH;Action;54.1;60.0;drawdown|performance|sharpe|sortino|volatilite;182;2026-08-30
-ES0105664009;HOTELES BESTPRICE;Action;53.5;60.0;drawdown|performance|sharpe|sortino|volatilite;183;2026-08-30
-FR0000062788;BARBARA BUI;Action;53.4;60.0;drawdown|performance|sharpe|sortino|volatilite;184;2026-08-30
-BE0974409410;HOME INVEST BE.;Action;53.2;60.0;drawdown|performance|sharpe|sortino|volatilite;185;2026-08-30
-FR0000066672;GL EVENTS;Action;53.1;60.0;drawdown|performance|sharpe|sortino|volatilite;186;2026-08-30
-FR0000060840;DEVERNOIS;Action;52.6;60.0;drawdown|performance|sharpe|sortino|volatilite;187;2026-08-30
-FR0000045551;CRCAM MORBIHAN CCI;Action;51.9;60.0;drawdown|performance|sharpe|sortino|volatilite;188;2026-08-30
-FR0011040500;74SOFTWARE;Action;51.1;60.0;drawdown|performance|sharpe|sortino|volatilite;189;2026-08-30
-FR0006205019;LOMBARD ET MEDOT;Action;51.0;60.0;drawdown|performance|sharpe|sortino|volatilite;190;2026-08-30
-FR0010959684;COLIPAYS;Action;50.9;60.0;drawdown|performance|sharpe|sortino|volatilite;191;2026-08-30
-BE0974464977;SYENSQO;Action;50.8;60.0;drawdown|performance|sharpe|sortino|volatilite;192;2026-08-30
-FR0000062671;EXAIL TECHNOLOGIES;Action;50.4;60.0;drawdown|performance|sharpe|sortino|volatilite;193;2026-08-30
-FR0007080254;LES HOTELS BAVEREZ;Action;50.2;60.0;drawdown|performance|sharpe|sortino|volatilite;194;2026-08-30
-FR0010131409;WALLIX;Action;50.2;60.0;drawdown|performance|sharpe|sortino|volatilite;195;2026-08-30
-FR0000130213;LAGARDERE SA;Action;50.0;60.0;drawdown|performance|sharpe|sortino|volatilite;196;2026-08-30
-FR0004159473;HEXAOM;Action;50.0;60.0;drawdown|performance|sharpe|sortino|volatilite;197;2026-08-30
-FR0010465534;EO2;Action;50.0;60.0;drawdown|performance|sharpe|sortino|volatilite;198;2026-08-30
-FR0000065484;LECTRA;Action;49.9;60.0;drawdown|performance|sharpe|sortino|volatilite;199;2026-08-30
-FR0004040608;ABC ARBITRAGE;Action;49.6;60.0;drawdown|performance|sharpe|sortino|volatilite;200;2026-08-30
-FR0000051393;IDI;Action;49.5;60.0;drawdown|performance|sharpe|sortino|volatilite;201;2026-08-30
-FR0000074197;UNION TECH.INFOR.;Action;49.5;60.0;drawdown|performance|sharpe|sortino|volatilite;202;2026-08-30
-FR0004038263;PARROT;Action;49.5;60.0;drawdown|performance|sharpe|sortino|volatilite;203;2026-08-30
-FR0004180578;SWORD GROUP;Action;48.1;60.0;drawdown|performance|sharpe|sortino|volatilite;204;2026-08-30
-FR0007052782;AMUNDI ETF CAC 40;ETF;48.1;60.0;drawdown|performance|sharpe|sortino|volatilite;205;2026-08-30
-FR0000045239;CRCAM LOIRE HTE L.;Action;48.0;60.0;drawdown|performance|sharpe|sortino|volatilite;206;2026-08-30
-FR0000064529;NSC GROUPE;Action;48.0;60.0;drawdown|performance|sharpe|sortino|volatilite;207;2026-08-30
-BE0974288202;XIOR;Action;47.9;60.0;drawdown|performance|sharpe|sortino|volatilite;208;2026-08-30
-FR0004010338;GROUPE JAJ;Action;47.9;60.0;drawdown|performance|sharpe|sortino|volatilite;209;2026-08-30
-BE0165385973;MELEXIS;Action;47.6;60.0;drawdown|performance|sharpe|sortino|volatilite;210;2026-08-30
-FR0004050250;NEURONES;Action;47.6;60.0;drawdown|performance|sharpe|sortino|volatilite;211;2026-08-30
-FR0000064578;COVIVIO;Action;47.0;60.0;drawdown|performance|sharpe|sortino|volatilite;212;2026-08-30
-FR0004007813;KAUFMAN ET BROAD;Action;47.0;60.0;drawdown|performance|sharpe|sortino|volatilite;213;2026-08-30
-FR0000061608;PISCINES DESJOYAUX;Action;46.7;60.0;drawdown|performance|sharpe|sortino|volatilite;214;2026-08-30
-FR0011038348;KLARSEN;Action;46.7;60.0;drawdown|performance|sharpe|sortino|volatilite;215;2026-08-30
-FR0000121691;NRJ GROUP;Action;46.6;60.0;drawdown|performance|sharpe|sortino|volatilite;216;2026-08-30
-FR0004186856;VETOQUINOL;Action;46.6;60.0;drawdown|performance|sharpe|sortino|volatilite;217;2026-08-30
-FR0010487272;FINAXO;Action;46.5;60.0;drawdown|performance|sharpe|sortino|volatilite;218;2026-08-30
-FR0010397901;TRILOGIQ;Action;46.2;60.0;drawdown|performance|sharpe|sortino|volatilite;219;2026-08-30
-FR0000130692;CIECHARGEURSINVEST;Action;46.1;60.0;drawdown|performance|sharpe|sortino|volatilite;220;2026-08-30
-FR0000074759;FLEURY MICHON;Action;45.4;60.0;drawdown|performance|sharpe|sortino|volatilite;221;2026-08-30
-FR0000065278;HOPSCOTCH GROUPE;Action;45.3;60.0;drawdown|performance|sharpe|sortino|volatilite;222;2026-08-30
-FR0010396309;HITECHPROS;Action;45.3;60.0;drawdown|performance|sharpe|sortino|volatilite;223;2026-08-30
-FR0000053324;ALPES (COMPAGNIE);Action;45.0;60.0;drawdown|performance|sharpe|sortino|volatilite;224;2026-08-30
-FR0010428771;EAGLEFOOTBALLGROUP;Action;44.7;60.0;drawdown|performance|sharpe|sortino|volatilite;225;2026-08-30
-FR0006864484;LAURENT-PERRIER;Action;44.4;60.0;drawdown|performance|sharpe|sortino|volatilite;226;2026-08-30
-FR0010447086;CHEOPS TECHNOLOGY;Action;43.8;60.0;drawdown|performance|sharpe|sortino|volatilite;227;2026-08-30
-FR0000033243;IMMOB.DASSAULT;Action;43.6;60.0;drawdown|performance|sharpe|sortino|volatilite;228;2026-08-30
-FR0000065393;COURTOIS;Action;43.6;60.0;drawdown|performance|sharpe|sortino|volatilite;229;2026-08-30
-FR0000062234;COMPAGNIE ODET;Action;43.1;60.0;drawdown|performance|sharpe|sortino|volatilite;230;2026-08-30
-FR0000124570;OPMOBILITY;Action;43.0;60.0;drawdown|performance|sharpe|sortino|volatilite;231;2026-08-30
-FR0010040865;GECINA;Action;42.5;60.0;drawdown|performance|sharpe|sortino|volatilite;232;2026-08-30
-FR0004165801;HOTELS DE PARIS;Action;42.1;60.0;drawdown|performance|sharpe|sortino|volatilite;233;2026-08-30
-FR0000053506;CEGEDIM;Action;41.8;60.0;drawdown|performance|sharpe|sortino|volatilite;234;2026-08-30
-BE0974400328;AZELIS GROUP;Action;41.4;60.0;drawdown|performance|sharpe|sortino|volatilite;235;2026-08-30
-FR0000066755;HAULOTTE GROUP;Action;41.0;60.0;drawdown|performance|sharpe|sortino|volatilite;236;2026-08-30
-FR0010397232;NOVACYT;Action;41.0;60.0;drawdown|performance|sharpe|sortino|volatilite;237;2026-08-30
-CY0201461213;PELICAN AQUA HLDNG;Action;40.9;60.0;drawdown|performance|sharpe|sortino|volatilite;238;2026-08-30
-FR0010404368;D.L.S.I.;Action;40.9;60.0;drawdown|performance|sharpe|sortino|volatilite;239;2026-08-30
-FR0010157115;EUROLAND CORPORATE;Action;40.7;60.0;drawdown|performance|sharpe|sortino|volatilite;240;2026-08-30
-FR0000053035;GEA GRENOBL.ELECT.;Action;40.4;60.0;drawdown|performance|sharpe|sortino|volatilite;241;2026-08-30
-FR0000060071;SAMSE;Action;40.0;60.0;drawdown|performance|sharpe|sortino|volatilite;242;2026-08-30
-FR0004172450;MINT;Action;39.8;60.0;drawdown|performance|sharpe|sortino|volatilite;243;2026-08-30
-FR0000050395;CROSSWOOD;Action;39.7;60.0;drawdown|performance|sharpe|sortino|volatilite;244;2026-08-30
-BE0974298300;CANDELA INVEST;Action;39.6;60.0;drawdown|performance|sharpe|sortino|volatilite;245;2026-08-30
-BE0003893139;IMMO MOURY;Action;39.1;60.0;drawdown|performance|sharpe|sortino|volatilite;246;2026-08-30
-FR0005854700;I2S;Action;38.7;60.0;drawdown|performance|sharpe|sortino|volatilite;247;2026-08-30
-FR0000036675;GROUPE CRIT;Action;38.3;60.0;drawdown|performance|sharpe|sortino|volatilite;248;2026-08-30
-FR0000054199;ST DUPONT;Action;38.3;60.0;drawdown|performance|sharpe|sortino|volatilite;249;2026-08-30
-FR0004030708;ENCRES DUBUIT;Action;38.0;60.0;drawdown|performance|sharpe|sortino|volatilite;250;2026-08-30
-FR0000065930;FONCIERE 7 INVEST;Action;37.8;60.0;drawdown|performance|sharpe|sortino|volatilite;251;2026-08-30
-FR0000065971;GRAINES VOLTZ;Action;37.7;60.0;drawdown|performance|sharpe|sortino|volatilite;252;2026-08-30
-ES0105744009;ANDINO GLOBAL;Action;36.9;60.0;drawdown|performance|sharpe|sortino|volatilite;253;2026-08-30
-FR0004155000;GROUPE SFPI;Action;36.9;60.0;drawdown|performance|sharpe|sortino|volatilite;254;2026-08-30
-FR0000124414;GASCOGNE;Action;36.8;60.0;drawdown|performance|sharpe|sortino|volatilite;255;2026-08-30
-FR0010204453;MG INTERNATIONAL;Action;36.8;60.0;drawdown|performance|sharpe|sortino|volatilite;256;2026-08-30
-FR0000185506;CRCAM ATL.VEND.CCI;Action;36.7;60.0;drawdown|performance|sharpe|sortino|volatilite;257;2026-08-30
-FR0010641449;AGROGENERATION;Action;36.1;60.0;drawdown|performance|sharpe|sortino|volatilite;258;2026-08-30
-FR0000035370;BASTIDE LE CONFORT;Action;36.0;60.0;drawdown|performance|sharpe|sortino|volatilite;259;2026-08-30
-FR0004154060;NETGEM;Action;35.8;60.0;drawdown|performance|sharpe|sortino|volatilite;260;2026-08-30
-FR0000032658;SYNERGIE;Action;35.7;60.0;drawdown|performance|sharpe|sortino|volatilite;261;2026-08-30
-FR0000079147;U10 CORP;Action;35.3;60.0;drawdown|performance|sharpe|sortino|volatilite;262;2026-08-30
-FR0010655712;AMUETFDAXETFP;ETF;34.7;60.0;drawdown|performance|sharpe|sortino|volatilite;263;2026-08-30
-FR0000130395;REMY COINTREAU;Action;34.5;60.0;drawdown|performance|sharpe|sortino|volatilite;264;2026-08-30
-FR0000044943;LOGIC INSTRUMENT;Action;34.4;60.0;drawdown|performance|sharpe|sortino|volatilite;265;2026-08-30
-FR0000130403;CHRISTIAN DIOR;Action;34.3;60.0;drawdown|performance|sharpe|sortino|volatilite;266;2026-08-30
-BE0160342011;COIL;Action;34.2;60.0;drawdown|performance|sharpe|sortino|volatilite;267;2026-08-30
-FR0000053837;ALTAMIR;Action;34.2;60.0;drawdown|performance|sharpe|sortino|volatilite;268;2026-08-30
-FR0004155208;LOCASYSTEM INTL;Action;34.1;60.0;drawdown|performance|sharpe|sortino|volatilite;269;2026-08-30
-FR0000074783;ARTMARKET COM;Action;34.0;60.0;drawdown|performance|sharpe|sortino|volatilite;270;2026-08-30
-FR0000062978;DEKUPLE;Action;33.6;60.0;drawdown|performance|sharpe|sortino|volatilite;271;2026-08-30
-FR0010592014;AMUNDI ETF LEV CAC;ETF;33.3;60.0;drawdown|performance|sharpe|sortino|volatilite;272;2026-08-30
-FR0010485268;FOUNTAINE PAJOT;Action;33.2;60.0;drawdown|performance|sharpe|sortino|volatilite;273;2026-08-30
-BE0974313455;ECONOCOM GROUP;Action;33.1;60.0;drawdown|performance|sharpe|sortino|volatilite;274;2026-08-30
-FR0010150458;BNPP CAC 40 ESG;ETF;32.6;70.0;drawdown|esg|performance|sharpe|sortino|volatilite;275;2026-08-30
-FR0000120560;QUADIENT;Action;32.3;60.0;drawdown|performance|sharpe|sortino|volatilite;276;2026-08-30
-FR0000079691;IDS;Action;32.0;60.0;drawdown|performance|sharpe|sortino|volatilite;277;2026-08-30
-DE0005933931;BLAETFDAXETFP;ETF;31.9;60.0;drawdown|performance|sharpe|sortino|volatilite;278;2026-08-30
-FR0000061780;AUGROS COSMETIC;Action;31.7;60.0;drawdown|performance|sharpe|sortino|volatilite;279;2026-08-30
-FR0000039109;SECHE ENVIRONNEM.;Action;31.6;60.0;drawdown|performance|sharpe|sortino|volatilite;280;2026-08-30
-FR0000053944;FONCIERE VOLTA;Action;31.6;60.0;drawdown|performance|sharpe|sortino|volatilite;281;2026-08-30
-FR0010929125;ID LOGISTICS GROUP;Action;31.4;60.0;drawdown|performance|sharpe|sortino|volatilite;282;2026-08-30
-FR0000033003;TOUAX;Action;31.1;60.0;drawdown|performance|sharpe|sortino|volatilite;283;2026-08-30
-DE000A2G8ZX8;PYRUM INNOVATIONS;Action;31.0;60.0;drawdown|performance|sharpe|sortino|volatilite;284;2026-08-30
-FR0004053510;GENOWAY;Action;30.3;60.0;drawdown|performance|sharpe|sortino|volatilite;285;2026-08-30
-FR0005843125;HYDRO-EXPLOIT.;Action;30.1;60.0;drawdown|performance|sharpe|sortino|volatilite;286;2026-08-30
-CZ0009008942;COLT;Action;30.0;60.0;drawdown|performance|sharpe|sortino|volatilite;287;2026-08-30
-CY0201332216;PELAGIC CREDIT;Action;29.7;60.0;drawdown|performance|sharpe|sortino|volatilite;288;2026-08-30
-FR0000053027;AKWEL;Action;29.6;60.0;drawdown|performance|sharpe|sortino|volatilite;289;2026-08-30
-ES0105463006;MAKING SCIENCE;Action;29.4;60.0;drawdown|performance|sharpe|sortino|volatilite;290;2026-08-30
-FR0004023208;BASSAC;Action;29.1;60.0;drawdown|performance|sharpe|sortino|volatilite;291;2026-08-30
-FR0000064784;PEUGEOT INVEST;Action;29.0;60.0;drawdown|performance|sharpe|sortino|volatilite;292;2026-08-30
-FR0000061244;ALTHEORA;Action;28.9;60.0;drawdown|performance|sharpe|sortino|volatilite;293;2026-08-30
-FR0000061475;EURASIA FONC INV;Action;28.6;60.0;drawdown|performance|sharpe|sortino|volatilite;294;2026-08-30
-FR0000065773;IMPRIMERIE CHIRAT;Action;28.4;60.0;drawdown|performance|sharpe|sortino|volatilite;295;2026-08-30
-BE0974310428;X-FAB;Action;28.3;60.0;drawdown|performance|sharpe|sortino|volatilite;296;2026-08-30
-ES0105425005;KOMPUESTOS;Action;28.1;60.0;drawdown|performance|sharpe|sortino|volatilite;297;2026-08-30
-FR0004027068;LANSON-BCC;Action;28.0;60.0;drawdown|performance|sharpe|sortino|volatilite;298;2026-08-30
-FR0000066722;GUILLEMOT;Action;27.9;60.0;drawdown|performance|sharpe|sortino|volatilite;299;2026-08-30
-ES0109429037;ISPD;Action;27.6;60.0;drawdown|performance|sharpe|sortino|volatilite;300;2026-08-30
-BE0974269012;ADC SIIC;Action;27.4;60.0;drawdown|performance|sharpe|sortino|volatilite;301;2026-08-30
-FR0000074775;STRADIM ESPAC.FIN;Action;27.2;60.0;drawdown|performance|sharpe|sortino|volatilite;302;2026-08-30
-FR0000185464;NOVATECH IND.;Action;26.9;60.0;drawdown|performance|sharpe|sortino|volatilite;303;2026-08-30
-FR0010202606;SIDETRADE;Action;26.1;60.0;drawdown|performance|sharpe|sortino|volatilite;304;2026-08-30
-FR0010609206;OREGE;Action;25.2;60.0;drawdown|performance|sharpe|sortino|volatilite;305;2026-08-30
-FR0004156297;LINEDATA SERVICES;Action;24.8;60.0;drawdown|performance|sharpe|sortino|volatilite;306;2026-08-30
-FR0000076861;ACTEOS;Action;24.4;60.0;drawdown|performance|sharpe|sortino|volatilite;307;2026-08-30
-FR0000035164;BENETEAU;Action;24.2;60.0;drawdown|performance|sharpe|sortino|volatilite;308;2026-08-30
-FR0010889386;QWAMPLIFY;Action;23.5;60.0;drawdown|performance|sharpe|sortino|volatilite;309;2026-08-30
-ES0105704003;VIRTUALWARE;Action;22.7;60.0;drawdown|performance|sharpe|sortino|volatilite;310;2026-08-30
-FR0007200100;EAUX DE ROYAN;Action;22.5;60.0;drawdown|performance|sharpe|sortino|volatilite;311;2026-08-30
-FR0010120402;THERACLION;Action;22.2;60.0;drawdown|performance|sharpe|sortino|volatilite;312;2026-08-30
-FR0000064602;ACANTHE DEV.;Action;21.6;60.0;drawdown|performance|sharpe|sortino|volatilite;313;2026-08-30
-BE0948608451;PHOTONIKE CAPITAL;Action;21.1;60.0;drawdown|performance|sharpe|sortino|volatilite;314;2026-08-30
-FR0000037640;ROUGIER S.A.;Action;21.1;60.0;drawdown|performance|sharpe|sortino|volatilite;315;2026-08-30
-FR0011005933;BIOSYNEX;Action;20.9;60.0;drawdown|performance|sharpe|sortino|volatilite;316;2026-08-30
-FR0000072597;IT LINK;Action;20.7;60.0;drawdown|performance|sharpe|sortino|volatilite;317;2026-08-30
-FR0010312181;HOPENING;Action;20.7;60.0;drawdown|performance|sharpe|sortino|volatilite;318;2026-08-30
-FR0010221234;EUTELSAT COMMUNIC.;Action;20.6;60.0;drawdown|performance|sharpe|sortino|volatilite;319;2026-08-30
-BE0974294267;NYRSTAR;Action;20.4;60.0;drawdown|performance|sharpe|sortino|volatilite;320;2026-08-30
-FR0010591362;AMUNDI ETF SHT CAC;ETF;20.4;60.0;drawdown|performance|sharpe|sortino|volatilite;321;2026-08-30
-FR0004044600;PRISMAFLEX INTL;Action;20.0;60.0;drawdown|performance|sharpe|sortino|volatilite;322;2026-08-30
-FR0010309096;VITURA;Action;20.0;60.0;drawdown|performance|sharpe|sortino|volatilite;323;2026-08-30
-FR0010353888;MGI DIGITAL GRAPHI;Action;19.8;60.0;drawdown|performance|sharpe|sortino|volatilite;324;2026-08-30
-FR0000064297;INNELEC MULTIMEDIA;Action;19.7;60.0;drawdown|performance|sharpe|sortino|volatilite;325;2026-08-30
-FR0000037475;CFI;Action;19.5;60.0;drawdown|performance|sharpe|sortino|volatilite;326;2026-08-30
-FR0010655704;AMUNDI ETF CAC FRA;ETF;19.4;60.0;drawdown|performance|sharpe|sortino|volatilite;327;2026-08-30
-FR0010326090;VIALIFE;Action;18.7;60.0;drawdown|performance|sharpe|sortino|volatilite;328;2026-08-30
-ES0105089009;LLEIDA;Action;18.3;60.0;drawdown|performance|sharpe|sortino|volatilite;329;2026-08-30
-FR0000066441;POUJOULAT;Action;18.3;60.0;drawdown|performance|sharpe|sortino|volatilite;330;2026-08-30
-FR0010263202;PAREF;Action;17.5;60.0;drawdown|performance|sharpe|sortino|volatilite;331;2026-08-30
-FR0010490920;EUROPACORP;Action;17.4;60.0;drawdown|performance|sharpe|sortino|volatilite;332;2026-08-30
-FR0000054322;CIBOX INTER A CTIV;Action;17.3;60.0;drawdown|performance|sharpe|sortino|volatilite;333;2026-08-30
-FR0004171346;NEXTEDIA;Action;17.2;60.0;drawdown|performance|sharpe|sortino|volatilite;334;2026-08-30
-FR0000035719;ELECT. MADAGASCAR;Action;16.9;60.0;drawdown|performance|sharpe|sortino|volatilite;335;2026-08-30
-ES0105029005;FACEPHI;Action;16.6;60.0;drawdown|performance|sharpe|sortino|volatilite;336;2026-08-30
-FR0004174233;BILENDI;Action;16.6;60.0;drawdown|performance|sharpe|sortino|volatilite;337;2026-08-30
-BE0974363955;HYLORIS;Action;16.4;60.0;drawdown|performance|sharpe|sortino|volatilite;338;2026-08-30
-FR0010908723;INTEGRAGEN;Action;16.1;60.0;drawdown|performance|sharpe|sortino|volatilite;339;2026-08-30
-FR0005175080;TRANSGENE;Action;15.8;60.0;drawdown|performance|sharpe|sortino|volatilite;340;2026-08-30
-FR0010776617;SAPMER;Action;15.4;60.0;drawdown|performance|sharpe|sortino|volatilite;341;2026-08-30
-BE0974268972;BPOST;Action;15.3;60.0;drawdown|performance|sharpe|sortino|volatilite;342;2026-08-30
-FR0004527638;EXEL INDUSTRIES;Action;15.0;60.0;drawdown|performance|sharpe|sortino|volatilite;343;2026-08-30
-FR0000185423;DAMARTEX;Action;14.2;60.0;drawdown|performance|sharpe|sortino|volatilite;344;2026-08-30
-FR0010193052;CATANA GROUP;Action;13.5;60.0;drawdown|performance|sharpe|sortino|volatilite;345;2026-08-30
-BE0974340722;SEQUANA MEDICAL;Action;13.4;60.0;drawdown|performance|sharpe|sortino|volatilite;346;2026-08-30
-BE0974380124;EKOPAK;Action;12.5;60.0;drawdown|performance|sharpe|sortino|volatilite;347;2026-08-30
-FR0004034320;MR BRICOLAGE;Action;12.5;60.0;drawdown|performance|sharpe|sortino|volatilite;348;2026-08-30
-BE0974496284;OPTION;Action;12.4;60.0;drawdown|performance|sharpe|sortino|volatilite;349;2026-08-30
-FR0004155687;MASTRAD;Action;11.9;60.0;drawdown|performance|sharpe|sortino|volatilite;350;2026-08-30
-FR0010785790;PLANT ADVANCED;Action;11.3;60.0;drawdown|performance|sharpe|sortino|volatilite;351;2026-08-30
-FR0000035784;EVERGREEN;Action;10.9;60.0;drawdown|performance|sharpe|sortino|volatilite;352;2026-08-30
-BE0974386188;BIOTALYS;Action;10.7;60.0;drawdown|performance|sharpe|sortino|volatilite;353;2026-08-30
-FR0010557264;AB SCIENCE;Action;10.6;60.0;drawdown|performance|sharpe|sortino|volatilite;354;2026-08-30
-FR0000054371;SPEED RABBIT PIZZA;Action;10.2;60.0;drawdown|performance|sharpe|sortino|volatilite;355;2026-08-30
-BE0974371032;BANQUP GROUP;Action;10.1;60.0;drawdown|performance|sharpe|sortino|volatilite;356;2026-08-30
-BE0974314461;BELYSSE GROUP;Action;9.9;60.0;drawdown|performance|sharpe|sortino|volatilite;357;2026-08-30
-DE000A11Q133;HK;Action;9.4;60.0;drawdown|performance|sharpe|sortino|volatilite;358;2026-08-30
-BE0974276082;ONTEX GROUP;Action;9.1;60.0;drawdown|performance|sharpe|sortino|volatilite;359;2026-08-30
-FR0000032526;GUERBET;Action;8.8;60.0;drawdown|performance|sharpe|sortino|volatilite;360;2026-08-30
-FR0011041011;BLUELINEA;Action;8.2;60.0;drawdown|performance|sharpe|sortino|volatilite;361;2026-08-30
-BE6333353298;BONYF;Action;7.6;60.0;drawdown|performance|sharpe|sortino|volatilite;362;2026-08-30
-FR0010169920;PREDILIFE;Action;7.4;60.0;drawdown|performance|sharpe|sortino|volatilite;363;2026-08-30
-FR0000062465;ALAN ALLMAN;Action;7.2;60.0;drawdown|performance|sharpe|sortino|volatilite;364;2026-08-30
-BE0974358906;NYXOAH;Action;5.9;60.0;drawdown|performance|sharpe|sortino|volatilite;365;2026-08-30
-FR0010869495;AMUNDI ETF DAX DS2;ETF;5.6;60.0;drawdown|performance|sharpe|sortino|volatilite;366;2026-08-30
-BE0974502347;FLORIDIENNE;Action;5.1;60.0;drawdown|performance|sharpe|sortino|volatilite;367;2026-08-30
-FR0000074072;BIGBEN INTERACTIVE;Action;4.6;60.0;drawdown|performance|sharpe|sortino|volatilite;368;2026-08-30
-FR0010424697;ETHERO;Action;3.9;60.0;drawdown|performance|sharpe|sortino|volatilite;369;2026-08-30
-BE0974487192;OXURION;Action;3.6;60.0;drawdown|performance|sharpe|sortino|volatilite;370;2026-08-30
-FR0010411884;AMUNDI ETF BX4;ETF;1.9;60.0;drawdown|performance|sharpe|sortino|volatilite;371;2026-08-30
+FR0000061418;FIDUCIAL OFF.SOL.;Action;93.2;60.0;drawdown|performance|sharpe|sortino|volatilite;1;2026-09-01
+BE0003898187;SIPEF;Action;91.5;60.0;drawdown|performance|sharpe|sortino|volatilite;2;2026-09-01
+FR0010588079;FREY;Action;91.3;60.0;drawdown|performance|sharpe|sortino|volatilite;3;2026-09-01
+BE0974264930;AGEAS;Action;91.1;60.0;drawdown|performance|sharpe|sortino|volatilite;4;2026-09-01
+BE0974287196;IMMO MCC;Action;89.7;60.0;drawdown|performance|sharpe|sortino|volatilite;5;2026-09-01
+FR0000064446;CATERING INTL SCES;Action;87.8;60.0;drawdown|performance|sharpe|sortino|volatilite;6;2026-09-01
+BE0974263924;TEXAF;Action;86.5;60.0;drawdown|performance|sharpe|sortino|volatilite;7;2026-09-01
+BE0974293251;AB INBEV;Action;86.5;60.0;drawdown|performance|sharpe|sortino|volatilite;8;2026-09-01
+FR0000053043;ADVINI;Action;86.2;60.0;drawdown|performance|sharpe|sortino|volatilite;9;2026-09-01
+FR0000074254;BOURSE DIRECT;Action;85.4;60.0;drawdown|performance|sharpe|sortino|volatilite;10;2026-09-01
+FR0005057635;ARDOIN ST AMAND A;Action;85.4;60.0;drawdown|performance|sharpe|sortino|volatilite;11;2026-09-01
+FR0010193979;CBO TERRITORIA;Action;84.8;60.0;drawdown|performance|sharpe|sortino|volatilite;12;2026-09-01
+FR0000062101;FERM.CAS.MUN.CANNE;Action;84.7;60.0;drawdown|performance|sharpe|sortino|volatilite;13;2026-09-01
+FR0010717090;AMUNDI ETF EMU HDV;ETF;84.7;60.0;drawdown|performance|sharpe|sortino|volatilite;14;2026-09-01
+BE0974282148;TINC;Action;84.4;60.0;drawdown|performance|sharpe|sortino|volatilite;15;2026-09-01
+FR0010483768;CRCAM BRIE PIC2CCI;Action;83.8;60.0;drawdown|performance|sharpe|sortino|volatilite;16;2026-09-01
+BE0974413453;DEME GROUP;Action;83.7;60.0;drawdown|performance|sharpe|sortino|volatilite;17;2026-09-01
+CY0200352116;FRONTLINE;Action;83.4;60.0;drawdown|performance|sharpe|sortino|volatilite;18;2026-09-01
+BE0974401334;WHITESTONE GROUP;Action;82.9;60.0;drawdown|performance|sharpe|sortino|volatilite;19;2026-09-01
+FR0010151589;CAFOM;Action;82.7;60.0;drawdown|performance|sharpe|sortino|volatilite;20;2026-09-01
+FR0010756114;AMUETFCM9IMETFP;ETF;82.4;60.0;drawdown|performance|sharpe|sortino|volatilite;21;2026-09-01
+FR0004163111;GENFIT;Action;82.3;60.0;drawdown|performance|sharpe|sortino|volatilite;22;2026-09-01
+FR0004175842;SELECTIRENTE;Action;81.9;60.0;drawdown|performance|sharpe|sortino|volatilite;23;2026-09-01
+FR0000030769;PLACOPLATRE;Action;81.5;60.0;drawdown|performance|sharpe|sortino|volatilite;24;2026-09-01
+FR0000038242;LUMIBIRD;Action;81.2;60.0;drawdown|performance|sharpe|sortino|volatilite;25;2026-09-01
+FR0010528059;STREAMWIDE;Action;81.1;60.0;drawdown|performance|sharpe|sortino|volatilite;26;2026-09-01
+FR0010010827;AMUNDI FTSE MIB;ETF;81.0;60.0;drawdown|performance|sharpe|sortino|volatilite;27;2026-09-01
+FR0010241638;MERCIALYS;Action;80.6;60.0;drawdown|performance|sharpe|sortino|volatilite;28;2026-09-01
+FR0010655746;AMUNDI ETF MS SPA;ETF;80.6;60.0;drawdown|performance|sharpe|sortino|volatilite;29;2026-09-01
+FR0000066607;LACROIX GROUP;Action;80.5;60.0;drawdown|performance|sharpe|sortino|volatilite;30;2026-09-01
+BE0974274061;KINEPOLIS GROUP;Action;80.2;60.0;drawdown|performance|sharpe|sortino|volatilite;31;2026-09-01
+FR0010214064;GPE GROUP PIZZORNO;Action;79.6;60.0;drawdown|performance|sharpe|sortino|volatilite;32;2026-09-01
+BE0974271034;VIOHALCO;Action;79.3;60.0;drawdown|performance|sharpe|sortino|volatilite;33;2026-09-01
+FR0006563904;HOTL.IMMOB.NICE;Action;79.3;60.0;drawdown|performance|sharpe|sortino|volatilite;34;2026-09-01
+FR0000060451;INSTALLUX;Action;78.6;60.0;drawdown|performance|sharpe|sortino|volatilite;35;2026-09-01
+FR0000076655;ACTIA GROUP;Action;78.5;60.0;drawdown|performance|sharpe|sortino|volatilite;36;2026-09-01
+FR0010481960;ARGAN;Action;78.4;60.0;drawdown|performance|sharpe|sortino|volatilite;37;2026-09-01
+FR0000031973;FSDV;Action;78.2;60.0;drawdown|performance|sharpe|sortino|volatilite;38;2026-09-01
+FR0011027135;PATRIMOINE ET COMM;Action;78.2;60.0;drawdown|performance|sharpe|sortino|volatilite;39;2026-09-01
+FR0000045528;CRCAM PARIS ET IDF;Action;78.1;60.0;drawdown|performance|sharpe|sortino|volatilite;40;2026-09-01
+BE0974303357;CENERGY;Action;78.0;60.0;drawdown|performance|sharpe|sortino|volatilite;41;2026-09-01
+BE0974499312;ENERGYVISION;Action;77.6;60.0;drawdown|performance|sharpe|sortino|volatilite;42;2026-09-01
+FR0004016699;SMTPC;Action;77.3;60.0;drawdown|performance|sharpe|sortino|volatilite;43;2026-09-01
+FR0000073041;PIERRE VACANCES;Action;77.1;60.0;drawdown|performance|sharpe|sortino|volatilite;44;2026-09-01
+FR0000044364;CRCAM NORM.SEINE;Action;77.0;60.0;drawdown|performance|sharpe|sortino|volatilite;45;2026-09-01
+FR0000133308;ORANGE;Action;76.9;60.0;drawdown|performance|sharpe|sortino|volatilite;46;2026-09-01
+CY0102630916;PETROLIA;Action;76.6;60.0;drawdown|performance|sharpe|sortino|volatilite;47;2026-09-01
+FR0000050353;LISI;Action;76.5;60.0;drawdown|performance|sharpe|sortino|volatilite;48;2026-09-01
+FR0000060790;SIGNAUX GIROD;Action;76.5;60.0;drawdown|performance|sharpe|sortino|volatilite;49;2026-09-01
+FR0004187367;FREELANCE.COM;Action;76.5;60.0;drawdown|performance|sharpe|sortino|volatilite;50;2026-09-01
+ES0105549002;MONTEPINO LOGISTIC;Action;76.4;60.0;drawdown|performance|sharpe|sortino|volatilite;51;2026-09-01
+FR0010790980;AMUNDI ETF STOXX50;ETF;76.4;60.0;drawdown|performance|sharpe|sortino|volatilite;52;2026-09-01
+FR0000064164;EXACOMPTA CLAIREF.;Action;75.7;60.0;drawdown|performance|sharpe|sortino|volatilite;53;2026-09-01
+FR0000185514;CRCAM NORD CCI;Action;75.1;60.0;drawdown|performance|sharpe|sortino|volatilite;54;2026-09-01
+FR0000051070;MAUREL ET PROM;Action;74.8;60.0;drawdown|performance|sharpe|sortino|volatilite;55;2026-09-01
+FR0000054421;BOURRELIER GROUP;Action;74.8;60.0;drawdown|performance|sharpe|sortino|volatilite;56;2026-09-01
+FR0011033083;MOULINVEST;Action;74.8;60.0;drawdown|performance|sharpe|sortino|volatilite;57;2026-09-01
+FR0004065639;NSE;Action;74.7;60.0;drawdown|performance|sharpe|sortino|volatilite;58;2026-09-01
+FR0010380626;PROLOGUE;Action;74.7;60.0;drawdown|performance|sharpe|sortino|volatilite;59;2026-09-01
+FR0000039216;ALTAREIT;Action;74.6;60.0;drawdown|performance|sharpe|sortino|volatilite;60;2026-09-01
+FR0006174348;BUREAU VERITAS;Action;74.4;60.0;drawdown|performance|sharpe|sortino|volatilite;61;2026-09-01
+FR0006239109;SCBSM;Action;74.4;60.0;drawdown|performance|sharpe|sortino|volatilite;62;2026-09-01
+FR0010291245;VERIMATRIX;Action;73.7;60.0;drawdown|performance|sharpe|sortino|volatilite;63;2026-09-01
+FR0000120669;North Atlantic En.;Action;72.9;60.0;drawdown|performance|sharpe|sortino|volatilite;64;2026-09-01
+FR0000061129;BOIRON;Action;72.6;60.0;drawdown|performance|sharpe|sortino|volatilite;65;2026-09-01
+FR0004170017;LNA SANTE;Action;72.5;60.0;drawdown|performance|sharpe|sortino|volatilite;66;2026-09-01
+FR0000044471;RAMSAY GEN SANTE;Action;72.3;60.0;drawdown|performance|sharpe|sortino|volatilite;67;2026-09-01
+FR0000131104;BNP PARIBAS;Action;72.1;34.0;consensus|dividende|esg|potentiel|valorisation;68;2026-09-01
+FR0010436584;DNXCORP;Action;72.1;60.0;drawdown|performance|sharpe|sortino|volatilite;69;2026-09-01
+FR0000050049;VIEL ET COMPAGNIE;Action;72.0;60.0;drawdown|performance|sharpe|sortino|volatilite;70;2026-09-01
+BE0974273055;CARE PROPERTY INV.;Action;71.9;60.0;drawdown|performance|sharpe|sortino|volatilite;71;2026-09-01
+FR0000033888;GEVELOT;Action;71.6;60.0;drawdown|performance|sharpe|sortino|volatilite;72;2026-09-01
+FR0000060824;FINANCIERE MARJOS;Action;71.6;60.0;drawdown|performance|sharpe|sortino|volatilite;73;2026-09-01
+BE0974256852;COLRUYT;Action;71.1;60.0;drawdown|performance|sharpe|sortino|volatilite;74;2026-09-01
+FR0000065864;SOGECLAIR;Action;71.1;60.0;drawdown|performance|sharpe|sortino|volatilite;75;2026-09-01
+BE0974265945;FLUXYS BELGIUM D;Action;71.0;60.0;drawdown|performance|sharpe|sortino|volatilite;76;2026-09-01
+FR0000121295;LEBON;Action;70.6;60.0;drawdown|performance|sharpe|sortino|volatilite;77;2026-09-01
+FR0000063737;AUBAY;Action;70.4;60.0;drawdown|performance|sharpe|sortino|volatilite;78;2026-09-01
+FR0010823724;FRANCE TOURISME;Action;70.3;60.0;drawdown|performance|sharpe|sortino|volatilite;79;2026-09-01
+FR0000075954;RIBER;Action;70.1;60.0;drawdown|performance|sharpe|sortino|volatilite;80;2026-09-01
+DK0060520450;NAPATECH;Action;70.0;60.0;drawdown|performance|sharpe|sortino|volatilite;81;2026-09-01
+FR0000033599;LEXIBOOK LINGUIST.;Action;69.9;60.0;drawdown|performance|sharpe|sortino|volatilite;82;2026-09-01
+FR0000075343;LABO EUROMEDIS;Action;69.9;60.0;drawdown|performance|sharpe|sortino|volatilite;83;2026-09-01
+BE0974501331;MATERIALISE;Action;69.4;60.0;drawdown|performance|sharpe|sortino|volatilite;84;2026-09-01
+FR0010095596;VALERIO TX;Action;69.1;60.0;drawdown|performance|sharpe|sortino|volatilite;85;2026-09-01
+CY0108052115;ADS MARITIME HOLD;Action;69.0;60.0;drawdown|performance|sharpe|sortino|volatilite;86;2026-09-01
+BE0974272040;QRF;Action;68.9;60.0;drawdown|performance|sharpe|sortino|volatilite;87;2026-09-01
+FR0000031023;ELEC.STRASBOURG;Action;68.8;60.0;drawdown|performance|sharpe|sortino|volatilite;88;2026-09-01
+FR0010688465;WEACCESS GROUP;Action;68.7;60.0;drawdown|performance|sharpe|sortino|volatilite;89;2026-09-01
+FR0000077992;PACTE NOVATION;Action;68.6;60.0;drawdown|performance|sharpe|sortino|volatilite;90;2026-09-01
+FR0000021842;AMUNDI ETF BEL 20;ETF;68.5;60.0;drawdown|performance|sharpe|sortino|volatilite;91;2026-09-01
+FR0000038606;MANITOU BF;Action;68.5;60.0;drawdown|performance|sharpe|sortino|volatilite;92;2026-09-01
+FR0000037871;CH.FER DEPARTEMENT;Action;68.4;60.0;drawdown|performance|sharpe|sortino|volatilite;93;2026-09-01
+FR0010341032;FONCIERE INEA;Action;68.4;60.0;drawdown|performance|sharpe|sortino|volatilite;94;2026-09-01
+FR0010722819;KALRAY;Action;68.3;60.0;drawdown|performance|sharpe|sortino|volatilite;95;2026-09-01
+FR0000034894;GAUMONT;Action;67.9;60.0;drawdown|performance|sharpe|sortino|volatilite;96;2026-09-01
+FR0010106039;BODY ONE;Action;67.9;60.0;drawdown|performance|sharpe|sortino|volatilite;97;2026-09-01
+ES0105025003;MERLIN PROPERTIES;Action;67.5;60.0;drawdown|performance|sharpe|sortino|volatilite;98;2026-09-01
+BE0974328602;METRICS IN BALANCE;Action;67.4;60.0;drawdown|performance|sharpe|sortino|volatilite;99;2026-09-01
+ES0105698007;OK PROPERTIES;Action;67.4;60.0;drawdown|performance|sharpe|sortino|volatilite;100;2026-09-01
+FR0000061459;PERRIER (GERARD);Action;67.4;60.0;drawdown|performance|sharpe|sortino|volatilite;101;2026-09-01
+FR0011049824;MEDIANTECHNOLOGIES;Action;67.3;60.0;drawdown|performance|sharpe|sortino|volatilite;102;2026-09-01
+CY0200751713;THEON INTERNAT;Action;67.2;60.0;drawdown|performance|sharpe|sortino|volatilite;103;2026-09-01
+FR0010298620;MEMSCAP REGPT;Action;67.1;60.0;drawdown|performance|sharpe|sortino|volatilite;104;2026-09-01
+FR0000031775;VICAT;Action;67.0;60.0;drawdown|performance|sharpe|sortino|volatilite;105;2026-09-01
+FR0010523167;ROCTOOL;Action;67.0;60.0;drawdown|performance|sharpe|sortino|volatilite;106;2026-09-01
+FR0010261198;AMUNDI MSCI EUR;ETF;66.7;60.0;drawdown|performance|sharpe|sortino|volatilite;107;2026-09-01
+FR0000051302;HOCHE BAINS L.BAIN;Action;66.4;60.0;drawdown|performance|sharpe|sortino|volatilite;108;2026-09-01
+FR0010755611;AMUNDI ETF LEV USA;ETF;66.2;60.0;drawdown|performance|sharpe|sortino|volatilite;109;2026-09-01
+FR0010609263;MAUNA KEA TECH;Action;66.1;60.0;drawdown|performance|sharpe|sortino|volatilite;110;2026-09-01
+DK0061412772;CADELER;Action;66.0;60.0;drawdown|performance|sharpe|sortino|volatilite;111;2026-09-01
+FR0000120073;AIR LIQUIDE;Action;65.6;94.0;consensus|dividende|drawdown|esg|performance|potentiel|sharpe|sortino|valorisation|volatilite;112;2026-09-01
+FR0000063935;BONDUELLE;Action;65.4;60.0;drawdown|performance|sharpe|sortino|volatilite;113;2026-09-01
+FR0004065605;MEDINCELL;Action;65.4;60.0;drawdown|performance|sharpe|sortino|volatilite;114;2026-09-01
+FR0000120107;SAVENCIA;Action;65.1;60.0;drawdown|performance|sharpe|sortino|volatilite;115;2026-09-01
+FR0000076960;GROUPE CARNIVOR;Action;64.6;60.0;drawdown|performance|sharpe|sortino|volatilite;116;2026-09-01
+FR0010766667;VENTE UNIQUE.COM;Action;64.6;60.0;drawdown|performance|sharpe|sortino|volatilite;117;2026-09-01
+FR0000045304;CRCAM TOURAINE CCI;Action;64.3;60.0;drawdown|performance|sharpe|sortino|volatilite;118;2026-09-01
+FR0000053225;METROPOLE TV;Action;64.1;60.0;drawdown|performance|sharpe|sortino|volatilite;119;2026-09-01
+FR0000060121;SAINT JEAN GROUPE;Action;63.9;60.0;drawdown|performance|sharpe|sortino|volatilite;120;2026-09-01
+FR0010417345;DBV TECHNOLOGIES;Action;63.8;60.0;drawdown|performance|sharpe|sortino|volatilite;121;2026-09-01
+FR0000120404;ACCOR;Action;63.7;94.0;consensus|dividende|drawdown|esg|performance|potentiel|sharpe|sortino|valorisation|volatilite;122;2026-09-01
+ES0105590006;IMPULSE FITNESS;Action;63.6;60.0;drawdown|performance|sharpe|sortino|volatilite;123;2026-09-01
+FR0000120966;BIC;Action;63.5;94.0;consensus|dividende|drawdown|esg|performance|potentiel|sharpe|sortino|valorisation|volatilite;124;2026-09-01
+FR0010828137;CARMILA;Action;63.5;60.0;drawdown|performance|sharpe|sortino|volatilite;125;2026-09-01
+FR0010461053;CRCAM LANGUED CCI;Action;63.3;60.0;drawdown|performance|sharpe|sortino|volatilite;126;2026-09-01
+FR0000052680;OENEO;Action;63.1;60.0;drawdown|performance|sharpe|sortino|volatilite;127;2026-09-01
+FR0000060303;COVIVIO HOTELS;Action;63.1;60.0;drawdown|performance|sharpe|sortino|volatilite;128;2026-09-01
+FR0000060535;FIDUCIAL REAL EST.;Action;62.9;60.0;drawdown|performance|sharpe|sortino|volatilite;129;2026-09-01
+FR0000072373;EGIDE;Action;62.9;60.0;drawdown|performance|sharpe|sortino|volatilite;130;2026-09-01
+FR0000045346;CRCAM SUD R.A.CCI;Action;62.6;60.0;drawdown|performance|sharpe|sortino|volatilite;131;2026-09-01
+FR0004031763;COHERIS;Action;62.6;60.0;drawdown|performance|sharpe|sortino|volatilite;132;2026-09-01
+FR0000045213;CRCAM ILLE-VIL.CCI;Action;62.4;60.0;drawdown|performance|sharpe|sortino|volatilite;133;2026-09-01
+BE0974299316;INVIBES ADVERTSING;Action;62.3;60.0;drawdown|performance|sharpe|sortino|volatilite;134;2026-09-01
+FR0000045544;CA TOULOUSE 31 CCI;Action;62.1;60.0;drawdown|performance|sharpe|sortino|volatilite;135;2026-09-01
+FR0004153930;ATON;Action;62.1;60.0;drawdown|performance|sharpe|sortino|volatilite;136;2026-09-01
+FR0007054358;AMUNDI ESTOXX50;ETF;62.0;60.0;drawdown|performance|sharpe|sortino|volatilite;137;2026-09-01
+FR0010500363;MIGUET ET ASSOCIES;Action;62.0;60.0;drawdown|performance|sharpe|sortino|volatilite;138;2026-09-01
+FR0004174712;ONLINEFORMAPRO;Action;61.8;60.0;drawdown|performance|sharpe|sortino|volatilite;139;2026-09-01
+FR0000061137;BURELLE;Action;61.7;60.0;drawdown|performance|sharpe|sortino|volatilite;140;2026-09-01
+FR0000060873;MBWS;Action;61.4;60.0;drawdown|performance|sharpe|sortino|volatilite;141;2026-09-01
+FR0000060428;CIE DU MONT BLANC;Action;61.3;60.0;drawdown|performance|sharpe|sortino|volatilite;142;2026-09-01
+FR0000033904;JACQUET METALS;Action;61.2;60.0;drawdown|performance|sharpe|sortino|volatilite;143;2026-09-01
+FR0000054132;DELFINGEN;Action;61.1;60.0;drawdown|performance|sharpe|sortino|volatilite;144;2026-09-01
+FR0000039232;AUREA;Action;60.9;60.0;drawdown|performance|sharpe|sortino|volatilite;145;2026-09-01
+FR0010209809;SOC FRANC CASINOS;Action;60.8;60.0;drawdown|performance|sharpe|sortino|volatilite;146;2026-09-01
+FR0000031106;TROC ILE;Action;60.3;60.0;drawdown|performance|sharpe|sortino|volatilite;147;2026-09-01
+FR0005691656;TRIGANO;Action;59.8;60.0;drawdown|performance|sharpe|sortino|volatilite;148;2026-09-01
+FR0000038465;PASSAT;Action;59.4;60.0;drawdown|performance|sharpe|sortino|volatilite;149;2026-09-01
+FR0000063307;TBSO;Action;59.4;60.0;drawdown|performance|sharpe|sortino|volatilite;150;2026-09-01
+CY0101550917;S.D. STANDARD ETC;Action;59.3;60.0;drawdown|performance|sharpe|sortino|volatilite;151;2026-09-01
+FR0000038184;FIPP;Action;59.3;60.0;drawdown|performance|sharpe|sortino|volatilite;152;2026-09-01
+FR0000039091;ROBERTET;Action;59.2;60.0;drawdown|performance|sharpe|sortino|volatilite;153;2026-09-01
+FR0004034072;XILAM ANIMATION;Action;59.2;60.0;drawdown|performance|sharpe|sortino|volatilite;154;2026-09-01
+FR0000038531;HF COMPANY;Action;59.1;60.0;drawdown|performance|sharpe|sortino|volatilite;155;2026-09-01
+CY0101162119;SED ENERGY HOLDING;Action;58.9;60.0;drawdown|performance|sharpe|sortino|volatilite;156;2026-09-01
+BE0974258874;BEKAERT;Action;58.8;60.0;drawdown|performance|sharpe|sortino|volatilite;157;2026-09-01
+FR0000121014;LVMH;Action;58.8;34.0;consensus|dividende|esg|potentiel|valorisation;158;2026-09-01
+FR0004045847;VOYAGEURS DU MONDE;Action;58.4;60.0;drawdown|performance|sharpe|sortino|volatilite;159;2026-09-01
+FR0000053415;G.A.I.;Action;58.3;60.0;drawdown|performance|sharpe|sortino|volatilite;160;2026-09-01
+FR0010086371;IMALLIANCE;Action;58.0;60.0;drawdown|performance|sharpe|sortino|volatilite;161;2026-09-01
+FR0000066961;BERNARD LOISEAU;Action;57.7;60.0;drawdown|performance|sharpe|sortino|volatilite;162;2026-09-01
+FR0000054231;HIGH CO;Action;57.4;60.0;drawdown|performance|sharpe|sortino|volatilite;163;2026-09-01
+FR0004029411;KEYRUS;Action;57.4;60.0;drawdown|performance|sharpe|sortino|volatilite;164;2026-09-01
+FR0000066540;HERIGE;Action;56.6;60.0;drawdown|performance|sharpe|sortino|volatilite;165;2026-09-01
+FR0000053738;HOTELIM;Action;56.0;60.0;drawdown|performance|sharpe|sortino|volatilite;166;2026-09-01
+FR0000030074;MALTERIES FCO-BEL.;Action;55.9;60.0;drawdown|performance|sharpe|sortino|volatilite;167;2026-09-01
+FR0000076952;ARTOIS NOM.;Action;55.9;60.0;drawdown|performance|sharpe|sortino|volatilite;168;2026-09-01
+FR0000065260;DOCK.PETR.AMBES AM;Action;55.7;60.0;drawdown|performance|sharpe|sortino|volatilite;169;2026-09-01
+FR0010340711;AQUILA;Action;55.7;60.0;drawdown|performance|sharpe|sortino|volatilite;170;2026-09-01
+FR0010337865;UPERGY;Action;55.6;60.0;drawdown|performance|sharpe|sortino|volatilite;171;2026-09-01
+FR0010425595;CELLECTIS;Action;55.6;60.0;drawdown|performance|sharpe|sortino|volatilite;172;2026-09-01
+FR0010821819;AMUNDI ETF EU X EM;ETF;55.6;60.0;drawdown|performance|sharpe|sortino|volatilite;173;2026-09-01
+FR0000077885;DAMARIS;Action;55.4;60.0;drawdown|performance|sharpe|sortino|volatilite;174;2026-09-01
+FR0000051807;TELEPERFORMANCE;Action;55.3;60.0;drawdown|performance|sharpe|sortino|volatilite;175;2026-09-01
+FR0000071797;INFOTEL;Action;55.2;60.0;drawdown|performance|sharpe|sortino|volatilite;176;2026-09-01
+FR0010654087;TXCOM;Action;54.9;60.0;drawdown|performance|sharpe|sortino|volatilite;177;2026-09-01
+FR0004052561;PROACTIS SA;Action;54.8;60.0;drawdown|performance|sharpe|sortino|volatilite;178;2026-09-01
+FR0000064271;STEF;Action;54.7;60.0;drawdown|performance|sharpe|sortino|volatilite;179;2026-09-01
+FR0000075442;GROUPE LDLC;Action;54.5;60.0;drawdown|performance|sharpe|sortino|volatilite;180;2026-09-01
+BE0974374069;INCLUSIO SA/NV;Action;54.4;60.0;drawdown|performance|sharpe|sortino|volatilite;181;2026-09-01
+FR0000074148;ASSYSTEM;Action;54.3;60.0;drawdown|performance|sharpe|sortino|volatilite;182;2026-09-01
+FR0000044323;CRCAM ALP.PROV.CCI;Action;54.2;60.0;drawdown|performance|sharpe|sortino|volatilite;183;2026-09-01
+FR0000078321;SODITECH;Action;54.1;60.0;drawdown|performance|sharpe|sortino|volatilite;184;2026-09-01
+ES0105664009;HOTELES BESTPRICE;Action;53.5;60.0;drawdown|performance|sharpe|sortino|volatilite;185;2026-09-01
+FR0000062788;BARBARA BUI;Action;53.4;60.0;drawdown|performance|sharpe|sortino|volatilite;186;2026-09-01
+BE0974409410;HOME INVEST BE.;Action;53.2;60.0;drawdown|performance|sharpe|sortino|volatilite;187;2026-09-01
+FR0000066672;GL EVENTS;Action;53.1;60.0;drawdown|performance|sharpe|sortino|volatilite;188;2026-09-01
+FR0000060840;DEVERNOIS;Action;52.6;60.0;drawdown|performance|sharpe|sortino|volatilite;189;2026-09-01
+FR0000045551;CRCAM MORBIHAN CCI;Action;51.9;60.0;drawdown|performance|sharpe|sortino|volatilite;190;2026-09-01
+FR0011040500;74SOFTWARE;Action;51.1;60.0;drawdown|performance|sharpe|sortino|volatilite;191;2026-09-01
+FR0006205019;LOMBARD ET MEDOT;Action;51.0;60.0;drawdown|performance|sharpe|sortino|volatilite;192;2026-09-01
+FR0010959684;COLIPAYS;Action;50.9;60.0;drawdown|performance|sharpe|sortino|volatilite;193;2026-09-01
+BE0974464977;SYENSQO;Action;50.8;60.0;drawdown|performance|sharpe|sortino|volatilite;194;2026-09-01
+FR0000062671;EXAIL TECHNOLOGIES;Action;50.4;60.0;drawdown|performance|sharpe|sortino|volatilite;195;2026-09-01
+FR0007080254;LES HOTELS BAVEREZ;Action;50.2;60.0;drawdown|performance|sharpe|sortino|volatilite;196;2026-09-01
+FR0010131409;WALLIX;Action;50.2;60.0;drawdown|performance|sharpe|sortino|volatilite;197;2026-09-01
+FR0000130213;LAGARDERE SA;Action;50.0;60.0;drawdown|performance|sharpe|sortino|volatilite;198;2026-09-01
+FR0004159473;HEXAOM;Action;50.0;60.0;drawdown|performance|sharpe|sortino|volatilite;199;2026-09-01
+FR0010465534;EO2;Action;50.0;60.0;drawdown|performance|sharpe|sortino|volatilite;200;2026-09-01
+FR0000065484;LECTRA;Action;49.9;60.0;drawdown|performance|sharpe|sortino|volatilite;201;2026-09-01
+FR0004040608;ABC ARBITRAGE;Action;49.6;60.0;drawdown|performance|sharpe|sortino|volatilite;202;2026-09-01
+FR0000051393;IDI;Action;49.5;60.0;drawdown|performance|sharpe|sortino|volatilite;203;2026-09-01
+FR0000074197;UNION TECH.INFOR.;Action;49.5;60.0;drawdown|performance|sharpe|sortino|volatilite;204;2026-09-01
+FR0004038263;PARROT;Action;49.5;60.0;drawdown|performance|sharpe|sortino|volatilite;205;2026-09-01
+FR0004180578;SWORD GROUP;Action;48.1;60.0;drawdown|performance|sharpe|sortino|volatilite;206;2026-09-01
+FR0007052782;AMUNDI ETF CAC 40;ETF;48.1;60.0;drawdown|performance|sharpe|sortino|volatilite;207;2026-09-01
+FR0000045239;CRCAM LOIRE HTE L.;Action;48.0;60.0;drawdown|performance|sharpe|sortino|volatilite;208;2026-09-01
+FR0000064529;NSC GROUPE;Action;48.0;60.0;drawdown|performance|sharpe|sortino|volatilite;209;2026-09-01
+BE0974288202;XIOR;Action;47.9;60.0;drawdown|performance|sharpe|sortino|volatilite;210;2026-09-01
+FR0004010338;GROUPE JAJ;Action;47.9;60.0;drawdown|performance|sharpe|sortino|volatilite;211;2026-09-01
+BE0165385973;MELEXIS;Action;47.6;60.0;drawdown|performance|sharpe|sortino|volatilite;212;2026-09-01
+FR0004050250;NEURONES;Action;47.6;60.0;drawdown|performance|sharpe|sortino|volatilite;213;2026-09-01
+FR0000064578;COVIVIO;Action;47.0;60.0;drawdown|performance|sharpe|sortino|volatilite;214;2026-09-01
+FR0004007813;KAUFMAN ET BROAD;Action;47.0;60.0;drawdown|performance|sharpe|sortino|volatilite;215;2026-09-01
+FR0000061608;PISCINES DESJOYAUX;Action;46.7;60.0;drawdown|performance|sharpe|sortino|volatilite;216;2026-09-01
+FR0011038348;KLARSEN;Action;46.7;60.0;drawdown|performance|sharpe|sortino|volatilite;217;2026-09-01
+FR0000121691;NRJ GROUP;Action;46.6;60.0;drawdown|performance|sharpe|sortino|volatilite;218;2026-09-01
+FR0004186856;VETOQUINOL;Action;46.6;60.0;drawdown|performance|sharpe|sortino|volatilite;219;2026-09-01
+FR0010487272;FINAXO;Action;46.5;60.0;drawdown|performance|sharpe|sortino|volatilite;220;2026-09-01
+FR0010397901;TRILOGIQ;Action;46.2;60.0;drawdown|performance|sharpe|sortino|volatilite;221;2026-09-01
+FR0000130692;CIECHARGEURSINVEST;Action;46.1;60.0;drawdown|performance|sharpe|sortino|volatilite;222;2026-09-01
+FR0000074759;FLEURY MICHON;Action;45.4;60.0;drawdown|performance|sharpe|sortino|volatilite;223;2026-09-01
+FR0000065278;HOPSCOTCH GROUPE;Action;45.3;60.0;drawdown|performance|sharpe|sortino|volatilite;224;2026-09-01
+FR0010396309;HITECHPROS;Action;45.3;60.0;drawdown|performance|sharpe|sortino|volatilite;225;2026-09-01
+FR0000053324;ALPES (COMPAGNIE);Action;45.0;60.0;drawdown|performance|sharpe|sortino|volatilite;226;2026-09-01
+FR0010428771;EAGLEFOOTBALLGROUP;Action;44.7;60.0;drawdown|performance|sharpe|sortino|volatilite;227;2026-09-01
+FR0006864484;LAURENT-PERRIER;Action;44.4;60.0;drawdown|performance|sharpe|sortino|volatilite;228;2026-09-01
+FR0010447086;CHEOPS TECHNOLOGY;Action;43.8;60.0;drawdown|performance|sharpe|sortino|volatilite;229;2026-09-01
+FR0000033243;IMMOB.DASSAULT;Action;43.6;60.0;drawdown|performance|sharpe|sortino|volatilite;230;2026-09-01
+FR0000065393;COURTOIS;Action;43.6;60.0;drawdown|performance|sharpe|sortino|volatilite;231;2026-09-01
+FR0000062234;COMPAGNIE ODET;Action;43.1;60.0;drawdown|performance|sharpe|sortino|volatilite;232;2026-09-01
+FR0000124570;OPMOBILITY;Action;43.0;60.0;drawdown|performance|sharpe|sortino|volatilite;233;2026-09-01
+FR0010040865;GECINA;Action;42.5;60.0;drawdown|performance|sharpe|sortino|volatilite;234;2026-09-01
+FR0004165801;HOTELS DE PARIS;Action;42.1;60.0;drawdown|performance|sharpe|sortino|volatilite;235;2026-09-01
+FR0000053506;CEGEDIM;Action;41.8;60.0;drawdown|performance|sharpe|sortino|volatilite;236;2026-09-01
+BE0974400328;AZELIS GROUP;Action;41.4;60.0;drawdown|performance|sharpe|sortino|volatilite;237;2026-09-01
+FR0000066755;HAULOTTE GROUP;Action;41.0;60.0;drawdown|performance|sharpe|sortino|volatilite;238;2026-09-01
+FR0010397232;NOVACYT;Action;41.0;60.0;drawdown|performance|sharpe|sortino|volatilite;239;2026-09-01
+CY0201461213;PELICAN AQUA HLDNG;Action;40.9;60.0;drawdown|performance|sharpe|sortino|volatilite;240;2026-09-01
+FR0010404368;D.L.S.I.;Action;40.9;60.0;drawdown|performance|sharpe|sortino|volatilite;241;2026-09-01
+FR0010157115;EUROLAND CORPORATE;Action;40.7;60.0;drawdown|performance|sharpe|sortino|volatilite;242;2026-09-01
+FR0000053035;GEA GRENOBL.ELECT.;Action;40.4;60.0;drawdown|performance|sharpe|sortino|volatilite;243;2026-09-01
+FR0000060071;SAMSE;Action;40.0;60.0;drawdown|performance|sharpe|sortino|volatilite;244;2026-09-01
+FR0004172450;MINT;Action;39.8;60.0;drawdown|performance|sharpe|sortino|volatilite;245;2026-09-01
+FR0000050395;CROSSWOOD;Action;39.7;60.0;drawdown|performance|sharpe|sortino|volatilite;246;2026-09-01
+BE0974298300;CANDELA INVEST;Action;39.6;60.0;drawdown|performance|sharpe|sortino|volatilite;247;2026-09-01
+BE0003893139;IMMO MOURY;Action;39.1;60.0;drawdown|performance|sharpe|sortino|volatilite;248;2026-09-01
+FR0005854700;I2S;Action;38.7;60.0;drawdown|performance|sharpe|sortino|volatilite;249;2026-09-01
+FR0000036675;GROUPE CRIT;Action;38.3;60.0;drawdown|performance|sharpe|sortino|volatilite;250;2026-09-01
+FR0000054199;ST DUPONT;Action;38.3;60.0;drawdown|performance|sharpe|sortino|volatilite;251;2026-09-01
+FR0004030708;ENCRES DUBUIT;Action;38.0;60.0;drawdown|performance|sharpe|sortino|volatilite;252;2026-09-01
+FR0000065930;FONCIERE 7 INVEST;Action;37.8;60.0;drawdown|performance|sharpe|sortino|volatilite;253;2026-09-01
+FR0000065971;GRAINES VOLTZ;Action;37.7;60.0;drawdown|performance|sharpe|sortino|volatilite;254;2026-09-01
+ES0105744009;ANDINO GLOBAL;Action;36.9;60.0;drawdown|performance|sharpe|sortino|volatilite;255;2026-09-01
+FR0004155000;GROUPE SFPI;Action;36.9;60.0;drawdown|performance|sharpe|sortino|volatilite;256;2026-09-01
+FR0000124414;GASCOGNE;Action;36.8;60.0;drawdown|performance|sharpe|sortino|volatilite;257;2026-09-01
+FR0010204453;MG INTERNATIONAL;Action;36.8;60.0;drawdown|performance|sharpe|sortino|volatilite;258;2026-09-01
+FR0000185506;CRCAM ATL.VEND.CCI;Action;36.7;60.0;drawdown|performance|sharpe|sortino|volatilite;259;2026-09-01
+FR0010641449;AGROGENERATION;Action;36.1;60.0;drawdown|performance|sharpe|sortino|volatilite;260;2026-09-01
+FR0000035370;BASTIDE LE CONFORT;Action;36.0;60.0;drawdown|performance|sharpe|sortino|volatilite;261;2026-09-01
+FR0004154060;NETGEM;Action;35.8;60.0;drawdown|performance|sharpe|sortino|volatilite;262;2026-09-01
+FR0000032658;SYNERGIE;Action;35.7;60.0;drawdown|performance|sharpe|sortino|volatilite;263;2026-09-01
+FR0000079147;U10 CORP;Action;35.3;60.0;drawdown|performance|sharpe|sortino|volatilite;264;2026-09-01
+FR0010655712;AMUETFDAXETFP;ETF;34.7;60.0;drawdown|performance|sharpe|sortino|volatilite;265;2026-09-01
+FR0000130395;REMY COINTREAU;Action;34.5;60.0;drawdown|performance|sharpe|sortino|volatilite;266;2026-09-01
+FR0000044943;LOGIC INSTRUMENT;Action;34.4;60.0;drawdown|performance|sharpe|sortino|volatilite;267;2026-09-01
+FR0000130403;CHRISTIAN DIOR;Action;34.3;60.0;drawdown|performance|sharpe|sortino|volatilite;268;2026-09-01
+BE0160342011;COIL;Action;34.2;60.0;drawdown|performance|sharpe|sortino|volatilite;269;2026-09-01
+FR0000053837;ALTAMIR;Action;34.2;60.0;drawdown|performance|sharpe|sortino|volatilite;270;2026-09-01
+FR0004155208;LOCASYSTEM INTL;Action;34.1;60.0;drawdown|performance|sharpe|sortino|volatilite;271;2026-09-01
+FR0000074783;ARTMARKET COM;Action;34.0;60.0;drawdown|performance|sharpe|sortino|volatilite;272;2026-09-01
+FR0000062978;DEKUPLE;Action;33.6;60.0;drawdown|performance|sharpe|sortino|volatilite;273;2026-09-01
+FR0010592014;AMUNDI ETF LEV CAC;ETF;33.3;60.0;drawdown|performance|sharpe|sortino|volatilite;274;2026-09-01
+FR0010485268;FOUNTAINE PAJOT;Action;33.2;60.0;drawdown|performance|sharpe|sortino|volatilite;275;2026-09-01
+BE0974313455;ECONOCOM GROUP;Action;33.1;60.0;drawdown|performance|sharpe|sortino|volatilite;276;2026-09-01
+FR0010150458;BNPP CAC 40 ESG;ETF;32.6;70.0;drawdown|esg|performance|sharpe|sortino|volatilite;277;2026-09-01
+FR0000120560;QUADIENT;Action;32.3;60.0;drawdown|performance|sharpe|sortino|volatilite;278;2026-09-01
+FR0000079691;IDS;Action;32.0;60.0;drawdown|performance|sharpe|sortino|volatilite;279;2026-09-01
+DE0005933931;BLAETFDAXETFP;ETF;31.9;60.0;drawdown|performance|sharpe|sortino|volatilite;280;2026-09-01
+FR0000061780;AUGROS COSMETIC;Action;31.7;60.0;drawdown|performance|sharpe|sortino|volatilite;281;2026-09-01
+FR0000039109;SECHE ENVIRONNEM.;Action;31.6;60.0;drawdown|performance|sharpe|sortino|volatilite;282;2026-09-01
+FR0000053944;FONCIERE VOLTA;Action;31.6;60.0;drawdown|performance|sharpe|sortino|volatilite;283;2026-09-01
+FR0010929125;ID LOGISTICS GROUP;Action;31.4;60.0;drawdown|performance|sharpe|sortino|volatilite;284;2026-09-01
+FR0000033003;TOUAX;Action;31.1;60.0;drawdown|performance|sharpe|sortino|volatilite;285;2026-09-01
+DE000A2G8ZX8;PYRUM INNOVATIONS;Action;31.0;60.0;drawdown|performance|sharpe|sortino|volatilite;286;2026-09-01
+FR0004053510;GENOWAY;Action;30.3;60.0;drawdown|performance|sharpe|sortino|volatilite;287;2026-09-01
+FR0005843125;HYDRO-EXPLOIT.;Action;30.1;60.0;drawdown|performance|sharpe|sortino|volatilite;288;2026-09-01
+CZ0009008942;COLT;Action;30.0;60.0;drawdown|performance|sharpe|sortino|volatilite;289;2026-09-01
+CY0201332216;PELAGIC CREDIT;Action;29.7;60.0;drawdown|performance|sharpe|sortino|volatilite;290;2026-09-01
+FR0000053027;AKWEL;Action;29.6;60.0;drawdown|performance|sharpe|sortino|volatilite;291;2026-09-01
+ES0105463006;MAKING SCIENCE;Action;29.4;60.0;drawdown|performance|sharpe|sortino|volatilite;292;2026-09-01
+FR0004023208;BASSAC;Action;29.1;60.0;drawdown|performance|sharpe|sortino|volatilite;293;2026-09-01
+FR0000064784;PEUGEOT INVEST;Action;29.0;60.0;drawdown|performance|sharpe|sortino|volatilite;294;2026-09-01
+FR0000061244;ALTHEORA;Action;28.9;60.0;drawdown|performance|sharpe|sortino|volatilite;295;2026-09-01
+FR0000061475;EURASIA FONC INV;Action;28.6;60.0;drawdown|performance|sharpe|sortino|volatilite;296;2026-09-01
+FR0000065773;IMPRIMERIE CHIRAT;Action;28.4;60.0;drawdown|performance|sharpe|sortino|volatilite;297;2026-09-01
+BE0974310428;X-FAB;Action;28.3;60.0;drawdown|performance|sharpe|sortino|volatilite;298;2026-09-01
+ES0105425005;KOMPUESTOS;Action;28.1;60.0;drawdown|performance|sharpe|sortino|volatilite;299;2026-09-01
+FR0004027068;LANSON-BCC;Action;28.0;60.0;drawdown|performance|sharpe|sortino|volatilite;300;2026-09-01
+FR0000066722;GUILLEMOT;Action;27.9;60.0;drawdown|performance|sharpe|sortino|volatilite;301;2026-09-01
+ES0109429037;ISPD;Action;27.6;60.0;drawdown|performance|sharpe|sortino|volatilite;302;2026-09-01
+BE0974269012;ADC SIIC;Action;27.4;60.0;drawdown|performance|sharpe|sortino|volatilite;303;2026-09-01
+FR0000074775;STRADIM ESPAC.FIN;Action;27.2;60.0;drawdown|performance|sharpe|sortino|volatilite;304;2026-09-01
+FR0000185464;NOVATECH IND.;Action;26.9;60.0;drawdown|performance|sharpe|sortino|volatilite;305;2026-09-01
+FR0010202606;SIDETRADE;Action;26.1;60.0;drawdown|performance|sharpe|sortino|volatilite;306;2026-09-01
+FR0010609206;OREGE;Action;25.2;60.0;drawdown|performance|sharpe|sortino|volatilite;307;2026-09-01
+FR0004156297;LINEDATA SERVICES;Action;24.8;60.0;drawdown|performance|sharpe|sortino|volatilite;308;2026-09-01
+FR0000076861;ACTEOS;Action;24.4;60.0;drawdown|performance|sharpe|sortino|volatilite;309;2026-09-01
+FR0000035164;BENETEAU;Action;24.2;60.0;drawdown|performance|sharpe|sortino|volatilite;310;2026-09-01
+FR0010889386;QWAMPLIFY;Action;23.5;60.0;drawdown|performance|sharpe|sortino|volatilite;311;2026-09-01
+ES0105704003;VIRTUALWARE;Action;22.7;60.0;drawdown|performance|sharpe|sortino|volatilite;312;2026-09-01
+FR0007200100;EAUX DE ROYAN;Action;22.5;60.0;drawdown|performance|sharpe|sortino|volatilite;313;2026-09-01
+FR0010120402;THERACLION;Action;22.2;60.0;drawdown|performance|sharpe|sortino|volatilite;314;2026-09-01
+FR0000064602;ACANTHE DEV.;Action;21.6;60.0;drawdown|performance|sharpe|sortino|volatilite;315;2026-09-01
+BE0948608451;PHOTONIKE CAPITAL;Action;21.1;60.0;drawdown|performance|sharpe|sortino|volatilite;316;2026-09-01
+FR0000037640;ROUGIER S.A.;Action;21.1;60.0;drawdown|performance|sharpe|sortino|volatilite;317;2026-09-01
+FR0011005933;BIOSYNEX;Action;20.9;60.0;drawdown|performance|sharpe|sortino|volatilite;318;2026-09-01
+FR0000072597;IT LINK;Action;20.7;60.0;drawdown|performance|sharpe|sortino|volatilite;319;2026-09-01
+FR0010312181;HOPENING;Action;20.7;60.0;drawdown|performance|sharpe|sortino|volatilite;320;2026-09-01
+FR0010221234;EUTELSAT COMMUNIC.;Action;20.6;60.0;drawdown|performance|sharpe|sortino|volatilite;321;2026-09-01
+BE0974294267;NYRSTAR;Action;20.4;60.0;drawdown|performance|sharpe|sortino|volatilite;322;2026-09-01
+FR0010591362;AMUNDI ETF SHT CAC;ETF;20.4;60.0;drawdown|performance|sharpe|sortino|volatilite;323;2026-09-01
+FR0004044600;PRISMAFLEX INTL;Action;20.0;60.0;drawdown|performance|sharpe|sortino|volatilite;324;2026-09-01
+FR0010309096;VITURA;Action;20.0;60.0;drawdown|performance|sharpe|sortino|volatilite;325;2026-09-01
+FR0010353888;MGI DIGITAL GRAPHI;Action;19.8;60.0;drawdown|performance|sharpe|sortino|volatilite;326;2026-09-01
+FR0000064297;INNELEC MULTIMEDIA;Action;19.7;60.0;drawdown|performance|sharpe|sortino|volatilite;327;2026-09-01
+FR0000037475;CFI;Action;19.5;60.0;drawdown|performance|sharpe|sortino|volatilite;328;2026-09-01
+FR0010655704;AMUNDI ETF CAC FRA;ETF;19.4;60.0;drawdown|performance|sharpe|sortino|volatilite;329;2026-09-01
+FR0010326090;VIALIFE;Action;18.7;60.0;drawdown|performance|sharpe|sortino|volatilite;330;2026-09-01
+ES0105089009;LLEIDA;Action;18.3;60.0;drawdown|performance|sharpe|sortino|volatilite;331;2026-09-01
+FR0000066441;POUJOULAT;Action;18.3;60.0;drawdown|performance|sharpe|sortino|volatilite;332;2026-09-01
+FR0010263202;PAREF;Action;17.5;60.0;drawdown|performance|sharpe|sortino|volatilite;333;2026-09-01
+FR0010490920;EUROPACORP;Action;17.4;60.0;drawdown|performance|sharpe|sortino|volatilite;334;2026-09-01
+FR0000054322;CIBOX INTER A CTIV;Action;17.3;60.0;drawdown|performance|sharpe|sortino|volatilite;335;2026-09-01
+FR0004171346;NEXTEDIA;Action;17.2;60.0;drawdown|performance|sharpe|sortino|volatilite;336;2026-09-01
+FR0000035719;ELECT. MADAGASCAR;Action;16.9;60.0;drawdown|performance|sharpe|sortino|volatilite;337;2026-09-01
+ES0105029005;FACEPHI;Action;16.6;60.0;drawdown|performance|sharpe|sortino|volatilite;338;2026-09-01
+FR0004174233;BILENDI;Action;16.6;60.0;drawdown|performance|sharpe|sortino|volatilite;339;2026-09-01
+BE0974363955;HYLORIS;Action;16.4;60.0;drawdown|performance|sharpe|sortino|volatilite;340;2026-09-01
+FR0010908723;INTEGRAGEN;Action;16.1;60.0;drawdown|performance|sharpe|sortino|volatilite;341;2026-09-01
+FR0005175080;TRANSGENE;Action;15.8;60.0;drawdown|performance|sharpe|sortino|volatilite;342;2026-09-01
+FR0010776617;SAPMER;Action;15.4;60.0;drawdown|performance|sharpe|sortino|volatilite;343;2026-09-01
+BE0974268972;BPOST;Action;15.3;60.0;drawdown|performance|sharpe|sortino|volatilite;344;2026-09-01
+FR0004527638;EXEL INDUSTRIES;Action;15.0;60.0;drawdown|performance|sharpe|sortino|volatilite;345;2026-09-01
+FR0000185423;DAMARTEX;Action;14.2;60.0;drawdown|performance|sharpe|sortino|volatilite;346;2026-09-01
+FR0010193052;CATANA GROUP;Action;13.5;60.0;drawdown|performance|sharpe|sortino|volatilite;347;2026-09-01
+BE0974340722;SEQUANA MEDICAL;Action;13.4;60.0;drawdown|performance|sharpe|sortino|volatilite;348;2026-09-01
+BE0974380124;EKOPAK;Action;12.5;60.0;drawdown|performance|sharpe|sortino|volatilite;349;2026-09-01
+FR0004034320;MR BRICOLAGE;Action;12.5;60.0;drawdown|performance|sharpe|sortino|volatilite;350;2026-09-01
+BE0974496284;OPTION;Action;12.4;60.0;drawdown|performance|sharpe|sortino|volatilite;351;2026-09-01
+FR0004155687;MASTRAD;Action;11.9;60.0;drawdown|performance|sharpe|sortino|volatilite;352;2026-09-01
+FR0010785790;PLANT ADVANCED;Action;11.3;60.0;drawdown|performance|sharpe|sortino|volatilite;353;2026-09-01
+FR0000035784;EVERGREEN;Action;10.9;60.0;drawdown|performance|sharpe|sortino|volatilite;354;2026-09-01
+BE0974386188;BIOTALYS;Action;10.7;60.0;drawdown|performance|sharpe|sortino|volatilite;355;2026-09-01
+FR0010557264;AB SCIENCE;Action;10.6;60.0;drawdown|performance|sharpe|sortino|volatilite;356;2026-09-01
+FR0000054371;SPEED RABBIT PIZZA;Action;10.2;60.0;drawdown|performance|sharpe|sortino|volatilite;357;2026-09-01
+BE0974371032;BANQUP GROUP;Action;10.1;60.0;drawdown|performance|sharpe|sortino|volatilite;358;2026-09-01
+BE0974314461;BELYSSE GROUP;Action;9.9;60.0;drawdown|performance|sharpe|sortino|volatilite;359;2026-09-01
+DE000A11Q133;HK;Action;9.4;60.0;drawdown|performance|sharpe|sortino|volatilite;360;2026-09-01
+BE0974276082;ONTEX GROUP;Action;9.1;60.0;drawdown|performance|sharpe|sortino|volatilite;361;2026-09-01
+FR0000032526;GUERBET;Action;8.8;60.0;drawdown|performance|sharpe|sortino|volatilite;362;2026-09-01
+FR0011041011;BLUELINEA;Action;8.2;60.0;drawdown|performance|sharpe|sortino|volatilite;363;2026-09-01
+BE6333353298;BONYF;Action;7.6;60.0;drawdown|performance|sharpe|sortino|volatilite;364;2026-09-01
+FR0010169920;PREDILIFE;Action;7.4;60.0;drawdown|performance|sharpe|sortino|volatilite;365;2026-09-01
+FR0000062465;ALAN ALLMAN;Action;7.2;60.0;drawdown|performance|sharpe|sortino|volatilite;366;2026-09-01
+BE0974358906;NYXOAH;Action;5.9;60.0;drawdown|performance|sharpe|sortino|volatilite;367;2026-09-01
+FR0010869495;AMUNDI ETF DAX DS2;ETF;5.6;60.0;drawdown|performance|sharpe|sortino|volatilite;368;2026-09-01
+BE0974502347;FLORIDIENNE;Action;5.1;60.0;drawdown|performance|sharpe|sortino|volatilite;369;2026-09-01
+FR0000074072;BIGBEN INTERACTIVE;Action;4.6;60.0;drawdown|performance|sharpe|sortino|volatilite;370;2026-09-01
+FR0010424697;ETHERO;Action;3.9;60.0;drawdown|performance|sharpe|sortino|volatilite;371;2026-09-01
+BE0974487192;OXURION;Action;3.6;60.0;drawdown|performance|sharpe|sortino|volatilite;372;2026-09-01
+FR0010411884;AMUNDI ETF BX4;ETF;1.9;60.0;drawdown|performance|sharpe|sortino|volatilite;373;2026-09-01

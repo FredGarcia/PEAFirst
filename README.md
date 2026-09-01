@@ -338,10 +338,12 @@ collecte à une vingtaine par jour. La source `peafirst` ne remonte que les
 instruments réellement collectés : peupler la base de lignes vides donnerait un
 tableau de bord trompeur.
 
-**Cinq critères du cahier des charges restent vides** — potentiel, valorisation,
-croissance, dividende, consensus — faute de source européenne gratuite. Ils sont
-laissés à `None` plutôt que remplis d'une valeur inventée, et les pondérations
-se renormalisent sur les critères présents.
+**La couverture du barème dépend de l'enrichissement.** Sans
+`data/base_isin_potentiel.csv`, cinq critères restent vides — potentiel,
+valorisation, croissance, dividende, consensus — et la couverture plafonne à
+60 %. Avec, elle atteint **94 %** : seule la croissance reste sans source. Les
+critères absents sont laissés à `None` plutôt que remplis d'une valeur
+inventée, et les pondérations se renormalisent sur les critères présents.
 
 **Le dépôt contient des scrapers Boursorama** (`peadvisor/sources/boursorama.py`),
 hérités de PEAdvisor. Leur usage se heurte aux conditions d'utilisation du site

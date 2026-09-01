@@ -563,6 +563,56 @@ figure en infobulle. Le DIC de l'émetteur reste la seule référence.
 | `data/corrections_pea.csv` | éligibilité PEA corrigée, prime sur les règles |
 | `data/corrections_sri.csv` | SRI officiel relevé sur DIC, prime sur l'estimation |
 
+### 4.4ter Potentiel et fondamentaux (persistants)
+
+```bash
+python run.py                                    # dans un autre terminal
+python3 scripts/enrich_potentiel.py --etat
+python3 scripts/enrich_potentiel.py --filtre pea --limite 25
+python3 scripts/scoring.py
+```
+
+Alimente `data/base_isin_potentiel.csv` : potentiel, objectif de cours,
+consensus, PER, rendement, note ESG, secteur et capitalisation — soit les
+critères que l'historique de cours ne permet pas de calculer.
+
+**Effet mesuré sur le barème** : la couverture d'un instrument enrichi passe de
+**60 % à 94 %**. Dix critères sur onze sont alors notés ; seule la
+**croissance** reste absente, aucune source ne la fournissant.
+
+| Option | Effet |
+|---|---|
+| `--etat` | avancement, **sans aucun appel** |
+| `--filtre` | `pea` (défaut, éligibilité confirmée), `actions`, `etf`, `tout` |
+| `--isins` | liste précise d'ISIN |
+| `--limite N` | valeurs par exécution (défaut 25) |
+| `--pause N` | délai entre appels (défaut 2 s) |
+| `--forcer` | réinterroger l'acquis |
+
+Le script **n'a aucune dépendance** : il pilote l'API de l'application, dont le
+code de scraping est testé, plutôt que de le réécrire. L'application doit donc
+tourner ; sinon le script s'arrête avec un message explicite avant d'entamer le
+lot.
+
+Il espace ses appels, reprend où il s'est arrêté et écrit après chaque valeur :
+une interruption ne perd rien. Interroger des milliers de fiches d'affilée
+serait discourtois et fragile — d'où la limite basse par défaut.
+
+**Toutes les valeurs n'ont pas de potentiel.** Une petite capitalisation n'est
+suivie par aucun analyste : la colonne reste vide, ce qui est un constat et non
+un échec. Sur un lot de six grandes valeurs françaises, cinq potentiels ont été
+relevés.
+
+> Le scraping se heurte aux conditions d'utilisation du site et à la licence
+> Euronext sur les cours. Ces données entrent ici dans le **référentiel
+> versionné**, à la différence de l'import ponctuel du tableau de bord.
+
+**Note ESG : deux échelles.** La classification SFDR (article 8/9) concerne les
+fonds, la note du fournisseur (0-100) les actions. Les mélanger dans un même
+classement fausserait tout. Ce n'est pas le cas ici parce que le rang percentile
+est calculé **par type** et que les deux populations sont disjointes — mais
+c'est une propriété à préserver.
+
 ### 4.5 Scores
 
 ```bash

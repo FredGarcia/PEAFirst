@@ -49,11 +49,19 @@ PAYS = {
 # Classification SFDR : l'article 9 est plus exigeant que l'article 8.
 ECHELLE_ESG = {"ESG ETF art. 9": 1.0, "ESG ETF art. 8": 0.6}
 
+# Certains indicateurs deviennent disponibles dès que base_isin_potentiel.csv
+# existe : la liste est donc filtrée à la génération plutôt que figée.
+NON_ALIMENTES_CONDITIONNELS = [
+    ("Potentiel moyen", "lancer scripts/enrich_potentiel.py pour l'alimenter"),
+    ("Top dividendes", "lancer scripts/enrich_potentiel.py pour l'alimenter"),
+    ("Répartition sectorielle", "lancer scripts/enrich_potentiel.py pour l'alimenter"),
+]
+
 NON_ALIMENTES = [
-    ("Répartition sectorielle", "aucun champ secteur dans les listes Euronext"),
+
     ("Rendement moyen", "dividendes européens indisponibles en gratuit"),
-    ("Potentiel moyen", "objectifs de cours réservés aux offres payantes"),
-    ("Top dividendes", "dividendes européens indisponibles en gratuit"),
+
+
     ("Top croissance", "données de croissance indisponibles en gratuit"),
     ("Consensus analystes", "couverture européenne payante"),
     ("Allocation cible vs réelle", "aucun portefeuille réel n'est saisi"),
@@ -174,6 +182,7 @@ def construire(data, top, seuil):
     corrections = lire(data / "corrections_pea.csv")
     corrections_sri = lire(data / "corrections_sri.csv")
     sri = {r["ISIN"]: r for r in lire(data / "base_isin_sri.csv")}
+    fonda = {r["ISIN"]: r for r in lire(data / "base_isin_potentiel.csv")}
     anomalies = lire(data / "anomalies.csv")
     histo = lire(data / "historique_couverture.csv")
     chemin_pond = data / "scoring_params.json"
@@ -233,7 +242,9 @@ def construire(data, top, seuil):
             nombre(m.get("Sortino")),
             ECHELLE_ESG.get((r.get("ESG_classification") or "").strip()),
             m.get("Source_cours") or "",
-            None,   # 27 potentiel — alimenté par l'import web, en session
+            # Potentiel : persisté dans base_isin_potentiel.csv, et complété en
+            # session par le bouton d'import.
+            nombre(fonda.get(isin, {}).get("Potentiel_pct")),
         ])
 
     par_type = Counter(r["Type"] for r in base).most_common()
@@ -350,7 +361,9 @@ def construire(data, top, seuil):
         "__ABSENTS__": "".join(
             f'<li><span class="abs-t">{html.escape(t)}</span>'
             f'<span class="abs-m">{html.escape(m)}</span></li>'
-            for t, m in NON_ALIMENTES),
+            for t, m in (NON_ALIMENTES + [
+                (titre, motif) for titre, motif in NON_ALIMENTES_CONDITIONNELS
+                if not fonda])),
     }
     for cle, valeur in remplacements.items():
         gabarit = gabarit.replace(cle, valeur)
@@ -1060,7 +1073,7 @@ Généré par <code>scripts/dashboard.py</code>.</footer>
 //            14 nb anomalies,15 gravite max,16 sharpe,17 drawdown,
 //            18 methode PEA,19 motif PEA,20 vigilance,21 SRI retenu,
 //            22 reserve SRI,23 methode SRI,24 sortino,25 esg,26 source cours,
-//            27 potentiel (import web, non persiste)
+//            27 potentiel (base_isin_potentiel.csv, complete en session)
 var D = __DONNEES__;
 var SEUIL = __SEUIL__, PARPAGE = 50;
 var tri = {c: 6, desc: true}, page = 0, choix = Object.create(null), vue = D;
@@ -1187,7 +1200,7 @@ function rendre(){
       '<td class="nu">' + cell(r[6]) + "</td>" +
       '<td class="nu' + (r[27] !== null && r[27] !== undefined ? " potentiel" : "") +
         '" title="' + (r[27] !== null && r[27] !== undefined
-          ? "objectif de cours Boursorama, relevé en session" : "") + '">' +
+          ? "potentiel issu de l'objectif de cours des analystes" : "") + '">' +
         cell(r[27], "%") + "</td>" +
       '<td class="nu masq-s">' + cell(r[8], "%") + "</td>" +
       '<td class="nu masq-s">' + cell(r[9], "%") + "</td>" +

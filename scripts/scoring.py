@@ -47,12 +47,14 @@ CRITERES = {
     "sortino":      ("Sortino", +1),
     "drawdown":     ("Drawdown_max_pct", +1),  # valeur négative : -5% > -40%
     "esg":          ("_esg", +1),
-    # Déclarés pour l'avenir, sans source gratuite à ce jour :
-    "potentiel":    ("_potentiel", +1),
-    "valorisation": ("_valorisation", -1),
+    # Alimentés par scripts/enrich_potentiel.py, quand ce fichier existe.
+    "potentiel":    ("Potentiel_pct", +1),
+    "valorisation": ("PER", -1),          # un PER bas est mieux noté
+    "dividende":    ("Rendement_pct", +1),
+    "consensus":    ("Consensus", +1),
+    # Aucune source ne fournit de donnée de croissance : le critère reste
+    # déclaré, son poids renormalisé plutôt qu'attribué par défaut.
     "croissance":   ("_croissance", +1),
-    "dividende":    ("_dividende", +1),
-    "consensus":    ("_consensus", +1),
 }
 
 PONDERATIONS_DEFAUT = {
@@ -141,23 +143,40 @@ def rangs_percentiles(valeurs):
     return rangs
 
 
-def collecter_donnees(base, marche):
-    """Fusionne base et données de marché en un dict ISIN -> valeurs brutes."""
+def collecter_donnees(base, marche, fondamentaux=()):
+    """Fusionne base, données de marché et fondamentaux en ISIN -> valeurs."""
     par_isin = {}
     for r in base:
         par_isin[r["ISIN"]] = {
             "Nom": r["Nom"], "Type": r["Type"],
             "_esg": ECHELLE_ESG.get((r.get("ESG_classification") or "").strip()),
         }
-    for r in marche:
+    # Note ESG des fondamentaux. Deux échelles coexistent : la classification
+    # SFDR (article 8/9, propre aux fonds) et la note du fournisseur (0-100,
+    # relevée sur les actions). Les mélanger dans un même classement serait
+    # faux — une échelle écraserait l'autre. Ce n'est pas le cas ici parce que
+    # le rang percentile est calculé **par Type** et que les deux populations
+    # sont disjointes : SFDR pour les ETF, note fournisseur pour les actions.
+    # Si une même population venait à porter les deux, il faudrait trancher.
+    for r in fondamentaux:
+        note = nombre(r.get("Score_ESG"))
+        if note is None:
+            continue
         entree = par_isin.setdefault(r["ISIN"], {"Nom": r.get("Nom", ""),
                                                  "Type": r.get("Type", "")})
-        for critere, (cle, _) in CRITERES.items():
-            if cle.startswith("_"):
-                continue
-            valeur = nombre(r.get(cle))
-            if valeur is not None:
-                entree[cle] = valeur
+        if entree.get("_esg") is None:
+            entree["_esg"] = note
+
+    for source in (marche, fondamentaux):
+        for r in source:
+            entree = par_isin.setdefault(r["ISIN"], {"Nom": r.get("Nom", ""),
+                                                     "Type": r.get("Type", "")})
+            for critere, (cle, _) in CRITERES.items():
+                if cle.startswith("_"):
+                    continue
+                valeur = nombre(r.get(cle))
+                if valeur is not None:
+                    entree[cle] = valeur
     return par_isin
 
 
@@ -226,9 +245,14 @@ def main():
 
     base = lire_csv(data / "base_isin.csv")
     marche = lire_csv(chemin_marche)
+    chemin_fonda = data / "base_isin_potentiel.csv"
+    fondamentaux = lire_csv(chemin_fonda) if chemin_fonda.exists() else []
     ponderations = charger_ponderations(data / "scoring_params.json")
 
-    par_isin = collecter_donnees(base, marche)
+    par_isin = collecter_donnees(base, marche, fondamentaux)
+    if fondamentaux:
+        print(f"{chemin_fonda.name} : {len(fondamentaux)} instrument(s) "
+              "avec fondamentaux")
     if args.type:
         par_isin = {i: d for i, d in par_isin.items() if d.get("Type") == args.type}
 
