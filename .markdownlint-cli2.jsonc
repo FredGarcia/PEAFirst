@@ -1,0 +1,16 @@
+// Règles markdownlint du dépôt.
+{
+  "config": {
+    // La prose est composée à 80 colonnes, mais un tableau ou un diagramme
+    // Mermaid ne peut pas s'y plier sans devenir illisible : la règle ne
+    // s'applique donc qu'au texte courant.
+    "MD013": {
+      "line_length": 80,
+      "tables": false,
+      "code_blocks": false,
+      "headings": false
+    }
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules/**", ".venv/**"]
+}

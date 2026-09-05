@@ -17,6 +17,7 @@ abonnement Claude : **aucune clé API n'est nécessaire**.
 - Le dépôt cloné, avec les dépendances installées :
   `pip install -r requirements.txt` (le serveur MCP utilise la bibliothèque
   `mcp`).
+
 - Il n'est **pas nécessaire** que le serveur web (`python run.py`) tourne :
   le serveur MCP accède directement à la base SQLite via les services
   applicatifs, et initialise la base au premier lancement si besoin.
@@ -48,7 +49,7 @@ menu des connecteurs.
 ## 3. Les 19 outils exposés
 
 | Outil | Rôle |
-|---|---|
+| --- | --- |
 | `lister_actifs` | Actifs triés par score (filtre ACTION / ETF / OPCVM) |
 | `fiche_actif` | Fiche complète + sous-scores du score propriétaire |
 | `synthese_dashboard` | KPI, répartitions, tops du tableau de bord |
@@ -71,12 +72,16 @@ menu des connecteurs.
 
 - *« Compare le classement TOPSIS et le classement par score pondéré : quelles
   valeurs sont robustes dans les deux ? Explique les écarts. »*
+
 - *« Propose une allocation pour 25 000 €, profil 5, horizon 15 ans, objectif
   croissance, puis justifie chaque poche. »*
+
 - *« Lance un auto-diagnostic et fais-moi un plan d'action à partir des
   recommandations du système. »*
+
 - *« Examine les anomalies ouvertes : lesquelles sont de vraies erreurs de
   données, lesquelles sont explicables ? »*
+
 - *« Rédige une note d'analyse d'une page sur les forces et faiblesses de
   Schneider Electric à partir de sa fiche. »*
 
@@ -87,8 +92,10 @@ menu des connecteurs.
   l'application d'une suggestion reste une décision humaine (écran Système).
   Les autres écritures (modification directe des pondérations, suppression)
   ne sont pas exposées.
+
 - Les données `seed` sont illustratives : les analyses de l'agent n'ont de
   valeur réelle qu'une fois une source de données vivante branchée.
+
 - Comme partout dans PEAdvisor : sorties indicatives, pas un conseil en
   investissement.
 

@@ -14,7 +14,7 @@ jour la ligne, importer depuis une source différente en **ajoute** une. Les vue
 analytiques (allocation) ne retiennent qu'une ligne par ISIN (la mieux notée).
 
 | Groupe | Champs |
-|---|---|
+| --- | --- |
 | Identité | `nom`, `isin`, `mnemonique`, `type` (ACTION / ETF / OPCVM), `marche`, `devise`, `pays`, `secteur` |
 | Éligibilité | `eligible_pea`, `eligible_pea_pme` (poche optionnelle, activable dans settings.yaml) |
 | Fonds | `societe_gestion` |
@@ -26,9 +26,11 @@ analytiques (allocation) ne retiennent qu'une ligne par ISIN (la mieux notée).
 
 ### Règles de gestion
 
-- `potentiel` est **recalculé** à chaque scoring : `(objectif_cours / cours − 1) × 100`.
+- `potentiel` est **recalculé** à chaque scoring :
+  `(objectif_cours / cours − 1) × 100`.
 - `niveau_risque` : si absent (actions), il est **dérivé de la volatilité**
   (échelle type SRI 1-7) ; pour les fonds, le SRI du DIC est conservé tel quel.
+
 - Un enregistrement importé est **rejeté** (et compté) si l'ISIN ne fait pas
   12 caractères, si le nom est vide ou si le type est inconnu.
 

@@ -10,7 +10,7 @@ versionné) ou par variable d'environnement (**prioritaire**), et se vérifient
 via le bouton « Tester » de l'écran Sources.
 
 | Source | Clé | Offre gratuite | Couverture PEA | Notes |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `seed` | non | — | démo | Jeu local illustratif + séries synthétiques |
 | **`stooq`** | **non** | **illimitée (usage raisonnable)** | Paris (suffixe `.fr`) | **La plus simple à activer** : historiques EOD réels, CSV, sans inscription |
 | `yahoo` | non | oui (non officiel) | large | Via yfinance : pratique mais fragile (pas d'API contractuelle) |
@@ -34,7 +34,7 @@ premier endroit à ajuster si le bouton « Tester » renvoie une réponse vide.
 ### API sérieuses mais peu adaptées au PEA
 
 | Source | Raison |
-|---|---|
+| --- | --- |
 | Polygon.io | Excellente API mais couverture actions **US uniquement** — inutilisable pour un univers PEA |
 | Alpaca Market Data | Données de courtage **US** |
 | Tradier API | Courtage **US** |
@@ -58,7 +58,7 @@ données licencié pour ce cas d'usage.
 ### Compléments utiles (autres rôles que les cours)
 
 | Source | Rôle pertinent pour PEAdvisor |
-|---|---|
+| --- | --- |
 | **OpenFIGI** | Gratuit : correspondance **ISIN → ticker/place**. Très utile le jour du référentiel complet (résoudre automatiquement les symboles par source) — candidat sérieux pour un module « référentiel ». ⚠️ **V2 fermée le 1er juillet 2026 (HTTP 410) : viser directement l'API V3** |
 | **FRED** (Federal Reserve) | Séries macro gratuites (clé requise) : rendements souverains, y compris séries internationales (ex. `IRLTLT01FRM156N`, taux long français). Alternative à la BCE pour le taux sans risque |
 | SEC EDGAR | Fondamentaux officiels mais **émetteurs US** — hors périmètre PEA |
@@ -70,7 +70,7 @@ Recherche complémentaire, orientée vers les **manques réels** de PEAdvisor
 sources **institutionnelles, gratuites et sans clé**.
 
 | Source | Rôle | Clé | Intérêt pour PEAdvisor |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **BCE — ECB Data Portal (SDMX)** ✅ intégré | Taux zone euro + change | **non** | **Taux sans risque** (rendement 10 ans AAA) pour Sharpe/Sortino et **taux de change** EUR — voir moteur macro ci-dessous |
 | **Frankfurter** | Taux de change | **non** | Alternative légère à la BCE pour le change (données BCE reconditionnées en JSON, sans clé) |
 | **AMF GECO** | VL des OPCVM français | non (web/open data) | **Comble le trou OPCVM** : les fonds ne sont cotés sur aucune API boursière. Base officielle de l'Autorité des marchés financiers, recherche par ISIN. Accès surtout web ; jeux partiels sur data.gouv.fr — un connecteur demanderait de fiabiliser l'accès programmatique |
@@ -91,6 +91,7 @@ clé**) pour :
   qui alimente désormais les ratios de Sharpe et de Sortino — activable par
   `macro.taux_sans_risque_source: bce` dans `config/settings.yaml` (défaut
   `fixe` : la valeur `quantitatif.taux_sans_risque_pct`, garantie hors-ligne) ;
+
 - les **taux de change** face à l'euro (`taux_change()`), pour de futures
   conversions d'actifs libellés hors EUR.
 
@@ -106,7 +107,7 @@ exchange hors offre gratuite, 404 = symbole introuvable pour ce plan, 429 =
 quota. Verdict par source d'après les essais :
 
 | Source | Résultat type | Cause / action |
-|---|---|---|
+| --- | --- | --- |
 | **alphavantage** | ✅ OK (~100 pts) | Fonctionne (suffixe `.PAR`). Quota gratuit faible. |
 | **eodhd** | ✅ OK (~250 pts) | Fonctionne (`.PA`). Le meilleur candidat payant. |
 | **marketstack** | ✅ OK (~240 pts) | Fonctionne (`.XPAR`). |
@@ -119,7 +120,8 @@ quota. Verdict par source d'après les essais :
 | **openfigi** | vide → **rôle corrigé** | Ce n'est **pas une source de cours** mais un annuaire ISIN→ticker (POST /v3/mapping). Déplacé dans `services/reference.py` (`GET /api/reference/figi/{isin}`, outil MCP `resoudre_isin`). |
 
 **Conclusion** : pour le PEA, s'appuyer sur **EODHD / Marketstack / AlphaVantage**
-(qui fonctionnent) et **stooq** (gratuit, sans clé, sous réserve de couverture) ;
+(qui fonctionnent) et **stooq** (gratuit, sans clé, sous réserve de
+couverture) ;
 retirer finnhub, polygon et tiingo (US-centrés) ; garder OpenFIGI comme
 annuaire, pas comme flux de cours.
 
@@ -139,19 +141,25 @@ Points clés :
 
 - **Code Boursorama** = préfixe de place + mnémonique ; Euronext Paris = `1rP`
   (Air Liquide `1rPAI`, TotalEnergies `1rPTTE`). Exceptions dans `CODES`.
+
 - **En-tête navigateur** obligatoire (comme stooq, Boursorama refuse
   `python-requests`).
+
 - **Colonnes extraites** (validées sur une page réelle) : nom, ISIN, secteur,
   cours, devise, variation du jour, ouverture / +haut / +bas / clôture veille,
   volume, valorisation (capitalisation), PER et rendement estimés, **objectif
   de cours 3 mois**, **potentiel**, **risque ESG**, **consensus analystes**.
+
 - **Deux conversions de convention** (documentées et testées) :
   - *Risque ESG* Boursorama (Sustainalytics, plus bas = mieux, ex. 12,7) →
     **score ESG** PEAdvisor (0-100, plus haut = mieux) : `score = 100 − risque`.
+
   - *Consensus* Boursorama (échelle 1 = achat … 5 = vente, ex. 1,55) →
     **consensus** PEAdvisor (1 = vente … 5 = achat fort) : `6 − valeur`.
+
 - **Cours en direct** : rempli par JavaScript, donc absent du HTML statique →
   repli automatique sur la **clôture veille**.
+
 - **Historique** : cette page ne le fournit pas → indicateurs quantitatifs
   (volatilité, Sharpe…) toujours issus d'une source EOD (EODHD, Marketstack…).
 
@@ -160,10 +168,12 @@ Utilisation — **ajout à la demande par nom, ISIN ou code** :
 - Onglet Actions : champ « Ajouter une valeur (nom, ISIN ou code) » →
   « Rechercher & ajouter » ; la recherche Boursorama résout le code
   automatiquement (« Air Liquide » ou « FR0000120073 » → `1rPAI`).
+
 - `POST /api/import/boursorama/{nom|isin|code}` ou l'outil MCP
   `importer_boursorama`. La ligne est créée/mise à jour, **Source =
   boursorama**, et la réponse expose tous les indicateurs extraits
   (`donnees_extraites`).
+
 - **Tout l'univers** : `donnees.source_active: boursorama` (une requête par
   valeur, pause d'une seconde — courtois mais lent).
 
@@ -183,7 +193,7 @@ configuration (URL de recherche + motif de lien + `parser_generique`), à
 fiabiliser dès qu'une page exemple est fournie.
 
 | Source | État | Notes |
-|---|---|---|
+| --- | --- | --- |
 | **Boursorama** | ✅ validé | Parseur dédié, indicateurs riches (objectif, potentiel, ESG, consensus) |
 | Boursier, Zonebourse, Bourse Direct, Ouest-France, Euronext Paris | ⚠️ à valider | Branchées avec un parseur générique (nom, ISIN, cours) — envoyer une page exemple de chacune pour un parseur dédié, comme pour Boursorama |
 
@@ -202,17 +212,21 @@ suivi pour Boursorama, cf. `tests/fixtures_boursorama.py`).
 **Recherche (API indépendante `/api/recherche`)** — partagée par les onglets
 Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
 (un bouton par source). Le service :
+
 - **détecte le type d'instrument** (depuis le `<title>` Boursorama : « Cours
   Action / Tracker / OPCVM ») et **ventile** la valeur dans le bon onglet ;
+
 - **vérifie l'éligibilité PEA** (marqueur `eligible-pea` de la fiche) ; si non
   confirmée, **rien n'est enregistré** : une **fenêtre modale** décrit la cause
   et propose « Ajouter quand même » (`?confirmer=true`). Toute autre erreur
   (ISIN introuvable, réseau…) ouvre aussi une modale décrivant la cause ;
+
 - un bouton **par source** (recherche par valeur *et* import global depuis
   l'onglet Sources) pilote l'acquisition. Acquérir une valeur depuis une
   **source différente ajoute une ligne** (une ligne par source) ; ré-acquérir
   depuis la même source met à jour la ligne existante. Le 🗑 retire une **ligne
   précise** (une source) par son id.
+
 - **Remplissage initial** = un **référentiel de vraies valeurs** éligibles au PEA
   (`peadvisor/data/seed_assets.json` : ~90 actions Euronext Paris / SBF 120, ETF
   PEA réels, OPCVM réels — nom, ISIN, mnémonique, secteur réels). **Aucune valeur
@@ -220,15 +234,19 @@ Actions / ETF / OPCVM : saisir un nom, un ISIN ou un code, choisir la source
   est un **plafond** par type (défaut 300/30/30 = charge tout le référentiel
   disponible). Les cours/indicateurs du seed sont **indicatifs** ; les **vraies
   données de marché** s'obtiennent via **« Réactualiser »** (scraping Boursorama
-  par ticker) ou l'import depuis une source réelle. **« 🩺 Diagnostiquer les sources »**
+  par ticker) ou l'import depuis une source réelle. **« 🩺 Diagnostiquer les
+  sources »**
   teste chaque source (`GET /api/sources/etats`) et **colore** les boutons :
   **bleu** = données disponibles, **orange clair** = test OK mais aucune donnée,
   **gris** = indisponible ;
+
 - un bouton **« ↻ Réactualiser le tableau »** re-scrape toutes les valeurs de
   l'onglet depuis leur source et recalcule les scores
   (`POST /api/actifs/reactualiser`). Il est **bleu quand disponible**, **gris**
   pendant le **délai mini paramétrable** (Paramètres → `reactualisation_minutes`).
-  À la fin, un **rapport technique** (suggestions) s'ouvre en fenêtre à valider ;
+  À la fin, un **rapport technique** (suggestions) s'ouvre en fenêtre à
+  valider ;
+
 - **Yahoo** fonctionne même sans la bibliothèque `yfinance` : repli HTTP direct
   sur l'API *chart* (`query1.finance.yahoo.com/v8/finance/chart/<symbole>`),
   qui renvoie cours, devise et historique de clôtures.
@@ -245,13 +263,18 @@ clés »** (BNA, rendement…) sont récupérés hors de la liste principale. Le
 l'élément, avec repli sur la clôture veille.
 
 **Tableaux (Actions / ETF / OPCVM, même composant)** :
-- une **première colonne « # »** indique le **rang dans l'ordre d'acquisition** ;
+
+- une **première colonne « # »** indique le **rang dans l'ordre
+d'acquisition** ;
 - **tri** par colonne (▴/▾) ; **suppression** d'une ligne (🗑, `DELETE
   /api/actifs/{isin}`) ; **en-tête figé** au défilement vertical ;
+
 - **pleine largeur** disponible (colonnes ajustées) et **colonnes #, Nom, ISIN,
   Secteur figées** au défilement **horizontal** ;
+
 - la colonne **Source** est le **lien d'acquisition** (`source_url`), avec le
   **nom de la source** comme étiquette (repli : recherche par ISIN) ;
+
 - **entêtes propres à chaque tableau** : le jeu de colonnes visibles se choisit
   par onglet (Paramètres → « Colonnes »). Les cases ne s'enregistrent pas
   automatiquement : **« Tout sélectionner »**, **« Enregistrer »** (conserve les
@@ -263,6 +286,7 @@ l'élément, avec repli sur la clôture veille.
   BNA, dividende, taux de distribution, dette nette, CA, objectif, potentiel,
   consensus, nombre d'analystes, ESG, risque ESG, éligibilité PEA, source
   (+ score global). ETF / OPCVM ont un jeu par défaut plus resserré ;
+
 - **couleur d'en-tête paramétrable par onglet** (Paramètres → Apparence) ;
 - **données de démonstration** : bouton « Charger » sur la ligne `seed`
   (onglet Sources) et bascule « Masquer / Afficher (seed) ».
@@ -283,9 +307,11 @@ profil, `largeur_barre`).
 1. Créer `peadvisor/sources/<nom>.py` héritant de `SourceHTTPBase` :
    implémenter `symbole()`, `cotation()` et/ou `serie()` (~30 lignes, voir
    `stooq.py` pour le cas minimal).
+
 2. L'enregistrer dans `REGISTRE` (`sources/__init__.py`).
 3. Si clé : ajouter `nom_cle`/`variable_env` + une ligne dans
    `config/cles_api.exemple.yaml`.
+
 4. Ajouter un test de parsing dans `tests/test_sources_http.py` (réponses
    simulées — aucun réseau en test).
 

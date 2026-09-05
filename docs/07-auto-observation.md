@@ -5,7 +5,7 @@ ordre traite le **système lui-même** : PEAdvisor observe la qualité de ses
 propres données et de ses propres prédictions, puis propose — ou applique —
 ses propres réglages.
 
-```
+```text
         ┌──────────────────────── L5 — Second ordre ────────────────────────┐
         │                                                                   │
         │   Auto-observation  ──────────────►  Auto-amélioration            │
@@ -28,7 +28,7 @@ Un **auto-diagnostic** (bouton de l'écran Système, endpoint
 planifiée) produit un rapport persisté (table `rapports_systeme`) :
 
 | Observation | Méthode | Ce qui en découle |
-|---|---|---|
+| --- | --- | --- |
 | Complétude des données | % de champs renseignés, champ par champ | recommandation si < 60 % |
 | Fraîcheur | cours plus vieux que `meta.fraicheur_max_jours` | recommandation de mise à jour |
 | Discrimination des critères | écart-type des sous-notes par critère | un critère quasi constant n'apporte rien au classement |
@@ -57,6 +57,7 @@ prédictives :
 - exploration par pas de `meta.optimisation.pas` points ;
 - **garde-fou** : chaque critère reste à ± `ajustement_max` points de sa
   valeur actuelle — l'auto-amélioration ajuste, elle ne bouleverse pas ;
+
 - **anti-sur-apprentissage** : une suggestion n'est émise que si le gain de
   corrélation dépasse `gain_minimal` et que la fenêtre contient au moins
   5 observations avec des rendements réellement différenciés.
@@ -64,7 +65,7 @@ prédictives :
 ### Supervision humaine par défaut
 
 | Mode | Comportement |
-|---|---|
+| --- | --- |
 | `auto_appliquer: false` (défaut) | La suggestion est stockée (table `suggestions_ponderations`) avec corrélation avant/après ; l'utilisateur l'**applique ou la rejette** dans l'écran Système |
 | `auto_appliquer: true` | Boucle fermée : la suggestion est appliquée après chaque mise à jour planifiée, puis tous les scores sont recalculés |
 
@@ -83,7 +84,7 @@ par l'humain.
 ## 3. API
 
 | Méthode | Route | Rôle |
-|---|---|---|
+| --- | --- | --- |
 | POST | `/api/meta/observer` | Lancer un auto-diagnostic |
 | GET | `/api/meta/sante` | Dernier rapport |
 | GET | `/api/meta/anomalies?statut=ouverte` | Anomalies |
@@ -99,9 +100,11 @@ par l'humain.
   **sous-notes courantes** (les sous-notes datées ne sont pas encore
   historisées). Précis dès que les historiques de cours seront en place,
   l'approximation est documentée dans le code.
+
 - Avec la source `seed` (cours statiques), le pouvoir prédictif est
   volontairement « non mesurable » — le système le dit lui-même dans son
   rapport. Il devient réel dès qu'une source vivante alimente la base.
+
 - Extensions naturelles : validation croisée temporelle (fenêtres glissantes),
   optimisation par recuit simulé si le nombre de critères augmente, détection
   d'anomalies sur les répartitions du tableau de bord (dérive de l'univers).

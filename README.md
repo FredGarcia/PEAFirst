@@ -25,7 +25,7 @@ illustratif.
 ## Les deux briques en un coup d'œil
 
 | | Chaîne de données (`scripts/`) | Application (`peadvisor/`) |
-|---|---|---|
+| --- | --- | --- |
 | Rôle | constituer et vérifier le référentiel | explorer, décider, simuler |
 | Exécution | ligne de commande, GitHub Actions | serveur web local |
 | Dépendances | **aucune** (bibliothèque standard) | FastAPI, SQLAlchemy, uvicorn |
@@ -41,7 +41,7 @@ niveau — mais voir l'avertissement plus bas sur le scoring.
 ## En bref
 
 | | |
-|---|---|
+| --- | --- |
 | Univers | 6 188 instruments Euronext (actions, ETF, OPCVM) |
 | Identifiants | FIGI, ticker et nom complet via OpenFIGI |
 | Éligibilité PEA | relevés émetteurs + règles métier, avec traçabilité de la source |
@@ -351,7 +351,7 @@ et à la licence Euronext sur les cours. Ils ne sont pas activés par défaut.
 
 ## Contenu du dépôt
 
-```
+```text
 data/        base ISIN, identifiants, éligibilité PEA, marché, scores, SRI,
              anomalies, historique, tableau de bord, caches de reprise
 scripts/     chaîne de données : collecte, analyse, décision, restitution
@@ -386,7 +386,7 @@ des options et des réglages est dans le [mode d'emploi](docs/MODE_EMPLOI.md).
 Trois workflows, volontairement séparés :
 
 | Workflow | Déclencheur | Rôle |
-|---|---|---|
+| --- | --- | --- |
 | `validate.yml` | chaque push | schéma du référentiel, cohérence des sous-fichiers, régénération de `base_isin_fonds_pea.csv` comparée au fichier commité |
 | `tests.yml` | push sur `peadvisor/`, `tests/`, `config/` | 115 tests, plus un garde-fou vérifiant que la source `peafirst` lit bien le référentiel |
 | `collecte-marche.yml` | chaque jour ouvré à 06h15 UTC | collecte, scores, SRI, anomalies, historique, tableau de bord, puis publication |

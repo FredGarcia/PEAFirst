@@ -3,7 +3,7 @@
 ## Les 4 niveaux du cahier des charges
 
 | Niveau | Fonction | Implémentation |
-|---|---|---|
+| --- | --- | --- |
 | **L1 — Collecte** | Import des données | `peadvisor/sources/` (connecteurs) + `services/importer.py` (normalisation, dédoublonnage) |
 | **L2 — Analyse** | Indicateurs, scoring, ESG, risque | `services/scoring.py` (sous-notes 0-100, score global, niveau de risque dérivé de la volatilité) |
 | **L3 — Décision** | Multicritère, allocation | `services/decision.py` (score pondéré, TOPSIS) + `services/allocation.py` |
@@ -12,7 +12,7 @@
 
 ## Flux de données
 
-```
+```text
 Source (seed / yahoo / …)
         │  recuperer()
         ▼
@@ -31,13 +31,14 @@ Tableau de bord / classements     Moteur d'allocation
 (KPI, tops, TOPSIS)               (profil → portefeuille)
 ```
 
-Chaque import écrit une ligne dans `journal_maj` (créés / mis à jour / doublons /
+Chaque import écrit une ligne dans `journal_maj` (créés / mis à jour /
+doublons /
 rejets, statut, détail), consultable dans l'écran **Historique**.
 
 ## Correspondance avec les modules du cahier des charges
 
 | Module | Fonction | État |
-|---|---|---|
+| --- | --- | --- |
 | M1 | Collecte des données | ✅ sources branchables + import manuel/planifié |
 | M2 | Normalisation et dédoublonnage | ✅ par ISIN, doublons intra-lot écartés |
 | M3 | Indicateurs financiers | ✅ champs stockés + potentiel calculé + **moteur quantitatif** sur historiques de cours (volatilité réalisée, perf 1 an, drawdown, Sharpe, Sortino, VaR 95 %, corrélations) |
@@ -54,7 +55,7 @@ rejets, statut, détail), consultable dans l'écran **Historique**.
 ## API REST (extraits)
 
 | Méthode | Route | Rôle |
-|---|---|---|
+| --- | --- | --- |
 | GET | `/api/dashboard/synthese` | KPI, répartitions, tops |
 | GET | `/api/dashboard/classement?methode=topsis` | Matrice de décision multicritère |
 | GET | `/api/actifs?type=ETF&tri=score_global` | Liste filtrée/triée |

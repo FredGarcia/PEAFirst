@@ -14,6 +14,7 @@ on:
       - 'mcp_server.py'
       - 'run.py'
       - 'requirements.txt'
+      - '**/*.md'
       - '.github/workflows/tests.yml'
   pull_request:
   workflow_dispatch:
@@ -34,6 +35,12 @@ jobs:
 
       - name: Installer les dépendances
         run: pip install -r requirements.txt
+
+      - name: Contrôler la documentation
+        # markdownlint évite que les tableaux et les blocs de code repartent en
+        # ordre dispersé au fil des éditions. La configuration est dans
+        # .markdownlint-cli2.jsonc.
+        run: npx --yes markdownlint-cli2
 
       - name: Suite de tests
         run: python3 -m pytest tests/ -q

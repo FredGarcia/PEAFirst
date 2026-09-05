@@ -107,7 +107,7 @@ L'environnement virtuel est **facultatif** : `pip install -r requirements.txt`
 fonctionne directement, il isole simplement moins bien les dépendances.
 
 | Terminal | Activation |
-|---|---|
+| --- | --- |
 | PowerShell | `.venv\Scripts\Activate.ps1` |
 | Invite de commandes (cmd) | `.venv\Scripts\activate.bat` |
 | Git Bash | `source .venv/Scripts/activate` |
@@ -184,6 +184,7 @@ export EODHD_API_KEY="votre_cle"
 export MARKETSTACK_API_KEY="votre_cle"
 export OPENFIGI_API_KEY="votre_cle"
 ```
+
 ```powershell
 setx EODHD_API_KEY "votre_cle"
 setx OPENFIGI_API_KEY "votre_cle"
@@ -191,15 +192,19 @@ setx MARKETSTACK_API_KEY "votre_cle"
 echo verification
 echo $env:EODHD_API_KEY
 ```
+
 ```bash
 echo 'export EODHD_API_KEY="votre_cle"' >> ~/.bashrc
 source ~/.bashrc
 ```
-Si le fichier n'existe pas, cette commande le crée. C'est l'option la plus simple si vous voulez copier-coller les commandes de la documentation sans les adapter.
+
+Si le fichier n'existe pas, cette commande le crée. C'est l'option la plus
+simple pour copier-coller les commandes du guide sans les adapter.
+
 ### Couverture réelle, testée sur instruments européens
 
 | Source | Quota gratuit | Europe | Usage dans le projet |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **EODHD** | 20 requêtes/**jour** | Paris, Amsterdam, Bruxelles, Lisbonne, Oslo, Milan, Dublin | historique + indicateurs (source par défaut) |
 | **Marketstack** | 100 requêtes/**mois**, lots de 50 | Paris, Amsterdam, Bruxelles, Lisbonne — grandes capitalisations | cours en masse |
 | **OpenFIGI** | 25 req/min sans clé, lots de 10 ; **250 req/min avec clé, lots de 100** | mondiale | FIGI, ticker, nom complet |
@@ -253,7 +258,7 @@ web. Le téléphone sert à **consulter et déclencher**, pas à calculer.
 
 Ouvrir dans le navigateur (une seule ligne, sans retour) :
 
-```
+```text
 https://htmlpreview.github.io/?https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
 ```
 
@@ -426,7 +431,7 @@ non éligibles. Ce script applique des règles plus fines, par priorité
 décroissante :
 
 | Priorité | Règle | Effet |
-|---|---|---|
+| --- | --- | --- |
 | 1 | correction utilisateur (`corrections_pea.csv`) | fait toujours foi |
 | 2 | régime foncier (`Type_instrument = REIT`) | **NON** |
 | 2bis | régime annoncé dans la raison sociale (SOCIMI, SIIC, SIIQ, Sicafi, REIT) | **NON** |
@@ -487,9 +492,9 @@ sur 400 jours (réglable via `--jours`), et écrit `data/base_isin_marche.csv`.
 Options utiles :
 
 | Option | Effet |
-|---|---|
+| --- | --- |
 | `--etat` | avancement, **sans consommer de quota** |
-| `--filtre pea\|actions\|etf\|tout` | restreindre l'univers |
+| `--filtre` | restreindre l'univers : `pea`, `actions`, `etf` ou `tout` |
 | `--limite N` | plafonner le nombre d'appels |
 | `--isins FR000...,BE097...` | traiter un lot précis |
 | `--file-attente fichier.txt` | traiter une file exportée du tableau de bord |
@@ -512,7 +517,7 @@ de la volatilité annualisée, selon les bornes du règlement délégué (UE) 20
 révisé par le règlement 2021/2268.
 
 | SRI | VEV | SRI | VEV |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | < 0,5 % | 5 | 20 – 30 % |
 | 2 | 0,5 – 5 % | 6 | 30 – 80 % |
 | 3 | 5 – 12 % | 7 | > 80 % |
@@ -559,7 +564,7 @@ SRI officiel se distingue d'une estimation par un contour marqué, et la réserv
 figure en infobulle. Le DIC de l'émetteur reste la seule référence.
 
 | Fichier | Rôle |
-|---|---|
+| --- | --- |
 | `data/corrections_pea.csv` | éligibilité PEA corrigée, prime sur les règles |
 | `data/corrections_sri.csv` | SRI officiel relevé sur DIC, prime sur l'estimation |
 
@@ -581,7 +586,7 @@ critères que l'historique de cours ne permet pas de calculer.
 **croissance** reste absente, aucune source ne la fournissant.
 
 | Option | Effet |
-|---|---|
+| --- | --- |
 | `--etat` | avancement, **sans aucun appel** |
 | `--filtre` | `pea` (défaut, éligibilité confirmée), `actions`, `etf`, `tout` |
 | `--isins` | liste précise d'ISIN |
@@ -667,7 +672,7 @@ Le profil de risque suit les bornes de volatilité **PRIIPS (indicateur SRI)**,
 comparables à celles des documents d'information des fonds :
 
 | SRI | Volatilité annualisée | SRI | Volatilité annualisée |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | < 0,5 % | 5 | 20 – 30 % |
 | 2 | 0,5 – 5 % | 6 | 30 – 80 % |
 | 3 | 5 – 12 % | 7 | > 80 % |
@@ -702,7 +707,7 @@ hors ligne, organisée en **neuf onglets** qui reprennent les écrans de
 l'application PEAdvisor réalisables sans serveur :
 
 | Onglet | Contenu |
-|---|---|
+| --- | --- |
 | **Synthèse** | fraîcheur, progression de la collecte, couverture du barème, KPI, répartitions, meilleurs scores, matrice TOPSIS |
 | **Explorateur** | recherche, filtres, tri, regroupement, comparateur, constitution de lots, pilotage de la collecte, corrections |
 | **Allocation** | capital, risque 1-7, horizon, objectif → portefeuille calculé dans le navigateur |
@@ -716,7 +721,7 @@ l'application PEAdvisor réalisables sans serveur :
 Correspondance avec les onze écrans de l'application :
 
 | Écran PEAdvisor | Onglet statique |
-|---|---|
+| --- | --- |
 | dashboard | Synthèse |
 | actions, etf, opcvm | Explorateur (filtre par nature) |
 | allocation, simulateur, watchlist, historique, sources, parametres, systeme | onglet de même nom |
@@ -751,7 +756,7 @@ cette page n'écrit rien sur votre appareil. Les exporter pour les conserver —
 - **Barre d'actions** au-dessus du tableau :
 
 | Bouton | Ce qu'il fait | Disponible |
-|---|---|---|
+| --- | --- | --- |
 | **Exporter la vue (CSV)** | télécharge `vue_peafirst.csv` avec les lignes **telles que filtrées et triées** à l'écran, 15 colonnes, encodage compatible Excel | toujours |
 | **Copier les ISIN** | met les ISIN sélectionnés dans le presse-papiers, un par ligne | si sélection |
 | **File d'attente** | télécharge `file_attente.txt` à passer à `--file-attente` | si sélection |
@@ -788,7 +793,8 @@ python3 scripts/enrich_marche.py --historique \
 
 ## 6. Automatisation
 
-`.github/workflows/collecte-marche.yml` s'exécute chaque jour ouvré à 06h15 UTC :
+`.github/workflows/collecte-marche.yml` s'exécute chaque jour ouvré à
+06h15 UTC :
 collecte un lot, recalcule les scores, détecte les anomalies, enregistre la
 progression, régénère le tableau de bord, contrôle l'intégrité, publie.
 
@@ -810,7 +816,7 @@ Modifier ce fichier à la main fait échouer le build — passer par
 ## 7. Fichiers produits
 
 | Fichier | Contenu | Produit par |
-|---|---|---|
+| --- | --- | --- |
 | `base_isin.csv` | 6 188 instruments, 11 colonnes | listes Euronext |
 | `base_isin_actions/_etf/_opcvm.csv` | extraits par type | listes Euronext |
 | `base_isin_figi.csv` | FIGI, ticker, nom complet | `enrich_openfigi.py` |
@@ -916,12 +922,9 @@ du propriétaire, **pas** les droits du jeton.
 - **Les seuils d'anomalie sont empiriques** et produiront des faux positifs sur
   un univers plus large.
 
-_(suite ci-dessous)_
-
 Un accès payant à EODHD ou FMP débloquerait les fondamentaux (PER, croissance,
 dividendes) et ferait passer la couverture du barème de 60 % à près de 100 %,
 sans modification du code : les critères sont déjà déclarés.
-
 
 ---
 
@@ -938,13 +941,14 @@ python3 -m venv .venv && source .venv/bin/activate   # recommandé
 pip install -r requirements.txt
 python run.py
 ```
+
 > **Sous Windows**, `source` n'existe pas et la commande est `python`, pas
 > `python3` : voir [§1bis](#1bis-sous-windows).
 
 ### B. Les onze écrans
 
 | Écran | Contenu |
-|---|---|
+| --- | --- |
 | Tableau de bord | KPI, répartitions par type, secteur et pays, tops, classement multicritère |
 | Actions / ETF / OPCVM | référentiel filtrable, colonnes choisies et mémorisées, fiche par actif |
 | Allocation | capital, risque 1-7, horizon, objectif → portefeuille sous contraintes |
@@ -961,7 +965,7 @@ Dix sources branchables, choisies par `source_active` dans
 `config/settings.yaml` :
 
 | Source | Clé requise | Couverture | Remarque |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **`peafirst`** | non | 371 instruments réels | **défaut** — lit le référentiel de `scripts/`, éligibilité PEA vérifiée, aucun quota |
 | `seed` | non | jeu illustratif | hors ligne, pour démonstration |
 | `stooq`, `yahoo` | non | variable | non officielles |
@@ -975,7 +979,7 @@ Dix sources branchables, choisies par `source_active` dans
 ### D. Ce que la source `peafirst` apporte
 
 | | jeu `seed` | source `peafirst` |
-|---|---|---|
+| --- | --- | --- |
 | Données | illustratives | réelles, collectées quotidiennement |
 | Éligibilité PEA | déclarative | vérifiée : régime foncier, nature de l'instrument, pays, relevés émetteurs, corrections utilisateur |
 | Risque | valeur fixe | SRI estimé selon les bornes PRIIPS |
@@ -995,7 +999,7 @@ pas. Dans le doute, un titre n'est pas présenté comme logeable en PEA.
 `config/settings.yaml` :
 
 | Section | Ce qu'elle règle |
-|---|---|
+| --- | --- |
 | `donnees` | source active, PEA-PME, plafond de remplissage initial |
 | `mise_a_jour` | planification automatique (APScheduler), fréquence, heure |
 | `allocation` | poids maximal par ligne et par secteur, nombre de lignes, part minimale de fonds |
@@ -1019,7 +1023,7 @@ modifiables aussi depuis l'écran **Paramètres** avec recalcul immédiat.
 Les principales :
 
 | Domaine | Routes |
-|---|---|
+| --- | --- |
 | Référentiel | `GET /api/actifs`, `/api/actifs/{isin}`, `/api/actifs/{isin}/cours`, `/api/actifs/{isin}/sous-scores` |
 | Import | `POST /api/import`, `GET /api/sources`, `POST /api/sources/{nom}/tester` |
 | Décision | `GET /api/dashboard/synthese`, `/api/dashboard/classement`, `/api/dashboard/correlations` |
@@ -1047,7 +1051,7 @@ Configuration détaillée dans [`docs/08-agent-mcp.md`](08-agent-mcp.md).
 Héritée de PEAdvisor, elle explique les choix plutôt que l'usage :
 
 | Document | Contenu |
-|---|---|
+| --- | --- |
 | [01](01-choix-technologiques.md) | pourquoi Python, FastAPI, SQLite ; alternatives écartées |
 | [02](02-architecture.md) | architecture en 4 niveaux, flux de données |
 | [03](03-modele-donnees.md) | modèle de données |
@@ -1067,7 +1071,7 @@ La page **ne scrape rien** : elle prépare la requête, l'application l'exécute
 Trois façons de la lancer :
 
 | Moyen | Condition |
-|---|---|
+| --- | --- |
 | **Essayer maintenant** | affiche une barre de progression et reporte les résultats dans le tableau. Nécessite que la page soit **servie par l'application** : ouvrir <http://localhost:8000/tableau-de-bord> plutôt que le fichier local, sinon le navigateur bloque l'appel — le message le dit et donne l'adresse |
 | **Copier la commande** | `curl -X POST "http://localhost:8000/api/import/web/boursorama/FR0000120073"` — fonctionne toujours dans un terminal, l'application étant lancée |
 | **Ouvrir l'API** | formulaire Swagger de la route |
@@ -1084,7 +1088,7 @@ l'Explorateur, à côté du **SRI**.
 Les deux jeux de données sont complémentaires, et c'est tout l'intérêt :
 
 | | référentiel `data/` | Boursorama |
-|---|---|---|
+| --- | --- | --- |
 | SRI, volatilité, drawdown, Sharpe | ✅ calculés sur l'historique | ❌ |
 | Potentiel, objectif de cours, consensus, PER, rendement, ESG | ❌ aucune source gratuite | ✅ |
 
@@ -1140,7 +1144,7 @@ fiscalité estimée au retrait.
 passés de 17,2 % à 18,6 % (LFSS 2026, loi n° 2025-1403 du 30 décembre 2025) :
 
 | Situation | Taux sur les gains |
-|---|---|
+| --- | --- |
 | PEA, retrait avant 5 ans | **31,4 %** (12,8 % IR + 18,6 % PS) et clôture du plan |
 | PEA, retrait après 5 ans | **18,6 %** (exonération d'IR) |
 | Compte-titres | **31,4 %** quelle que soit la durée |
@@ -1157,7 +1161,8 @@ mêmes hypothèses de départ, avec une précision apparente que rien ne justifi
 `--sequence` montre l'essentiel de ce qu'une moyenne masque : à rendement cumulé
 identique, l'ordre des rendements change le résultat dès qu'on verse
 régulièrement — et des rendements faibles au début sont **favorables** à
-l'épargnant, dont les versements achètent plus de parts tant que les cours sont bas.
+l'épargnant, dont les versements achètent plus de parts tant que les cours
+sont bas.
 
 C'est une projection d'hypothèses, **pas une prévision**.
 
@@ -1166,7 +1171,7 @@ C'est une projection d'hypothèses, **pas une prévision**.
 ### Une seule fois
 
 | Action | Où | Détail |
-|---|---|---|
+| --- | --- | --- |
 | Ajouter le secret `EODHD_API_KEY` | Settings → Secrets and variables → Actions | [§3bis A](#3bis-actions-initiales) |
 | Vérifier **Contents: Read and write** du jeton | Developer settings → Fine-grained tokens | [§3bis B](#3bis-actions-initiales) |
 | Exporter les clés dans le shell | `~/.bashrc` | [§3bis C](#3bis-actions-initiales) |
@@ -1186,7 +1191,7 @@ python run.py          # http://localhost:8000
 ### Quand vous le souhaitez
 
 | Envie | Geste |
-|---|---|
+| --- | --- |
 | Accélérer la collecte | Tableau de bord → **Piloter la collecte** → régler les paramètres → **Ouvrir Run workflow** |
 | Rafraîchir les identifiants | Piloter → mode `openfigi` (retraite toute la base et régénère l'éligibilité PEA) |
 | Simuler un plan de versements | `simulateur.py --capital … --versement … --periodicite trimestriel` |

@@ -17,7 +17,7 @@ la volatilité) :
 ## 2. Répartition cible par profil
 
 | Profil | Défensive | Cœur | Dynamique |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | 70 % | 30 % | 0 % |
 | 2 | 55 % | 40 % | 5 % |
 | 3 | 40 % | 50 % | 10 % |
@@ -36,13 +36,15 @@ sans actif disponible reverse son poids à la poche cœur.
 à l'objectif :
 
 - **équilibré** : score global ;
-- **croissance** : 35 % sous-note croissance + 25 % potentiel + 40 % score global ;
-- **dividendes** : 50 % sous-note dividende + 20 % volatilité (inversée) + 30 % score global.
+- **croissance** : 35 % sous-note croissance + 25 % potentiel + 40 % score
+global ;
+- **dividendes** : 50 % sous-note dividende + 20 % volatilité (inversée) + 30
+% score global.
 
 ## 4. Contraintes de diversification (paramétrables, `config/settings.yaml`)
 
 | Paramètre | Défaut | Rôle |
-|---|---|---|
+| --- | --- | --- |
 | `poids_max_par_ligne` | 10 % | Aucune ligne ne dépasse ce poids ; le nombre de lignes est augmenté si nécessaire pour que le plafond soit tenable |
 | `poids_max_par_secteur` | 30 % | Un secteur sur-représenté voit ses candidats suivants écartés |
 | `lignes_min` / `lignes_max` | 8 / 25 | Nombre de lignes, ajusté au capital (≈ 1 ligne par 1 500 €) |
@@ -63,6 +65,7 @@ Deux garde-fous de qualité de données :
 - une valeur n'est **allouable** que si son **cours** et son **score** sont
   connus ; les autres valeurs éligibles sont **écartées** et listées à part
   (`valeurs_incompletes`, avec le détail des informations manquantes) ;
+
 - chaque ligne retenue porte ses éventuelles **informations manquantes**
   (`informations_manquantes` : secteur, ESG, niveau de risque, cours périmé…),
   signalées par ⚠ dans l'écran Allocation.
@@ -77,8 +80,10 @@ porte sa justification), déterministe. Les évolutions prévues (roadmap) :
 
 - optimisation moyenne-variance (Markowitz) et parité de risque, qui
   nécessitent les **corrélations** entre actifs, donc les historiques de cours ;
+
 - ~~simulateur~~ ✅ livré (`services/simulation.py`, écran Simulateur) :
   versements programmés, réinvestissement des dividendes, scénarios
   prudent/médian/optimiste et fiscalité PEA estimée ;
+
 - comparaison allocation cible vs allocation réelle après import d'un
   portefeuille existant.
