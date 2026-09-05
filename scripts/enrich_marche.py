@@ -39,7 +39,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 MARKETSTACK = "https://api.marketstack.com/v1"
@@ -87,6 +87,16 @@ COLONNES = [
 def lire_csv(chemin):
     with open(chemin, encoding="utf-8") as f:
         return list(csv.DictReader(f, delimiter=";"))
+
+
+def age_jours(iso):
+    """Nombre de jours depuis une date ISO, ou None si absente/illisible."""
+    if not iso:
+        return None
+    try:
+        return (date.today() - datetime.strptime(iso[:10], "%Y-%m-%d").date()).days
+    except ValueError:
+        return None
 
 
 def symbole_marche(ligne):
@@ -400,6 +410,9 @@ def main():
                         "exportée depuis le tableau de bord)")
     p.add_argument("--forcer", action="store_true",
                    help="réinterroger même les instruments déjà en cache")
+    p.add_argument("--rafraichir", type=int, default=0, metavar="JOURS",
+                   help="réinterroger en priorité les instruments dont le cours "
+                        "dépasse cet âge, du plus ancien au plus récent")
     p.add_argument("--source", choices=["eodhd", "marketstack"], default="eodhd",
                    help="fournisseur pour --historique (défaut eodhd : quota "
                         "journalier et meilleure couverture Euronext)")
@@ -486,6 +499,24 @@ def main():
             cible = [s for s in cible
                      if "Sharpe" not in cache.get(s, {})
                      and not cache.get(s, {}).get("historique_insuffisant")]
+    if args.rafraichir:
+        # Sans cela, un instrument collecté une fois n'est plus jamais
+        # réinterrogé : ses indicateurs vieillissent indéfiniment alors que le
+        # script se déclare « à jour ». On traite les plus anciens d'abord,
+        # puis on complète avec les instruments jamais collectés.
+        limite_age = args.rafraichir
+        perimes = []
+        for _, symbole in resolus:
+            info = cache.get(symbole, {})
+            if info.get("indisponible") or not info.get("date_cours"):
+                continue
+            age = age_jours(info["date_cours"])
+            if age is not None and age > limite_age:
+                perimes.append((age, symbole))
+        perimes.sort(reverse=True)
+        cible = [s for _, s in perimes] + [s for s in cible if s not in
+                                           {x for _, x in perimes}]
+
     cible = list(dict.fromkeys(cible))  # dédoublonnage en conservant l'ordre
     if args.limite:
         cible = cible[:args.limite]

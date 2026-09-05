@@ -37,6 +37,10 @@ on:
         description: "Lot précis d'ISIN séparés par des virgules (prioritaire sur le filtre)"
         required: false
         default: ''
+      rafraichir:
+        description: "Rafraîchir en priorité les cours de plus de N jours (0 = ne rafraîchir aucun)"
+        required: false
+        default: '10'
 
 permissions:
   contents: write
@@ -90,6 +94,7 @@ jobs:
           FILTRE: ${{ inputs.filtre || 'pea' }}
           LIMITE: ${{ inputs.limite || '18' }}
           ISINS: ${{ inputs.isins }}
+          RAFRAICHIR: ${{ inputs.rafraichir || '10' }}
           EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
           MARKETSTACK_API_KEY: ${{ secrets.MARKETSTACK_API_KEY }}
           OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
@@ -105,10 +110,13 @@ jobs:
             # Un lot explicite prime sur le filtre : c'est ce que produit la
             # sélection du tableau de bord.
             if [ -n "$ISINS" ]; then args="--isins $ISINS --limite $LIMITE"; fi
+            # Sans --rafraichir, un instrument collecté une fois ne serait
+            # jamais réinterrogé et ses indicateurs vieilliraient indéfiniment.
             if [ "$MODE" = "cours" ]; then
               python3 scripts/enrich_marche.py --cours $args
             else
-              python3 scripts/enrich_marche.py --historique --source "$SOURCE" $args
+              python3 scripts/enrich_marche.py --historique --source "$SOURCE" \
+                --rafraichir "$RAFRAICHIR" $args
             fi
           fi
 

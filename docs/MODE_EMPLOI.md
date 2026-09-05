@@ -500,11 +500,18 @@ Options utiles :
 | `--file-attente fichier.txt` | traiter une file exportée du tableau de bord |
 | `--source marketstack` | basculer de fournisseur |
 | `--cours` | dernier cours en masse (Marketstack, lots de 50) |
+| `--rafraichir N` | réinterroger en priorité les cours de plus de N jours, du plus ancien au plus récent |
 | `--forcer` | réinterroger malgré le cache |
 
 Le cache `data/marche_cache.json` permet la reprise : un instrument déjà
-collecté n'est jamais réinterrogé, et un symbole absent du fournisseur est
-marqué une fois pour toutes.
+collecté n'est pas réinterrogé, et un symbole absent du fournisseur est marqué
+une fois pour toutes.
+
+> **Sans `--rafraichir`, les cours vieillissent indéfiniment.** Le cache rendant
+> tout instrument déjà collecté définitivement acquis, le script se déclare « à
+> jour » alors que ses données datent de plusieurs semaines. La collecte
+> quotidienne passe donc `--rafraichir 10` : les cours de plus de dix jours
+> repassent en tête de file, avant les instruments jamais collectés.
 
 ### 4.4bis Indicateur de risque SRI
 
