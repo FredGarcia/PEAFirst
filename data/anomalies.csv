@@ -1,94 +1,475 @@
 ISIN;Nom;Type;Anomalie;Gravite;Detail
+BE0003893139;IMMO MOURY;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0003898187;SIPEF;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0160342011;COIL;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0165385973;MELEXIS;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0948608451;PHOTONIKE CAPITAL;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974256852;COLRUYT;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974258874;BEKAERT;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974263924;TEXAF;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974264930;AGEAS;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974265945;FLUXYS BELGIUM D;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974268972;BPOST;Action;cours_perime;attention;dernier cours il y a 11 jours
 BE0974269012;ADC SIIC;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+BE0974269012;ADC SIIC;Action;cours_perime;attention;dernier cours il y a 11 jours
 BE0974271034;VIOHALCO;Action;sharpe_aberrant;attention;Sharpe 3.15 : vérifier la régularité de la série
+BE0974271034;VIOHALCO;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974272040;QRF;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974273055;CARE PROPERTY INV.;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974274061;KINEPOLIS GROUP;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974276082;ONTEX GROUP;Action;cours_perime;attention;dernier cours il y a 11 jours
+BE0974282148;TINC;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974287196;IMMO MCC;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974288202;XIOR;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974293251;AB INBEV;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974294267;NYRSTAR;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+BE0974294267;NYRSTAR;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974298300;CANDELA INVEST;Action;volatilite_extreme;alerte;volatilité 204 % (SRI 7) : liquidité à vérifier
+BE0974298300;CANDELA INVEST;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974299316;INVIBES ADVERTSING;Action;volatilite_extreme;alerte;volatilité 118 % (SRI 7) : liquidité à vérifier
+BE0974299316;INVIBES ADVERTSING;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974303357;CENERGY;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974310428;X-FAB;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974313455;ECONOCOM GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974314461;BELYSSE GROUP;Action;cours_perime;attention;dernier cours il y a 10 jours
 BE0974328602;METRICS IN BALANCE;Action;volatilite_nulle;alerte;volatilité 0.0 % : cours probablement figé
+BE0974328602;METRICS IN BALANCE;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974340722;SEQUANA MEDICAL;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974358906;NYXOAH;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974363955;HYLORIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974371032;BANQUP GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974374069;INCLUSIO SA/NV;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974380124;EKOPAK;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974386188;BIOTALYS;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974400328;AZELIS GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974401334;WHITESTONE GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974409410;HOME INVEST BE.;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974413453;DEME GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974464977;SYENSQO;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974487192;OXURION;Action;volatilite_extreme;alerte;volatilité 106 % (SRI 7) : liquidité à vérifier
+BE0974487192;OXURION;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974496284;OPTION;Action;volatilite_extreme;alerte;volatilité 103 % (SRI 7) : liquidité à vérifier
+BE0974496284;OPTION;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE0974499312;ENERGYVISION;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974501331;MATERIALISE;Action;serie_courte;alerte;196 séances seulement : indicateurs peu fiables
+BE0974501331;MATERIALISE;Action;cours_perime;attention;dernier cours il y a 8 jours
 BE0974502347;FLORIDIENNE;Action;volatilite_extreme;alerte;volatilité 97 % (SRI 7) : liquidité à vérifier
+BE0974502347;FLORIDIENNE;Action;cours_perime;attention;dernier cours il y a 8 jours
+BE6333353298;BONYF;Action;cours_perime;attention;dernier cours il y a 8 jours
+CY0101162119;SED ENERGY HOLDING;Action;cours_perime;attention;dernier cours il y a 8 jours
+CY0101550917;S.D. STANDARD ETC;Action;cours_perime;attention;dernier cours il y a 8 jours
+CY0102630916;PETROLIA;Action;cours_perime;attention;dernier cours il y a 8 jours
+CY0108052115;ADS MARITIME HOLD;Action;cours_perime;attention;dernier cours il y a 8 jours
+CY0200352116;FRONTLINE;Action;cours_perime;attention;dernier cours il y a 8 jours
+CY0200751713;THEON INTERNAT;Action;cours_perime;attention;dernier cours il y a 8 jours
 CY0201332216;PELAGIC CREDIT;Action;serie_courte;alerte;119 séances seulement : indicateurs peu fiables
+CY0201332216;PELAGIC CREDIT;Action;cours_perime;attention;dernier cours il y a 8 jours
 CY0201461213;PELICAN AQUA HLDNG;Action;serie_courte;alerte;34 séances seulement : indicateurs peu fiables
+CY0201461213;PELICAN AQUA HLDNG;Action;cours_perime;attention;dernier cours il y a 8 jours
 CZ0009008942;COLT;Action;serie_courte;alerte;97 séances seulement : indicateurs peu fiables
 CZ0009008942;COLT;Action;volatilite_extreme;alerte;volatilité 636 % (SRI 7) : liquidité à vérifier
 CZ0009008942;COLT;Action;drawdown_incoherent;alerte;volatilité 636 % mais drawdown -83.1 % : série probablement lacunaire
+CZ0009008942;COLT;Action;cours_perime;attention;dernier cours il y a 8 jours
+DE0005933931;BLAETFDAXETFP;ETF;cours_perime;attention;dernier cours il y a 8 jours
+DE000A11Q133;HK;Action;cours_perime;attention;dernier cours il y a 8 jours
+DE000A2G8ZX8;PYRUM INNOVATIONS;Action;cours_perime;attention;dernier cours il y a 8 jours
+DK0060520450;NAPATECH;Action;cours_perime;attention;dernier cours il y a 8 jours
+DK0061412772;CADELER;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105025003;MERLIN PROPERTIES;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105029005;FACEPHI;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105089009;LLEIDA;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105425005;KOMPUESTOS;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105463006;MAKING SCIENCE;Action;cours_perime;attention;dernier cours il y a 8 jours
 ES0105549002;MONTEPINO LOGISTIC;Action;serie_courte;alerte;89 séances seulement : indicateurs peu fiables
+ES0105549002;MONTEPINO LOGISTIC;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105590006;IMPULSE FITNESS;Action;cours_perime;attention;dernier cours il y a 8 jours
 ES0105664009;HOTELES BESTPRICE;Action;serie_courte;alerte;146 séances seulement : indicateurs peu fiables
 ES0105664009;HOTELES BESTPRICE;Action;volatilite_extreme;alerte;volatilité 89 % (SRI 7) : liquidité à vérifier
+ES0105664009;HOTELES BESTPRICE;Action;cours_perime;attention;dernier cours il y a 8 jours
 ES0105698007;OK PROPERTIES;Action;serie_courte;alerte;37 séances seulement : indicateurs peu fiables
 ES0105698007;OK PROPERTIES;Action;volatilite_nulle;alerte;volatilité 0.0 % : cours probablement figé
+ES0105698007;OK PROPERTIES;Action;cours_perime;attention;dernier cours il y a 8 jours
+ES0105704003;VIRTUALWARE;Action;cours_perime;attention;dernier cours il y a 8 jours
 ES0105744009;ANDINO GLOBAL;Action;volatilite_extreme;alerte;volatilité 100 % (SRI 7) : liquidité à vérifier
+ES0105744009;ANDINO GLOBAL;Action;cours_perime;attention;dernier cours il y a 9 jours
+ES0109429037;ISPD;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000021842;AMUNDI ETF BEL 20;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0000030074;MALTERIES FCO-BEL.;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000030769;PLACOPLATRE;Action;serie_courte;alerte;85 séances seulement : indicateurs peu fiables
+FR0000030769;PLACOPLATRE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000031023;ELEC.STRASBOURG;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000031106;TROC ILE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000031775;VICAT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000031973;FSDV;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000032526;GUERBET;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000032658;SYNERGIE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000033003;TOUAX;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000033243;IMMOB.DASSAULT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000033599;LEXIBOOK LINGUIST.;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000033888;GEVELOT;Action;serie_courte;alerte;195 séances seulement : indicateurs peu fiables
+FR0000033888;GEVELOT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000033904;JACQUET METALS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000034894;GAUMONT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000035164;BENETEAU;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000035370;BASTIDE LE CONFORT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000035719;ELECT. MADAGASCAR;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000035784;EVERGREEN;Action;volatilite_extreme;alerte;volatilité 222 % (SRI 7) : liquidité à vérifier
+FR0000035784;EVERGREEN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000036675;GROUPE CRIT;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000037475;CFI;Action;volatilite_extreme;alerte;volatilité 126 % (SRI 7) : liquidité à vérifier
+FR0000037475;CFI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000037640;ROUGIER S.A.;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000037871;CH.FER DEPARTEMENT;Action;serie_courte;alerte;59 séances seulement : indicateurs peu fiables
 FR0000037871;CH.FER DEPARTEMENT;Action;volatilite_extreme;alerte;volatilité 105 % (SRI 7) : liquidité à vérifier
 FR0000037871;CH.FER DEPARTEMENT;Action;drawdown_incoherent;alerte;volatilité 105 % mais drawdown -18.2 % : série probablement lacunaire
+FR0000037871;CH.FER DEPARTEMENT;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000038184;FIPP;Action;volatilite_extreme;alerte;volatilité 87 % (SRI 7) : liquidité à vérifier
+FR0000038184;FIPP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000038242;LUMIBIRD;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000038465;PASSAT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000038531;HF COMPANY;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000038606;MANITOU BF;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000039091;ROBERTET;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000039109;SECHE ENVIRONNEM.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000039216;ALTAREIT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000039232;AUREA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000044323;CRCAM ALP.PROV.CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000044364;CRCAM NORM.SEINE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000044471;RAMSAY GEN SANTE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000044943;LOGIC INSTRUMENT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045213;CRCAM ILLE-VIL.CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045239;CRCAM LOIRE HTE L.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045304;CRCAM TOURAINE CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045346;CRCAM SUD R.A.CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045528;CRCAM PARIS ET IDF;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045544;CA TOULOUSE 31 CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000045551;CRCAM MORBIHAN CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000050049;VIEL ET COMPAGNIE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000050353;LISI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000050395;CROSSWOOD;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000051070;MAUREL ET PROM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000051302;HOCHE BAINS L.BAIN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000051393;IDI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000051807;TELEPERFORMANCE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000052680;OENEO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053027;AKWEL;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053035;GEA GRENOBL.ELECT.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053043;ADVINI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053225;METROPOLE TV;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053324;ALPES (COMPAGNIE);Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000053415;G.A.I.;Action;volatilite_extreme;alerte;volatilité 83 % (SRI 7) : liquidité à vérifier
+FR0000053415;G.A.I.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053506;CEGEDIM;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000053738;HOTELIM;Action;serie_courte;alerte;72 séances seulement : indicateurs peu fiables
 FR0000053738;HOTELIM;Action;volatilite_extreme;alerte;volatilité 102 % (SRI 7) : liquidité à vérifier
 FR0000053738;HOTELIM;Action;drawdown_incoherent;alerte;volatilité 102 % mais drawdown -19.3 % : série probablement lacunaire
+FR0000053738;HOTELIM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053837;ALTAMIR;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000053944;FONCIERE VOLTA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000054132;DELFINGEN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000054199;ST DUPONT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000054231;HIGH CO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000054322;CIBOX INTER A CTIV;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000054371;SPEED RABBIT PIZZA;Action;volatilite_extreme;alerte;volatilité 99 % (SRI 7) : liquidité à vérifier
+FR0000054371;SPEED RABBIT PIZZA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000054421;BOURRELIER GROUP;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0000060071;SAMSE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060121;SAINT JEAN GROUPE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060303;COVIVIO HOTELS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060428;CIE DU MONT BLANC;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000060451;INSTALLUX;Action;serie_courte;alerte;124 séances seulement : indicateurs peu fiables
 FR0000060451;INSTALLUX;Action;volatilite_extreme;alerte;volatilité 104 % (SRI 7) : liquidité à vérifier
 FR0000060451;INSTALLUX;Action;drawdown_incoherent;alerte;volatilité 104 % mais drawdown -13.8 % : série probablement lacunaire
+FR0000060451;INSTALLUX;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060535;FIDUCIAL REAL EST.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060790;SIGNAUX GIROD;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000060824;FINANCIERE MARJOS;Action;volatilite_extreme;alerte;volatilité 114 % (SRI 7) : liquidité à vérifier
 FR0000060824;FINANCIERE MARJOS;Action;sharpe_aberrant;attention;Sharpe 7.11 : vérifier la régularité de la série
 FR0000060824;FINANCIERE MARJOS;Action;performance_extreme;attention;performance 821 % : vérifier split ou regroupement
+FR0000060824;FINANCIERE MARJOS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060840;DEVERNOIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000060873;MBWS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000061129;BOIRON;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000061137;BURELLE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000061244;ALTHEORA;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000061418;FIDUCIAL OFF.SOL.;Action;drawdown_incoherent;alerte;volatilité 23 % mais drawdown -2.8 % : série probablement lacunaire
+FR0000061418;FIDUCIAL OFF.SOL.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000061459;PERRIER (GERARD);Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000061475;EURASIA FONC INV;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000061608;PISCINES DESJOYAUX;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000061780;AUGROS COSMETIC;Action;volatilite_extreme;alerte;volatilité 84 % (SRI 7) : liquidité à vérifier
+FR0000061780;AUGROS COSMETIC;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000062101;FERM.CAS.MUN.CANNE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000062234;COMPAGNIE ODET;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000062465;ALAN ALLMAN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000062671;EXAIL TECHNOLOGIES;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000062788;BARBARA BUI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000062978;DEKUPLE;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000063307;TBSO;Action;volatilite_extreme;alerte;volatilité 142 % (SRI 7) : liquidité à vérifier
+FR0000063307;TBSO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000063737;AUBAY;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000063935;BONDUELLE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000064164;EXACOMPTA CLAIREF.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000064271;STEF;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000064297;INNELEC MULTIMEDIA;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000064446;CATERING INTL SCES;Action;sharpe_aberrant;attention;Sharpe 3.39 : vérifier la régularité de la série
+FR0000064446;CATERING INTL SCES;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000064529;NSC GROUPE;Action;serie_courte;alerte;127 séances seulement : indicateurs peu fiables
+FR0000064529;NSC GROUPE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000064578;COVIVIO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000064602;ACANTHE DEV.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000064784;PEUGEOT INVEST;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065260;DOCK.PETR.AMBES AM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065278;HOPSCOTCH GROUPE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065393;COURTOIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065484;LECTRA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065773;IMPRIMERIE CHIRAT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065864;SOGECLAIR;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065930;FONCIERE 7 INVEST;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000065971;GRAINES VOLTZ;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000066441;POUJOULAT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000066540;HERIGE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000066607;LACROIX GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000066672;GL EVENTS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000066722;GUILLEMOT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000066755;HAULOTTE GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000066961;BERNARD LOISEAU;Action;volatilite_extreme;alerte;volatilité 90 % (SRI 7) : liquidité à vérifier
+FR0000066961;BERNARD LOISEAU;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000071797;INFOTEL;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000072373;EGIDE;Action;volatilite_extreme;alerte;volatilité 107 % (SRI 7) : liquidité à vérifier
+FR0000072373;EGIDE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000072597;IT LINK;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000073041;PIERRE VACANCES;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000074072;BIGBEN INTERACTIVE;Action;volatilite_extreme;alerte;volatilité 113 % (SRI 7) : liquidité à vérifier
+FR0000074072;BIGBEN INTERACTIVE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000074148;ASSYSTEM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000074197;UNION TECH.INFOR.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000074254;BOURSE DIRECT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000074759;FLEURY MICHON;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000074775;STRADIM ESPAC.FIN;Action;volatilite_extreme;alerte;volatilité 85 % (SRI 7) : liquidité à vérifier
+FR0000074775;STRADIM ESPAC.FIN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000074783;ARTMARKET COM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000075343;LABO EUROMEDIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000075442;GROUPE LDLC;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000075954;RIBER;Action;volatilite_extreme;alerte;volatilité 80 % (SRI 7) : liquidité à vérifier
+FR0000075954;RIBER;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000076655;ACTIA GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000076861;ACTEOS;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000076952;ARTOIS NOM.;Action;serie_courte;alerte;97 séances seulement : indicateurs peu fiables
+FR0000076952;ARTOIS NOM.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000076960;GROUPE CARNIVOR;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0000077885;DAMARIS;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0000077992;PACTE NOVATION;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000078321;SODITECH;Action;serie_courte;alerte;141 séances seulement : indicateurs peu fiables
+FR0000078321;SODITECH;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000079147;U10 CORP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000079691;IDS;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0000120073;AIR LIQUIDE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000120107;SAVENCIA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000120404;ACCOR;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000120560;QUADIENT;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0000120669;North Atlantic En.;Action;serie_courte;alerte;189 séances seulement : indicateurs peu fiables
+FR0000120669;North Atlantic En.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000120966;BIC;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000121295;LEBON;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000121691;NRJ GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000124414;GASCOGNE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000124570;OPMOBILITY;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000130213;LAGARDERE SA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000130395;REMY COINTREAU;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000130403;CHRISTIAN DIOR;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000130692;CIECHARGEURSINVEST;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000133308;ORANGE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000185423;DAMARTEX;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000185464;NOVATECH IND.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000185506;CRCAM ATL.VEND.CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0000185514;CRCAM NORD CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004007813;KAUFMAN ET BROAD;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004010338;GROUPE JAJ;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+FR0004010338;GROUPE JAJ;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004016699;SMTPC;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004023208;BASSAC;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004027068;LANSON-BCC;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004029411;KEYRUS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004030708;ENCRES DUBUIT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004031763;COHERIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004034072;XILAM ANIMATION;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004034320;MR BRICOLAGE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004038263;PARROT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004040608;ABC ARBITRAGE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004044600;PRISMAFLEX INTL;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004045847;VOYAGEURS DU MONDE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004050250;NEURONES;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004052561;PROACTIS SA;Action;volatilite_extreme;alerte;volatilité 225 % (SRI 7) : liquidité à vérifier
+FR0004052561;PROACTIS SA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004053510;GENOWAY;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004065605;MEDINCELL;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004065639;NSE;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004153930;ATON;Action;volatilite_extreme;alerte;volatilité 165 % (SRI 7) : liquidité à vérifier
+FR0004153930;ATON;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004154060;NETGEM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004155000;GROUPE SFPI;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004155208;LOCASYSTEM INTL;Action;volatilite_extreme;alerte;volatilité 85 % (SRI 7) : liquidité à vérifier
+FR0004155208;LOCASYSTEM INTL;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004155687;MASTRAD;Action;volatilite_extreme;alerte;volatilité 192 % (SRI 7) : liquidité à vérifier
+FR0004155687;MASTRAD;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004156297;LINEDATA SERVICES;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004159473;HEXAOM;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004163111;GENFIT;Action;sharpe_aberrant;attention;Sharpe 5.60 : vérifier la régularité de la série
 FR0004163111;GENFIT;Action;performance_extreme;attention;performance 316 % : vérifier split ou regroupement
+FR0004163111;GENFIT;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004165801;HOTELS DE PARIS;Action;volatilite_extreme;alerte;volatilité 91 % (SRI 7) : liquidité à vérifier
+FR0004165801;HOTELS DE PARIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004170017;LNA SANTE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004171346;NEXTEDIA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004172450;MINT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004174233;BILENDI;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0004174712;ONLINEFORMAPRO;Action;volatilite_extreme;alerte;volatilité 81 % (SRI 7) : liquidité à vérifier
+FR0004174712;ONLINEFORMAPRO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004175842;SELECTIRENTE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004180578;SWORD GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004186856;VETOQUINOL;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004187367;FREELANCE.COM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0004527638;EXEL INDUSTRIES;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0005057635;ARDOIN ST AMAND A;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0005175080;TRANSGENE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0005691656;TRIGANO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0005843125;HYDRO-EXPLOIT.;Action;cours_perime;attention;dernier cours il y a 9 jours
 FR0005854700;I2S;Action;serie_courte;alerte;151 séances seulement : indicateurs peu fiables
+FR0005854700;I2S;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0006174348;BUREAU VERITAS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0006205019;LOMBARD ET MEDOT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0006239109;SCBSM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0006563904;HOTL.IMMOB.NICE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0006864484;LAURENT-PERRIER;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0007052782;AMUNDI ETF CAC 40;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0007054358;AMUNDI ESTOXX50;ETF;cours_perime;attention;dernier cours il y a 8 jours
 FR0007080254;LES HOTELS BAVEREZ;Action;serie_courte;alerte;146 séances seulement : indicateurs peu fiables
+FR0007080254;LES HOTELS BAVEREZ;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0007200100;EAUX DE ROYAN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010010827;AMUNDI FTSE MIB;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010040865;GECINA;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010086371;IMALLIANCE;Action;volatilite_extreme;alerte;volatilité 105 % (SRI 7) : liquidité à vérifier
+FR0010086371;IMALLIANCE;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010095596;VALERIO TX;Action;volatilite_extreme;alerte;volatilité 158 % (SRI 7) : liquidité à vérifier
 FR0010095596;VALERIO TX;Action;sharpe_aberrant;attention;Sharpe 7.31 : vérifier la régularité de la série
 FR0010095596;VALERIO TX;Action;performance_extreme;attention;performance 1167 % : vérifier split ou regroupement
+FR0010095596;VALERIO TX;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010106039;BODY ONE;Action;volatilite_extreme;alerte;volatilité 98 % (SRI 7) : liquidité à vérifier
+FR0010106039;BODY ONE;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010120402;THERACLION;Action;volatilite_extreme;alerte;volatilité 86 % (SRI 7) : liquidité à vérifier
+FR0010120402;THERACLION;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010131409;WALLIX;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010150458;BNPP CAC 40 ESG;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010151589;CAFOM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010157115;EUROLAND CORPORATE;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0010169920;PREDILIFE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010193052;CATANA GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010193979;CBO TERRITORIA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010202606;SIDETRADE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010204453;MG INTERNATIONAL;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010209809;SOC FRANC CASINOS;Action;volatilite_extreme;alerte;volatilité 82 % (SRI 7) : liquidité à vérifier
+FR0010209809;SOC FRANC CASINOS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010214064;GPE GROUP PIZZORNO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010221234;EUTELSAT COMMUNIC.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010241638;MERCIALYS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010261198;AMUNDI MSCI EUR;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010263202;PAREF;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010291245;VERIMATRIX;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010298620;MEMSCAP REGPT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010309096;VITURA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010312181;HOPENING;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010326090;VIALIFE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010337865;UPERGY;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010340711;AQUILA;Action;serie_courte;alerte;197 séances seulement : indicateurs peu fiables
+FR0010340711;AQUILA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010341032;FONCIERE INEA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010353888;MGI DIGITAL GRAPHI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010380626;PROLOGUE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010396309;HITECHPROS;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010397232;NOVACYT;Action;volatilite_extreme;alerte;volatilité 106 % (SRI 7) : liquidité à vérifier
+FR0010397232;NOVACYT;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010397901;TRILOGIQ;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010404368;D.L.S.I.;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010411884;AMUNDI ETF BX4;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010417345;DBV TECHNOLOGIES;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010424697;ETHERO;Action;volatilite_extreme;alerte;volatilité 87 % (SRI 7) : liquidité à vérifier
+FR0010424697;ETHERO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010425595;CELLECTIS;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010428771;EAGLEFOOTBALLGROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010436584;DNXCORP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010447086;CHEOPS TECHNOLOGY;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0010461053;CRCAM LANGUED CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010465534;EO2;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010481960;ARGAN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010483768;CRCAM BRIE PIC2CCI;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010485268;FOUNTAINE PAJOT;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010487272;FINAXO;Action;volatilite_extreme;alerte;volatilité 99 % (SRI 7) : liquidité à vérifier
+FR0010487272;FINAXO;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010490920;EUROPACORP;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010500363;MIGUET ET ASSOCIES;Action;volatilite_extreme;alerte;volatilité 349 % (SRI 7) : liquidité à vérifier
 FR0010500363;MIGUET ET ASSOCIES;Action;performance_extreme;attention;performance 315 % : vérifier split ou regroupement
+FR0010500363;MIGUET ET ASSOCIES;Action;cours_perime;attention;dernier cours il y a 9 jours
 FR0010523167;ROCTOOL;Action;volatilite_extreme;alerte;volatilité 161 % (SRI 7) : liquidité à vérifier
 FR0010523167;ROCTOOL;Action;performance_extreme;attention;performance 441 % : vérifier split ou regroupement
+FR0010523167;ROCTOOL;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010528059;STREAMWIDE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010557264;AB SCIENCE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010588079;FREY;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010591362;AMUNDI ETF SHT CAC;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010592014;AMUNDI ETF LEV CAC;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010609206;OREGE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010609263;MAUNA KEA TECH;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010641449;AGROGENERATION;Action;volatilite_extreme;alerte;volatilité 86 % (SRI 7) : liquidité à vérifier
+FR0010641449;AGROGENERATION;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010654087;TXCOM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010655704;AMUNDI ETF CAC FRA;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010655712;AMUETFDAXETFP;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010655746;AMUNDI ETF MS SPA;ETF;cours_perime;attention;dernier cours il y a 8 jours
 FR0010688465;WEACCESS GROUP;Action;volatilite_extreme;alerte;volatilité 142 % (SRI 7) : liquidité à vérifier
 FR0010688465;WEACCESS GROUP;Action;performance_extreme;attention;performance 273 % : vérifier split ou regroupement
+FR0010688465;WEACCESS GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010717090;AMUNDI ETF EMU HDV;ETF;cours_perime;attention;dernier cours il y a 8 jours
 FR0010722819;KALRAY;Action;volatilite_extreme;alerte;volatilité 146 % (SRI 7) : liquidité à vérifier
 FR0010722819;KALRAY;Action;sharpe_aberrant;attention;Sharpe 6.45 : vérifier la régularité de la série
 FR0010722819;KALRAY;Action;performance_extreme;attention;performance 956 % : vérifier split ou regroupement
+FR0010722819;KALRAY;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010755611;AMUNDI ETF LEV USA;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010756114;AMUETFCM9IMETFP;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010766667;VENTE UNIQUE.COM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010776617;SAPMER;Action;cours_perime;attention;dernier cours il y a 9 jours
+FR0010785790;PLANT ADVANCED;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010790980;AMUNDI ETF STOXX50;ETF;cours_perime;attention;dernier cours il y a 8 jours
+FR0010821819;AMUNDI ETF EU X EM;ETF;cours_perime;attention;dernier cours il y a 8 jours
 FR0010823724;FRANCE TOURISME;Action;volatilite_extreme;alerte;volatilité 176 % (SRI 7) : liquidité à vérifier
 FR0010823724;FRANCE TOURISME;Action;performance_extreme;attention;performance 524 % : vérifier split ou regroupement
+FR0010823724;FRANCE TOURISME;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010828137;CARMILA;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010869495;AMUNDI ETF DAX DS2;ETF;cours_perime;attention;dernier cours il y a 8 jours
 FR0010889386;QWAMPLIFY;Action;serie_courte;alerte;184 séances seulement : indicateurs peu fiables
+FR0010889386;QWAMPLIFY;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010908723;INTEGRAGEN;Action;volatilite_extreme;alerte;volatilité 127 % (SRI 7) : liquidité à vérifier
+FR0010908723;INTEGRAGEN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0010929125;ID LOGISTICS GROUP;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0010959684;COLIPAYS;Action;volatilite_extreme;alerte;volatilité 112 % (SRI 7) : liquidité à vérifier
+FR0010959684;COLIPAYS;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0011005933;BIOSYNEX;Action;volatilite_extreme;alerte;volatilité 104 % (SRI 7) : liquidité à vérifier
+FR0011005933;BIOSYNEX;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0011027135;PATRIMOINE ET COMM;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0011033083;MOULINVEST;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0011038348;KLARSEN;Action;volatilite_extreme;alerte;volatilité 163 % (SRI 7) : liquidité à vérifier
+FR0011038348;KLARSEN;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0011040500;74SOFTWARE;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0011041011;BLUELINEA;Action;cours_perime;attention;dernier cours il y a 8 jours
 FR0011049824;MEDIANTECHNOLOGIES;Action;volatilite_extreme;alerte;volatilité 87 % (SRI 7) : liquidité à vérifier
+FR0011049824;MEDIANTECHNOLOGIES;Action;cours_perime;attention;dernier cours il y a 8 jours
+FR0011053636;CAPITAL B;Action;volatilite_extreme;alerte;volatilité 90 % (SRI 7) : liquidité à vérifier
+FR0011100759;GALEO;Action;sharpe_aberrant;attention;Sharpe 3.12 : vérifier la régularité de la série
+FR0011131788;SMALTO;Action;volatilite_extreme;alerte;volatilité 158 % (SRI 7) : liquidité à vérifier
+FR0011179886;INTRASENSE;Action;volatilite_extreme;alerte;volatilité 109 % (SRI 7) : liquidité à vérifier
+FR0011208693;GOLD BY GOLD;Action;volatilite_extreme;alerte;volatilité 89 % (SRI 7) : liquidité à vérifier
+FR0011341205;NANOBIOTIX;Action;volatilite_extreme;alerte;volatilité 88 % (SRI 7) : liquidité à vérifier
+FR0011341205;NANOBIOTIX;Action;sharpe_aberrant;attention;Sharpe 4.09 : vérifier la régularité de la série
+FR0011341205;NANOBIOTIX;Action;performance_extreme;attention;performance 365 % : vérifier split ou regroupement
+FR0011464452;SPINEGUARD;Action;volatilite_extreme;alerte;volatilité 131 % (SRI 7) : liquidité à vérifier
+FR0011490648;ECOSLOPS;Action;volatilite_extreme;alerte;volatilité 88 % (SRI 7) : liquidité à vérifier
