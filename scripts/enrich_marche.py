@@ -77,7 +77,8 @@ MIC = {
 COLONNES = [
     "ISIN", "Nom", "Type", "Symbole_marche", "Devise", "Cours", "Date_cours",
     "Perf_periode_pct", "Volatilite_annualisee_pct", "Drawdown_max_pct",
-    "Sharpe", "Sortino", "Nb_seances", "Source_cours", "Date_MAJ",
+    "Sharpe", "Sortino", "Asymetrie", "Aplatissement_exces",
+    "Nb_seances", "Source_cours", "Date_MAJ",
 ]
 
 
