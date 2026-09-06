@@ -22,123 +22,188 @@ prospectus, ni l'avis d'un professionnel.
 
 ## Sommaire
 
-- [Mode d'emploi — PEAFirst](#mode-demploi--peafirst)
-  - [Sommaire](#sommaire)
-  - [1. Installation](#1-installation)
-  - [2. Clés d'API](#2-clés-dapi)
-    - [Couverture réelle, testée sur instruments européens](#couverture-réelle-testée-sur-instruments-européens)
-  - [3. Démarrage rapide](#3-démarrage-rapide)
+1. [Installation complète](#1-installation-complète)
+1bis. [Aide-mémoire Windows](#1bis-aide-mémoire-windows)
+2. [Clés d'API](#2-clés-dapi)
+3. [Démarrage rapide](#3-démarrage-rapide)
+3bis. [Actions initiales](#3bis-actions-initiales)
 3ter. [Depuis un téléphone](#3ter-depuis-un-téléphone)
-  - [3bis. Actions initiales](#3bis-actions-initiales)
-    - [A. Activer la collecte automatique (5 minutes)](#a-activer-la-collecte-automatique-5-minutes)
-    - [B. Vérifier le droit d'écriture du jeton (si vous poussez depuis un poste)](#b-vérifier-le-droit-décriture-du-jeton-si-vous-poussez-depuis-un-poste)
-    - [C. Enregistrer vos clés localement](#c-enregistrer-vos-clés-localement)
-  - [4. La chaîne complète](#4-la-chaîne-complète)
-    - [4.1 Base ISIN (déjà constituée)](#41-base-isin-déjà-constituée)
-    - [4.2 Identifiants OpenFIGI](#42-identifiants-openfigi)
-    - [4.3 Éligibilité PEA](#43-éligibilité-pea)
-    - [4.3bis Éligibilité PEA des actions](#43bis-éligibilité-pea-des-actions)
-    - [4.4 Données de marché et indicateurs](#44-données-de-marché-et-indicateurs)
-    - [4.4bis Indicateur de risque SRI](#44bis-indicateur-de-risque-sri)
-    - [4.5 Scores](#45-scores)
-    - [4.6 Anomalies](#46-anomalies)
-    - [4.7 Progression](#47-progression)
-    - [4.8 Allocation](#48-allocation)
-  - [5. Le tableau de bord](#5-le-tableau-de-bord)
-  - [6. Automatisation](#6-automatisation)
-  - [7. Fichiers produits](#7-fichiers-produits)
-  - [8. Réglages](#8-réglages)
-  - [9. Problèmes courants](#9-problèmes-courants)
-  - [10. Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
-  - [10bis. L'application PEAdvisor](#10bis-lapplication-peadvisor)
-    - [A. Installation et lancement](#a-installation-et-lancement)
-    - [B. Les onze écrans](#b-les-onze-écrans)
-    - [C. Les sources de données](#c-les-sources-de-données)
-    - [D. Ce que la source `peafirst` apporte](#d-ce-que-la-source-peafirst-apporte)
-    - [E. Paramétrage sans toucher au code](#e-paramétrage-sans-toucher-au-code)
-    - [F. L'API REST](#f-lapi-rest)
-    - [G. Le serveur MCP](#g-le-serveur-mcp)
-    - [H. Documentation de conception](#h-documentation-de-conception)
-  - [10ter. Deux avertissements sur l'application](#10ter-deux-avertissements-sur-lapplication)
-  - [11. Simulateur](#11-simulateur)
-  - [12. Aide-mémoire des actions](#12-aide-mémoire-des-actions)
-    - [Une seule fois](#une-seule-fois)
-    - [Sans rien faire](#sans-rien-faire)
-    - [Lancer l'application](#lancer-lapplication)
-    - [Quand vous le souhaitez](#quand-vous-le-souhaitez)
-    - [Avant d'acheter](#avant-dacheter)
+4. [La chaîne complète](#4-la-chaîne-complète)
+5. [Le tableau de bord](#5-le-tableau-de-bord)
+6. [Automatisation](#6-automatisation)
+7. [Fichiers produits](#7-fichiers-produits)
+8. [Réglages](#8-réglages)
+9. [Problèmes courants](#9-problèmes-courants)
+10. [Ce que la base ne sait pas](#10-ce-que-la-base-ne-sait-pas)
+10bis. [L'application PEAdvisor](#10bis-lapplication-peadvisor)
+10ter. [Deux avertissements sur l'application](#10ter-deux-avertissements-sur-lapplication)
+11. [Simulateur](#11-simulateur)
+12. [Aide-mémoire des actions](#12-aide-mémoire-des-actions)
 
 ---
 
-## 1. Installation
+## 1. Installation complète
 
-Python 3.9 ou plus récent, sans dépendance externe : tous les scripts
-n'utilisent que la bibliothèque standard.
+Le dépôt contient **deux briques indépendantes**. Comprendre laquelle vous
+voulez évite l'essentiel des difficultés :
 
-```bash
-git clone https://github.com/FredGarcia/PEAFirst.git
-cd PEAFirst
-python3 scripts/validate_base.py     # doit afficher : OK
-```
+| | Chaîne de données (`scripts/`) | Application (`peadvisor/`) |
+| --- | --- | --- |
+| Ce qu'elle fait | collecte, scores, SRI, tableau de bord | API, interface web, watchlist, MCP |
+| Dépendances | **aucune** | FastAPI, uvicorn, SQLAlchemy |
+| Installation | cloner suffit | `pip install -r requirements.txt` |
 
-Si `validate_base.py` affiche « OK : tous les contrôles passent », le dépôt est
-sain et vous pouvez travailler. Ce script est aussi le garde-fou de
-l'intégration continue : **le lancer avant tout commit** évite un build rouge.
+Si vous voulez seulement consulter et faire tourner la chaîne, **arrêtez-vous à
+l'étape 3** : rien d'autre n'est nécessaire.
 
----
+### Étape 1 — Python
 
-## 1bis. Sous Windows
-
-Toutes les commandes de ce guide sont écrites pour Linux et macOS. Voici les
-équivalents Windows ; le reste du document s'applique tel quel.
-
-### Python : `python` et non `python3`
+Python 3.9 ou plus récent.
 
 ```powershell
 python --version
 ```
 
-Si la commande échoue, essayer `py --version`. Utiliser ensuite ce nom partout
-où le guide écrit `python3`.
+Si la commande échoue, essayer `py --version`. Retenez le nom qui fonctionne :
+partout où ce guide écrit `python3`, tapez **`python`** (ou `py`) sous Windows.
 
-### Environnement virtuel
+Sans Python installé : <https://www.python.org/downloads/> ou le Microsoft
+Store. Sous Linux et macOS, `python3` est en général déjà là.
 
-L'environnement virtuel est **facultatif** : `pip install -r requirements.txt`
-fonctionne directement, il isole simplement moins bien les dépendances.
+### Étape 2 — Récupérer le dépôt
+
+```powershell
+cd "C:\Users\VotreNom\Documents"
+git clone https://github.com/FredGarcia/PEAFirst.git
+cd PEAFirst
+```
+
+Sans Git : télécharger l'archive ZIP depuis GitHub (bouton **Code → Download
+ZIP**) et la décompresser. Vous perdrez `git pull`, qui sert à récupérer les
+collectes quotidiennes du robot.
+
+### Étape 3 — Vérifier la chaîne de données
+
+```powershell
+python scripts\validate_base.py
+```
+
+Attendu : **« OK : tous les contrôles passent »**. Le dépôt est alors sain et la
+chaîne utilisable — sans rien installer d'autre. Ce script est aussi le
+garde-fou de l'intégration continue : le lancer avant tout commit évite un build
+rouge.
+
+Essayez tout de suite :
+
+```powershell
+python scripts\dashboard.py
+```
+
+puis ouvrez `data\dashboard.html` d'un double-clic. Neuf onglets, aucune clé
+requise.
+
+### Étape 4 — Installer l'application (facultatif)
+
+Nécessaire seulement pour l'API, l'interface web, le serveur MCP et les boutons
+d'import Boursorama.
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+> Utilisez **`python -m pip`** et non `pip` seul. Avec plusieurs Python
+> installés, `pip` peut viser un interpréteur différent de celui qui exécutera
+> `run.py` : les paquets s'installent alors au mauvais endroit et l'erreur
+> `ModuleNotFoundError: No module named 'uvicorn'` persiste sans raison
+> apparente.
+
+En cas de refus lié aux droits d'accès — fréquent avec le Python du Microsoft
+Store :
+
+```powershell
+python -m pip install --user -r requirements.txt
+```
+
+Vérification :
+
+```powershell
+python -c "import uvicorn, fastapi, sqlalchemy; print('dependances OK')"
+```
+
+### Étape 5 — Lancer l'application
+
+```powershell
+python run.py
+```
+
+Attendu :
+
+```text
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Application startup complete.
+```
+
+**Laissez cette fenêtre ouverte** : le serveur vit tant qu'elle vit. Les autres
+commandes se tapent dans une **seconde** fenêtre.
+
+- Interface web : <http://127.0.0.1:8000>
+- Tableau de bord statique servi par l'application :
+  <http://127.0.0.1:8000/tableau-de-bord>
+- Documentation de l'API : <http://127.0.0.1:8000/docs>
+
+> Préférez `127.0.0.1` à `localhost`. Sur certaines configurations Windows,
+> `localhost` se résout d'abord en IPv6 (`::1`) alors que l'application n'écoute
+> qu'en IPv4 : la connexion échoue sans message clair.
+
+L'application ne recharge pas le code à chaud (`reload=False`). **Après un
+`git pull`, il faut l'arrêter (`Ctrl+C`) et la relancer** pour que les
+nouveautés soient prises en compte.
+
+### Environnement virtuel (facultatif)
+
+Il isole les dépendances du reste de votre système. Utile si vous avez
+plusieurs projets Python, superflu sinon.
 
 | Terminal | Activation |
 | --- | --- |
 | PowerShell | `.venv\Scripts\Activate.ps1` |
-| Invite de commandes (cmd) | `.venv\Scripts\activate.bat` |
+| Invite de commandes | `.venv\Scripts\activate.bat` |
 | Git Bash | `source .venv/Scripts/activate` |
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python run.py
+python -m pip install -r requirements.txt
 ```
 
-`(.venv)` apparaît alors en début de ligne. Pour en sortir : `deactivate`.
+`(.venv)` apparaît en début de ligne ; `deactivate` pour en sortir.
 
-Sous Git Bash, noter que le dossier est `Scripts` et non `bin` : la commande
-Linux `source .venv/bin/activate` ne fonctionne pas telle quelle.
-
-### Si l'activation est refusée
-
-Un message sur les scripts désactivés vient de la stratégie d'exécution de
-PowerShell. À lancer une seule fois :
+Si PowerShell refuse d'exécuter le script d'activation :
 
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ```
 
-Ce réglage n'autorise que les scripts locaux et ceux signés — c'est celui que
-Microsoft recommande, et il ne s'applique qu'à votre compte.
+Ce réglage n'autorise que les scripts locaux et signés — celui que Microsoft
+recommande — et ne s'applique qu'à votre compte.
 
-### Variables d'environnement
+Sous Linux et macOS, `source .venv/bin/activate` : le dossier est `bin` et non
+`Scripts`, ce qui explique que la commande Linux échoue telle quelle sous
+Windows.
 
-Le guide utilise `export`, qui n'existe pas sous Windows.
+---
+
+## 1bis. Aide-mémoire Windows
+
+| Ce guide écrit | Sous PowerShell |
+| --- | --- |
+| `python3 scripts/x.py` | `python scripts\x.py` (les deux séparateurs marchent) |
+| `export CLE="v"` | `setx CLE "v"` (permanent) ou `$env:CLE = "v"` (session) |
+| `source .venv/bin/activate` | `.venv\Scripts\Activate.ps1` |
+| `echo $CLE` | `echo $env:CLE` |
+| `curl` | `curl.exe` (sans le `.exe`, PowerShell utilise un alias différent) |
+
+**Variables d'environnement permanentes :**
 
 ```powershell
 setx EODHD_API_KEY "votre_cle"
@@ -146,146 +211,102 @@ setx OPENFIGI_API_KEY "votre_cle"
 setx MARKETSTACK_API_KEY "votre_cle"
 ```
 
-`setx` écrit dans le registre, donc de façon permanente — mais **les variables
-ne sont visibles que dans les fenêtres ouvertes ensuite** : fermer et rouvrir le
-terminal. Vérification : `echo $env:EODHD_API_KEY`.
+`setx` écrit dans le registre, mais **les variables ne sont visibles que dans
+les fenêtres ouvertes ensuite** : fermez et rouvrez le terminal. Vérification :
+`echo $env:EODHD_API_KEY`.
 
-Pour la session en cours seulement : `$env:EODHD_API_KEY = "votre_cle"`.
-
-Par l'interface : touche Windows → « variables d'environnement » → *Modifier
-les variables d'environnement pour votre compte*.
+Par l'interface : touche Windows → « variables d'environnement » → *Modifier les
+variables d'environnement pour votre compte*.
 
 Sous Git Bash, `export` et `~/.bashrc` fonctionnent comme sous Linux.
-
-### Chemins
-
-PowerShell accepte les deux séparateurs pour les arguments Python :
-`python scripts\dashboard.py` et `python scripts/dashboard.py` sont
-équivalents.
-
-### Rien de tout cela n'est nécessaire pour consulter
-
-Les clés ne servent qu'à **collecter** des données, ce que le robot GitHub fait
-déjà chaque jour ouvré. Ouvrir `data/dashboard.html`, lancer le simulateur ou
-l'allocation n'en demande aucune.
 
 ---
 
 ## 2. Clés d'API
 
-Aucune clé n'est nécessaire pour consulter les données déjà collectées. Elles
-ne servent qu'à enrichir la base.
-
-Les clés se passent par variable d'environnement, **jamais en argument dans un
-fichier versionné** :
-
-```bash
-export EODHD_API_KEY="votre_cle"
-export MARKETSTACK_API_KEY="votre_cle"
-export OPENFIGI_API_KEY="votre_cle"
-```
-
-```powershell
-setx EODHD_API_KEY "votre_cle"
-setx OPENFIGI_API_KEY "votre_cle"
-setx MARKETSTACK_API_KEY "votre_cle"
-echo verification
-echo $env:EODHD_API_KEY
-```
-
-```bash
-echo 'export EODHD_API_KEY="votre_cle"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-Si le fichier n'existe pas, cette commande le crée. C'est l'option la plus
-simple pour copier-coller les commandes du guide sans les adapter.
+**Aucune clé n'est nécessaire** pour consulter les données, lancer le
+simulateur, l'allocation ou le tableau de bord. Elles ne servent qu'à
+**collecter** de nouvelles données — ce que le robot GitHub fait déjà chaque
+jour ouvré.
 
 ### Couverture réelle, testée sur instruments européens
 
-| Source | Quota gratuit | Europe | Usage dans le projet |
+| Source | Quota gratuit | Europe | Usage |
 | --- | --- | --- | --- |
-| **EODHD** | 20 requêtes/**jour** | Paris, Amsterdam, Bruxelles, Lisbonne, Oslo, Milan, Dublin | historique + indicateurs (source par défaut) |
-| **Marketstack** | 100 requêtes/**mois**, lots de 50 | Paris, Amsterdam, Bruxelles, Lisbonne — grandes capitalisations | cours en masse |
-| **OpenFIGI** | 25 req/min sans clé, lots de 10 ; **250 req/min avec clé, lots de 100** | mondiale | FIGI, ticker, nom complet |
+| **EODHD** | 20 requêtes/**jour** | Paris, Amsterdam, Bruxelles, Lisbonne, Oslo, Milan, Dublin | historique et indicateurs (défaut) |
+| **Marketstack** | 100 requêtes/**mois**, lots de 50 | 4 places, grandes capitalisations | cours en masse |
+| **OpenFIGI** | 25/min sans clé, **250/min avec** | mondiale | identifiants, tickers, noms |
 | Alpha Vantage | 25 requêtes/jour | partielle | repli |
-| FMP, Finnhub, Tiingo, Polygon | — | **aucune** en gratuit (États-Unis seulement) | à réserver à une enveloppe CTO |
+| FMP, Finnhub, Tiingo, Polygon | — | **aucune** en gratuit | à réserver au compte-titres |
 
-Deux conséquences pratiques :
+Trois conséquences pratiques :
 
-- **Le quota EODHD est journalier** : il se régénère. C'est la source à
-  privilégier pour un travail régulier.
-- **Le quota Marketstack est mensuel** : une fois épuisé, plus rien avant le
-  mois suivant. À réserver aux collectes de cours en masse, et à ne pas gaspiller.
-- **Aucune de ces sources ne fournit l'éligibilité PEA.** Elle vient uniquement
-  de `data/pea_emetteurs.csv` (voir §4.3).
+- **le quota EODHD est journalier** : il se régénère chaque nuit, c'est la
+  source à privilégier ;
+- **le quota Marketstack est mensuel** : une fois épuisé, plus rien avant le
+  mois suivant ;
+- **vos collectes locales et celles du robot puisent au même compteur.** Si vous
+  consommez les 20 requêtes dans la journée, le robot n'aura plus rien le
+  lendemain matin — et inversement.
+
+**Aucune de ces sources ne fournit l'éligibilité PEA** : elle vient des relevés
+émetteurs et des règles métier.
+
+### Où mettre les clés
+
+| Usage | Emplacement |
+| --- | --- |
+| Scripts en local | variables d'environnement (voir §1bis) |
+| Robot GitHub | *Settings → Secrets and variables → Actions* (voir §3bis) |
+| Application | `config/cles_api.yaml`, copié depuis `config/cles_api.exemple.yaml` |
+
+`config/cles_api.yaml` est ignoré par Git. **Ne jamais committer de clé** : le
+dépôt est public, et une clé publiée doit être révoquée.
 
 ---
 
 ## 3. Démarrage rapide
 
-Consulter l'existant, sans aucune clé :
+### Sans aucune clé
 
-```bash
-python3 scripts/dashboard.py          # régénère data/dashboard.html
-python3 scripts/scoring.py --top 10   # classement des instruments notés
+```powershell
+python scripts\dashboard.py
+python scripts\scoring.py --top 10
+python scripts\simulateur.py --capital 10000 --versement 500
+python scripts\allocation.py --capital 10000 --risque 5 --horizon 10 --objectif croissance --pea-uniquement
 ```
 
-Ouvrir ensuite `data/dashboard.html` dans un navigateur.
+Puis ouvrir `data\dashboard.html`.
 
-Collecter de nouvelles données (une clé EODHD suffit) :
+### Récupérer le travail du robot
 
-```bash
-export EODHD_API_KEY="votre_cle"
-python3 scripts/enrich_marche.py --etat --filtre pea      # où en est-on ?
-python3 scripts/enrich_marche.py --historique --filtre pea --limite 18 # max 475
-python3 scripts/scoring.py #--top 20
-python3 scripts/anomalies.py --resume
-python3 scripts/historique.py
-python3 scripts/dashboard.py
+```powershell
+git pull
 ```
 
-`--limite 18` laisse une marge sous le quota de 20/jour.
+Le robot collecte chaque jour ouvré à 06h15 UTC et publie données, scores, SRI,
+anomalies, historique et tableau de bord. **C'est le mode d'entretien normal :
+vous n'avez rien à lancer.**
 
----
+### Collecter vous-même
 
-## 3ter. Depuis un téléphone
-
-Rien à installer : le robot collecte seul et le tableau de bord est une page
-web. Le téléphone sert à **consulter et déclencher**, pas à calculer.
-
-### Consulter le tableau de bord
-
-Ouvrir dans le navigateur (une seule ligne, sans retour) :
-
-```text
-https://htmlpreview.github.io/?https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
+```powershell
+$env:EODHD_API_KEY = "votre_cle"
+python scripts\enrich_marche.py --etat --filtre pea
+python scripts\enrich_marche.py --historique --filtre pea --limite 18 --rafraichir 10
+python scripts\scoring.py
+python scripts\sri.py
+python scripts\anomalies.py
+python scripts\historique.py
+python scripts\dashboard.py
 ```
 
-Puis menu ⋮ → *Ajouter à l'écran d'accueil* pour obtenir une icône. La page est
-responsive et testée en 390 px : tri, filtres, regroupement, comparateur et
-export CSV fonctionnent au doigt.
+`--limite 18` laisse une marge sous le quota de 20. `--rafraichir 10` remet en
+tête de file les cours de plus de dix jours : **sans cette option, un instrument
+déjà collecté ne serait jamais réinterrogé** et ses données vieilliraient
+indéfiniment.
 
-> Ce service tiers rend la page depuis GitHub et peut être lent ou
-> indisponible. L'alternative fiable est d'activer **GitHub Pages**
-> (*Settings → Pages*, source `main`), ce qui donne une URL propre du type
-> `fredgarcia.github.io/PEAFirst/data/dashboard.html`.
-
-### Déclencher une collecte
-
-Application **GitHub** ou github.com dans le navigateur → dépôt **PEAFirst** →
-onglet **Actions** → *Collecte quotidienne* → **Run workflow**. Les clés étant
-des secrets du dépôt, tout s'exécute chez GitHub.
-
-Pour cibler des instruments : dans le tableau de bord, filtrer, cocher, ouvrir
-**Piloter la collecte**, puis **Copier les paramètres** et les coller dans le
-formulaire *Run workflow*.
-
-### Ce qui n'est pas disponible
-
-Les scripts Python — simulateur, allocation, scoring local — et l'application
-PEAdvisor. Techniquement possible via Termux, mais peu confortable :
-**ordinateur pour travailler, téléphone pour consulter et déclencher**.
+Pensez à committer le résultat (`data/`) pour que le robot reparte de là.
 
 ## 3bis. Actions initiales
 
@@ -360,6 +381,44 @@ tout ce qui est commité sur un dépôt public est lisible par tous, et une clé
 exposée doit être révoquée.
 
 ---
+
+## 3ter. Depuis un téléphone
+
+Rien à installer : le robot collecte seul et le tableau de bord est une page
+web. Le téléphone sert à **consulter et déclencher**, pas à calculer.
+
+### Consulter le tableau de bord
+
+Ouvrir dans le navigateur (une seule ligne, sans retour) :
+
+```text
+https://htmlpreview.github.io/?https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
+```
+
+Puis menu ⋮ → *Ajouter à l'écran d'accueil* pour obtenir une icône. La page est
+responsive et testée en 390 px : tri, filtres, regroupement, comparateur et
+export CSV fonctionnent au doigt.
+
+> Ce service tiers rend la page depuis GitHub et peut être lent ou
+> indisponible. L'alternative fiable est d'activer **GitHub Pages**
+> (*Settings → Pages*, source `main`), ce qui donne une URL propre du type
+> `fredgarcia.github.io/PEAFirst/data/dashboard.html`.
+
+### Déclencher une collecte
+
+Application **GitHub** ou github.com dans le navigateur → dépôt **PEAFirst** →
+onglet **Actions** → *Collecte quotidienne* → **Run workflow**. Les clés étant
+des secrets du dépôt, tout s'exécute chez GitHub.
+
+Pour cibler des instruments : dans le tableau de bord, filtrer, cocher, ouvrir
+**Piloter la collecte**, puis **Copier les paramètres** et les coller dans le
+formulaire *Run workflow*.
+
+### Ce qui n'est pas disponible
+
+Les scripts Python — simulateur, allocation, scoring local — et l'application
+PEAdvisor. Techniquement possible via Termux, mais peu confortable :
+**ordinateur pour travailler, téléphone pour consulter et déclencher**.
 
 ## 4. La chaîne complète
 
@@ -901,6 +960,36 @@ curl -s -o /dev/null -w "%{http_code}\n" -X PUT \
 seule. Attention : le champ `permissions.push` renvoyé par l'API reflète le rôle
 du propriétaire, **pas** les droits du jeton.
 
+**`ModuleNotFoundError: No module named 'uvicorn'`** — les dépendances de
+l'application ne sont pas installées : `python -m pip install -r
+requirements.txt`. Les scripts de `scripts/`, eux, n'en ont pas besoin.
+
+**`source : The term 'source' is not recognized`** — commande Unix. Sous
+PowerShell : `.venv\Scripts\Activate.ps1` (voir §1bis).
+
+**`curl` renvoie `000`** — aucune connexion établie : l'application n'est pas
+lancée. Ouvrir une fenêtre, s'y placer dans le dossier du projet et faire
+`python run.py`, puis **laisser cette fenêtre ouverte**.
+
+**`/tableau-de-bord` n'aboutit pas** — trois causes, dans l'ordre de
+fréquence : l'application n'est pas lancée ; elle a démarré **avant** un
+`git pull` et ne connaît pas encore la route (elle ne recharge pas à chaud,
+l'arrêter et la relancer) ; ou `data/dashboard.html` est absent, auquel cas la
+route renvoie un 404 portant ce message précis. Essayer aussi `127.0.0.1`
+plutôt que `localhost`.
+
+**`HTTP 402 You exceeded your daily API requests limit`** — les 20 requêtes
+EODHD du jour sont consommées. Le script s'arrête proprement, le cache est
+préservé, la collecte reprend le lendemain. Vos collectes locales et celles du
+robot puisent au même compteur.
+
+**Les cours ne se rafraîchissent pas** — un instrument déjà collecté n'est pas
+réinterrogé par défaut. Utiliser `--rafraichir 10`.
+
+**Le robot n'a pas tourné** — il ne s'exécute que les **jours ouvrés** à 06h15
+UTC : ni samedi, ni dimanche. Onglet *Actions* du dépôt pour voir l'état des
+exécutions, et **Run workflow** pour en déclencher une à la demande.
+
 **Le tableau de bord est vide** — aucune donnée de marché collectée. Lancer
 `enrich_marche.py --historique`, puis `scoring.py` et `dashboard.py`.
 
@@ -950,7 +1039,7 @@ python run.py
 ```
 
 > **Sous Windows**, `source` n'existe pas et la commande est `python`, pas
-> `python3` : voir [§1bis](#1bis-sous-windows).
+> `python3` : voir [§1bis](#1bis-aide-mémoire-windows).
 
 ### B. Les onze écrans
 
