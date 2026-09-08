@@ -24,7 +24,7 @@ from peadvisor import __version__
 from peadvisor.database import SessionLocal, creer_tables
 from peadvisor.models import Actif
 from peadvisor.routers import (actifs, administration, allocation, dashboard, meta,
-                               recherche, simulation)
+                               recherche, scripts, simulation)
 from peadvisor.services import scheduler
 from peadvisor.services.importer import importer
 
@@ -73,6 +73,7 @@ app.include_router(simulation.router)
 app.include_router(recherche.router)
 app.include_router(administration.router)
 app.include_router(meta.router)
+app.include_router(scripts.router)
 
 # Le tableau de bord web est servi à la racine.
 # Le tableau de bord statique produit par scripts/dashboard.py, servi par

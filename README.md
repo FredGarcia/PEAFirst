@@ -30,7 +30,7 @@ illustratif.
 | Exécution | ligne de commande, GitHub Actions | serveur web local |
 | Dépendances | **aucune** (bibliothèque standard) | FastAPI, SQLAlchemy, uvicorn |
 | Stockage | fichiers CSV versionnés | base SQLite locale (non versionnée) |
-| Sortie | `dashboard.html` autonome, 9 onglets (servi aussi sur `/tableau-de-bord`) | 11 écrans, 49 routes REST, 18 outils MCP |
+| Sortie | `dashboard.html` autonome, 10 onglets (servi aussi sur `/tableau-de-bord`) | 11 écrans, 49 routes REST, 18 outils MCP |
 | Reproductible | oui, tout est commité | non, la base est régénérée |
 | Validée par | `validate.yml` | `tests.yml` — 115 tests |
 
@@ -51,6 +51,7 @@ niveau — mais voir l'avertissement plus bas sur le scoring.
 | Simulation | versements programmés, horizons 2 à 10 ans, scénarios, fiscalité 2026 |
 | Restitution | tableau de bord HTML autonome, API REST, interface web, modules Apps Script |
 | Agent | serveur MCP pour piloter l'application depuis Claude Desktop |
+| Exécution | onglet Scripts : lancer les traitements depuis un formulaire, liste blanche |
 
 Deux contraintes structurent tout le projet :
 

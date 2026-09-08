@@ -105,6 +105,11 @@ overflow:hidden;background:#fff;margin:12px 0 5px}
 transition:width .25s ease}
 @media (prefers-reduced-motion:reduce){.barre-prog-plein{transition:none}}
 td.potentiel{color:var(--couvert);font-weight:600}
+#scSortie{background:var(--encre);color:#e8eef2;font-family:"IBM Plex Mono",monospace;
+font-size:12px;line-height:1.5;padding:13px;border-radius:3px;overflow-x:auto;
+max-height:420px;white-space:pre-wrap;word-break:break-word;margin-top:12px}
+#scSortie[hidden]{display:none}
+#scProgres[hidden]{display:none}
 .sri{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;
 border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:12px;cursor:help}
 .sri1,.sri2,.sri3{background:#dfeeeb;color:#1d534f}
@@ -207,14 +212,14 @@ border-radius:3px;background:#f2f8f7}
 <body>
 <div class="page">
 
-<p class="eyebrow">PEA Advisor · base ISIN · 2026-09-08 11:14</p>
+<p class="eyebrow">PEA Advisor · base ISIN · 2026-09-08 18:27</p>
 <h1>Ce que la base sait,<br>et ce qu'elle ignore.</h1>
 <p class="these">6 188 instruments recensés depuis les listes officielles Euronext.
 Un tableau de bord n'est utile que s'il distingue une donnée mesurée d'une donnée
 absente, et une donnée fraîche d'une donnée périmée. Les trois sont affichées ici.</p>
 
 <div class="fraicheur">
-  <div class="fr-item"><div class="fr-l">Page générée</div><div class="fr-v">2026-09-08 · 11:14</div></div>
+  <div class="fr-item"><div class="fr-l">Page générée</div><div class="fr-v">2026-09-08 · 18:27</div></div>
   <div class="fr-item"><div class="fr-l">Base ISIN</div><div class="fr-v">2026-08-04</div></div>
   <div class="fr-item"><div class="fr-l">Cours le plus récent</div><div class="fr-v">il y a 1 j</div></div>
   <div class="fr-item"><div class="fr-l">Cours le plus ancien</div><div class="fr-v">14 j</div></div>
@@ -230,6 +235,7 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   <button type="button" class="onglet" data-vue="historique" role="tab">Historique</button>
   <button type="button" class="onglet" data-vue="sources" role="tab">Sources</button>
   <button type="button" class="onglet" data-vue="parametres" role="tab">Paramètres</button>
+  <button type="button" class="onglet" data-vue="scripts" role="tab">Scripts</button>
   <button type="button" class="onglet" data-vue="systeme" role="tab">Système</button>
 </nav>
 
@@ -663,6 +669,38 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
   <button type="button" class="sec" id="pExport">Exporter scoring_params.json</button>
   <button type="button" class="sec" id="pReset">Rétablir</button>
   <div id="pResultat"></div>
+</div>
+</section>
+
+<section class="vue" id="vue-scripts" hidden>
+<div class="carte">
+  <h2>Lancer un traitement</h2>
+  <p class="note" style="margin-top:0">
+    Les scripts s'exécutent dans l'<b>application</b>, qui doit tourner
+    (<code>python run.py</code>). Cette page ne contient aucune clé : celles
+    configurées dans l'application sont transmises au script, jamais affichées
+    ici. Seuls les scripts et paramètres du catalogue sont acceptés — aucune
+    commande libre.
+  </p>
+  <div class="champs" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
+    <input type="text" id="scBase" value="http://127.0.0.1:8000"
+           aria-label="Adresse de l'application"
+           style="width:190px;font-family:inherit;font-size:13px;padding:6px 8px;
+                  border:1px solid var(--trait);border-radius:3px">
+    <select id="scChoix" aria-label="Traitement"></select>
+    <button type="button" id="scCharger">Actualiser la liste</button>
+  </div>
+  <div id="scAide" class="note"></div>
+  <div class="formulaire" id="scParams"></div>
+  <code id="scCmd"></code>
+  <button type="button" id="scLancer" disabled>Lancer</button>
+  <button type="button" class="sec" id="scCopier" disabled>Copier la commande</button>
+  <div id="scProgres" hidden>
+    <div class="barre-prog"><div class="barre-prog-plein" id="scProgPlein"></div></div>
+    <div class="note" id="scProgTexte"></div>
+  </div>
+  <pre id="scSortie" hidden></pre>
+  <div id="scRetour"></div>
 </div>
 </section>
 
@@ -1783,8 +1821,167 @@ $("wEssayer").addEventListener("click", function(){
     });
 });
 
+// ------------------------------------------------------------------ scripts
+// L'exécution a lieu dans l'application, jamais dans la page. Le catalogue est
+// chargé depuis l'API : ce qui n'y figure pas ne peut pas être lancé.
+var CATALOGUE = null;
+
+function scBase(){ return $("scBase").value.trim().replace(/\/+$/, ""); }
+
+function scDefinition(){
+  if (!CATALOGUE) return null;
+  var id = $("scChoix").value;
+  for (var i = 0; i < CATALOGUE.length; i += 1){
+    if (CATALOGUE[i].id === id) return CATALOGUE[i];
+  }
+  return null;
+}
+
+function scParametres(){
+  var valeurs = {};
+  document.querySelectorAll("#scParams [data-sp]").forEach(function(el){
+    var nom = el.dataset.sp;
+    if (el.type === "checkbox"){ valeurs[nom] = el.checked; }
+    else if (el.value !== ""){ valeurs[nom] = el.value; }
+  });
+  return valeurs;
+}
+
+function scCommande(){
+  var d = scDefinition();
+  if (!d) return "";
+  var v = scParametres(), bouts = [];
+  d.parametres.forEach(function(p){
+    if (!(p.nom in v)) return;
+    if (p.type === "bool"){ if (v[p.nom]) bouts.push("--" + p.nom); }
+    else { bouts.push("--" + p.nom + " " + v[p.nom]); }
+  });
+  return "python scripts/" + d.script + (bouts.length ? " " + bouts.join(" ") : "");
+}
+
+function scMaj(){
+  var d = scDefinition();
+  if (!d){ $("scParams").innerHTML = ""; $("scCmd").textContent = ""; return; }
+  $("scAide").textContent = d.aide;
+  $("scParams").innerHTML = d.parametres.map(function(p){
+    var titre = p.aide ? ' title="' + esc(p.aide) + '"' : "";
+    if (p.type === "bool"){
+      return '<label class="case"' + titre + '><input type="checkbox" data-sp="' +
+        esc(p.nom) + '"' + (p.defaut ? " checked" : "") + "> " + esc(p.nom) + "</label>";
+    }
+    if (p.type === "choix"){
+      return "<label" + titre + ">" + esc(p.nom) + '<select data-sp="' + esc(p.nom) + '">' +
+        p.choix.map(function(c){
+          return '<option value="' + esc(c) + '"' +
+            (String(c) === String(p.defaut) ? " selected" : "") + ">" +
+            (c === "" ? "(tous)" : esc(c)) + "</option>";
+        }).join("") + "</select></label>";
+    }
+    var type = p.type === "entier" ? "number" : "text";
+    return "<label" + titre + ">" + esc(p.nom) + '<input type="' + type +
+      '" data-sp="' + esc(p.nom) + '" value="' +
+      esc(p.defaut === null || p.defaut === undefined ? "" : p.defaut) + '"></label>';
+  }).join("");
+  document.querySelectorAll("#scParams [data-sp]").forEach(function(el){
+    el.addEventListener("input", function(){ $("scCmd").textContent = scCommande(); });
+    el.addEventListener("change", function(){ $("scCmd").textContent = scCommande(); });
+  });
+  $("scCmd").textContent = scCommande();
+  var pret = d.cle_disponible !== false;
+  $("scLancer").disabled = !pret;
+  $("scCopier").disabled = false;
+  $("scRetour").innerHTML = pret ? "" :
+    '<div class="avert">Ce traitement demande la clé « ' + esc(d.cle_requise) +
+    " », absente de la configuration de l'application. La commande reste " +
+    "utilisable en terminal si la variable d'environnement est définie.</div>";
+}
+
+function scCharger(){
+  $("scRetour").innerHTML = '<div class="avert">Chargement du catalogue…</div>';
+  fetch(scBase() + "/api/scripts", {headers: {"X-PEAdvisor": "1"}})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!Array.isArray(d)) throw new Error("réponse inattendue");
+      CATALOGUE = d;
+      $("scChoix").innerHTML = d.map(function(x){
+        return '<option value="' + esc(x.id) + '">' + esc(x.titre) + "</option>";
+      }).join("");
+      $("scRetour").innerHTML = "";
+      scMaj();
+    })
+    .catch(function(){
+      CATALOGUE = null;
+      $("scLancer").disabled = true;
+      $("scRetour").innerHTML = '<div class="avert">Application injoignable. ' +
+        "La lancer (<code>python run.py</code>), puis ouvrir cette page depuis " +
+        "<code>" + esc(scBase()) + "/tableau-de-bord</code> : un fichier ouvert " +
+        "en local ne peut pas appeler l'application, le navigateur le bloque.</div>";
+    });
+}
+
+$("scCharger").addEventListener("click", scCharger);
+$("scChoix").addEventListener("change", scMaj);
+$("scCopier").addEventListener("click", function(){
+  presse(scCommande(), this, "Commande copiée");
+});
+
+$("scLancer").addEventListener("click", function(){
+  var d = scDefinition();
+  if (!d) return;
+  var bouton = this;
+  bouton.disabled = true;
+  $("scSortie").hidden = true;
+  $("scRetour").innerHTML = "";
+  $("scProgres").hidden = false;
+  $("scProgPlein").style.width = "40%";
+  // La durée d'un traitement n'est pas connue d'avance : la barre reste
+  // indéterminée plutôt que de simuler une progression.
+  var debut = Date.now();
+  var tic = setInterval(function(){
+    $("scProgTexte").textContent = d.script + " en cours — " +
+      Math.round((Date.now() - debut) / 1000) + " s";
+  }, 1000);
+  $("scProgTexte").textContent = d.script + " en cours…";
+
+  fetch(scBase() + "/api/scripts/" + d.id + "/executer", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-PEAdvisor": "1"},
+    body: JSON.stringify({parametres: scParametres()})
+  })
+    .then(function(r){ return r.json().then(function(j){ return {ok: r.ok, j: j}; }); })
+    .then(function(res){
+      clearInterval(tic);
+      $("scProgPlein").style.width = "100%";
+      if (!res.ok){
+        $("scProgTexte").textContent = "Refusé.";
+        $("scRetour").innerHTML = '<div class="avert">' +
+          esc(res.j.detail || JSON.stringify(res.j).slice(0, 300)) + "</div>";
+        return;
+      }
+      $("scProgTexte").textContent = "Terminé en " + res.j.duree_s + " s.";
+      $("scSortie").hidden = false;
+      $("scSortie").textContent = (res.j.sortie || "(aucune sortie)") +
+        (res.j.erreurs ? "\n--- erreurs ---\n" + res.j.erreurs : "");
+      var msg = res.j.succes
+        ? "Terminé sans erreur. Les fichiers de data/ sont modifiés sur le " +
+          "disque, mais cette page a été produite avant : régénérer le tableau " +
+          "de bord puis la recharger pour voir le résultat."
+        : "Le script s'est arrêté avec le code " + res.j.code +
+          " : voir la sortie ci-dessus.";
+      $("scRetour").innerHTML = '<div class="avert">' + esc(msg) + "</div>";
+    })
+    .catch(function(){
+      clearInterval(tic);
+      $("scProgres").hidden = true;
+      $("scRetour").innerHTML = '<div class="avert">Appel interrompu. ' +
+        "L'application est-elle toujours lancée ?</div>";
+    })
+    .then(function(){ bouton.disabled = false; });
+});
+
 filtrer();
 majWatchlist();
+scCharger();
 })();
 </script>
 </body>

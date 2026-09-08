@@ -782,7 +782,39 @@ l'application PEAdvisor réalisables sans serveur :
 | **Historique** | un relevé par jour de collecte, progression, export CSV |
 | **Sources** | origine réelle des cours en base, fraîcheur par source, quotas constatés |
 | **Paramètres** | pondérations du score, **recalcul immédiat dans le navigateur**, export du fichier |
+| **Scripts** | lancer un traitement depuis un formulaire, avec sa sortie |
 | **Système** | anomalies détectées, indicateurs prévus non alimentés |
+
+### Onglet Scripts
+
+Permet de lancer les traitements de `scripts/` sans passer par un terminal :
+choisir le script, régler les paramètres dans le formulaire, **Lancer**. La
+sortie s'affiche telle quelle, avec la durée et le code de retour.
+
+**L'exécution a lieu dans l'application**, qui doit tourner (`python run.py`),
+et la page doit être ouverte depuis <http://127.0.0.1:8000/tableau-de-bord> —
+un fichier local ne peut pas l'appeler.
+
+Conception, parce qu'une route qui lance des processus mérite des précautions :
+
+- **liste blanche stricte** : treize scripts déclarés dans
+  `peadvisor/routers/scripts.py`, chacun avec ses paramètres, leur type et leurs
+  valeurs admises. Rien d'autre n'est exécutable, et aucune commande libre ;
+- **validation avant appel** : un paramètre inconnu, un choix hors liste, un
+  entier illisible ou un caractère non attendu dans une liste d'ISIN sont
+  refusés. Les arguments sont passés en liste à `subprocess`, sans interpréteur
+  de commandes : une valeur ne peut pas s'échapper en commande ;
+- **en-tête `X-PEAdvisor` exigé** : l'application écoute sur 127.0.0.1, mais un
+  site visité dans le même navigateur pourrait lui adresser une requête. Cet
+  en-tête ne peut pas être ajouté depuis une autre origine sans une requête
+  préalable de contrôle, que l'application refuse ;
+- **les clés ne transitent pas par la page** : celles configurées dans
+  l'application sont transmises au script par l'environnement. Un script dont la
+  clé manque a son bouton désactivé, avec le motif ;
+- **délai maximal de 15 minutes**, au-delà duquel le processus est interrompu.
+
+Après un traitement modifiant `data/`, la page reste celle produite **avant** :
+lancer *Régénérer le tableau de bord* puis recharger.
 
 Correspondance avec les onze écrans de l'application :
 
@@ -1292,6 +1324,7 @@ python run.py          # http://localhost:8000
 | Rafraîchir les identifiants | Piloter → mode `openfigi` (retraite toute la base et régénère l'éligibilité PEA) |
 | Simuler un plan de versements | `simulateur.py --capital … --versement … --periodicite trimestriel` |
 | Explorer les pondérations du score | application → écran **Paramètres** (recalcul immédiat) |
+| Lancer un script sans terminal | tableau de bord → onglet **Scripts** (application lancée) |
 | Piloter depuis Claude Desktop | serveur MCP, voir [docs/08](08-agent-mcp.md) |
 | Repartir d'une base propre | supprimer `peadvisor.db` et relancer `python run.py` |
 | Cibler des instruments précis | Tableau de bord → filtrer → cocher → **File d'attente** → `enrich_marche.py --file-attente` |
