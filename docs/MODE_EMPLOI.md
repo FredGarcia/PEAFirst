@@ -27,7 +27,7 @@ prospectus, ni l'avis d'un professionnel.
 2. [Clés d'API](#2-clés-dapi)
 3. [Démarrage rapide](#3-démarrage-rapide)
 3bis. [Actions initiales](#3bis-actions-initiales)
-3ter. [Depuis un téléphone](#3ter-depuis-un-téléphone)
+3ter. [Depuis un smartphone](#3ter-depuis-un-smartphone)
 4. [La chaîne complète](#4-la-chaîne-complète)
 5. [Le tableau de bord](#5-le-tableau-de-bord)
 6. [Automatisation](#6-automatisation)
@@ -382,43 +382,90 @@ exposée doit être révoquée.
 
 ---
 
-## 3ter. Depuis un téléphone
+## 3ter. Depuis un smartphone
 
-Rien à installer : le robot collecte seul et le tableau de bord est une page
-web. Le téléphone sert à **consulter et déclencher**, pas à calculer.
+**Rien à installer.** Le robot collecte seul chaque jour ouvré, et le tableau de
+bord est une page web. Le téléphone sert à **consulter, décider et
+déclencher** ; l'ordinateur reste nécessaire pour les scripts et l'application.
 
-### Consulter le tableau de bord
+### Ce qui fonctionne sur téléphone
 
-Ouvrir dans le navigateur (une seule ligne, sans retour) :
+| Onglet | Sur téléphone | Pourquoi |
+| --- | --- | --- |
+| Synthèse | ✅ | tout est pré-calculé dans la page |
+| Explorateur | ✅ | recherche, filtres, tri, regroupement, comparateur |
+| Allocation | ✅ | calculé dans le navigateur |
+| Simulateur | ✅ | calculé dans le navigateur |
+| Watchlist | ✅ | sélection et export CSV |
+| Historique, Sources, Système | ✅ | lecture seule |
+| Paramètres | ✅ | les pondérations se recalculent dans le navigateur |
+| Scripts | ❌ | exige l'application, qui n'écoute que sur l'ordinateur |
+| Bouton Boursorama | ❌ | même raison |
+
+Neuf onglets sur dix sont donc pleinement utilisables, **sans clé, sans compte
+et sans connexion à quoi que ce soit**.
+
+### Installer le tableau de bord sur l'écran d'accueil
+
+Ouvrir cette adresse dans le navigateur du téléphone :
 
 ```text
 https://htmlpreview.github.io/?https://github.com/FredGarcia/PEAFirst/blob/main/data/dashboard.html
 ```
 
-Puis menu ⋮ → *Ajouter à l'écran d'accueil* pour obtenir une icône. La page est
-responsive et testée en 390 px : tri, filtres, regroupement, comparateur et
-export CSV fonctionnent au doigt.
+Puis, dans le menu du navigateur (⋮ sur Android, Partager sur iOS) :
+**Ajouter à l'écran d'accueil**. Une icône apparaît, qui ouvre le tableau de
+bord comme une application.
 
-> Ce service tiers rend la page depuis GitHub et peut être lent ou
-> indisponible. L'alternative fiable est d'activer **GitHub Pages**
-> (*Settings → Pages*, source `main`), ce qui donne une URL propre du type
-> `fredgarcia.github.io/PEAFirst/data/dashboard.html`.
+La page pèse 1,5 Mo, mais **environ 130 Ko compressés** — ce que sert
+réellement GitHub. L'ouverture reste donc légère en 4G. Elle contient les
+6 188 instruments : une fois chargée, tri, filtres et calculs se font sans
+aucun échange réseau, y compris hors couverture.
 
-### Déclencher une collecte
+> `htmlpreview` est un service tiers : il peut être lent ou indisponible.
+> L'alternative durable est d'activer **GitHub Pages** — *Settings → Pages*,
+> source `main`, dossier racine — ce qui donne une adresse propre et rapide du
+> type `fredgarcia.github.io/PEAFirst/data/dashboard.html`. À faire une fois.
 
-Application **GitHub** ou github.com dans le navigateur → dépôt **PEAFirst** →
-onglet **Actions** → *Collecte quotidienne* → **Run workflow**. Les clés étant
-des secrets du dépôt, tout s'exécute chez GitHub.
+### Déclencher une collecte depuis le téléphone
 
-Pour cibler des instruments : dans le tableau de bord, filtrer, cocher, ouvrir
-**Piloter la collecte**, puis **Copier les paramètres** et les coller dans le
-formulaire *Run workflow*.
+Les clés étant des secrets du dépôt, **tout s'exécute chez GitHub** : le
+téléphone ne porte aucune clé et ne calcule rien.
 
-### Ce qui n'est pas disponible
+1. Application **GitHub** (Play Store, App Store) ou github.com dans le
+   navigateur ;
+2. dépôt **PEAFirst** → onglet **Actions** ;
+3. **Collecte quotidienne des données de marché** → **Run workflow** ;
+4. régler mode, source, filtre, limite et `rafraichir`, puis valider.
 
-Les scripts Python — simulateur, allocation, scoring local — et l'application
-PEAdvisor. Techniquement possible via Termux, mais peu confortable :
-**ordinateur pour travailler, téléphone pour consulter et déclencher**.
+Quelques minutes plus tard, un commit « Collecte quotidienne : N instrument(s)
+notés » apparaît. Rechargez le tableau de bord pour voir le résultat.
+
+### Cibler des instruments précis
+
+Dans l'Explorateur : filtrer, cocher les lignes, ouvrir **Piloter la collecte**,
+puis **Copier les paramètres**. Il ne reste qu'à coller la liste d'ISIN dans le
+champ correspondant du formulaire *Run workflow*.
+
+### Suivre l'état du projet
+
+- **Synthèse** : fraîcheur des données, couverture du barème, progression ;
+- **Historique** : un relevé par jour, pour repérer une collecte qui stagne ;
+- **Système** : anomalies détectées ;
+- onglet **Actions** de GitHub : pastille verte ou rouge des exécutions.
+
+### Ce qui n'est pas faisable
+
+Les scripts Python, l'application PEAdvisor et l'import Boursorama. C'est
+techniquement possible via Termux sur Android, mais peu confortable.
+
+Atteindre l'application depuis le téléphone supposerait qu'elle écoute sur le
+réseau local : `run.py` la lie volontairement à `127.0.0.1`, c'est-à-dire à
+votre seul ordinateur. L'ouvrir au réseau exposerait une API capable d'écrire
+en base et de lancer des scripts — à ne pas faire sans raison sérieuse.
+
+**En résumé : ordinateur pour produire, téléphone pour consulter et
+déclencher.**
 
 ## 4. La chaîne complète
 

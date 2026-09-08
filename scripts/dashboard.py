@@ -1080,8 +1080,9 @@ absente, et une donnée fraîche d'une donnée périmée. Les trois sont affich�
 
 <div class="carte">
   <h2>Anomalies détectées (__NB_ANO__ sur __NB_ANO_INST__ instrument(s))</h2>
-  <table><thead><tr><th>Instrument</th><th>Gravité</th><th>Type</th>
-    <th>Détail</th></tr></thead><tbody>__ANOMALIES__</tbody></table>
+  <div class="tbl-wrap"><table><thead><tr><th>Instrument</th><th>Gravité</th>
+    <th>Type</th><th>Détail</th></tr></thead>
+    <tbody>__ANOMALIES__</tbody></table></div>
   <p class="note">Un indicateur spectaculaire est plus souvent le symptôme d'une
   donnée douteuse que d'une opportunité : un Sharpe très élevé sur un titre peu
   échangé traduit une série de cours plate, pas une performance exceptionnelle.
