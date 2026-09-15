@@ -356,6 +356,7 @@ et à la licence Euronext sur les cours. Ils ne sont pas activés par défaut.
 data/        base ISIN, identifiants, éligibilité PEA, marché, scores, SRI,
              anomalies, historique, tableau de bord, caches de reprise
 scripts/     chaîne de données : collecte, analyse, décision, restitution
+             install_android.sh — déploiement Termux en une commande
              scoring.gs, allocation.gs (modules Apps Script génériques)
 peadvisor/   application : modèles, routeurs, services, sources
 config/      settings.yaml, scoring.yaml, clés API (gitignorées)

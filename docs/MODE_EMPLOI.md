@@ -454,10 +454,69 @@ champ correspondant du formulaire *Run workflow*.
 - **Système** : anomalies détectées ;
 - onglet **Actions** de GitHub : pastille verte ou rouge des exécutions.
 
-### Ce qui n'est pas faisable
+### Tout installer sur le téléphone (Termux)
 
-Les scripts Python, l'application PEAdvisor et l'import Boursorama. C'est
-techniquement possible via Termux sur Android, mais peu confortable.
+Pour aller au-delà de la consultation — scripts, application, onglet Scripts,
+import Boursorama — un script de déploiement fait l'installation complète.
+
+Installer **Termux** (depuis F-Droid, la version du Play Store étant
+abandonnée), puis :
+
+```bash
+pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/FredGarcia/PEAFirst/main/scripts/install_android.sh | bash
+```
+
+Deux modes :
+
+| Mode | Contenu | Durée |
+| --- | --- | --- |
+| `--chaine` | chaîne de données seule, **aucune dépendance** | 2 à 5 min |
+| (défaut) | tout, application comprise | 15 à 40 min |
+
+```bash
+bash scripts/install_android.sh --chaine
+bash scripts/install_android.sh
+```
+
+> **Pourquoi le mode complet est long** : `pydantic-core` est écrit en Rust et
+> n'existe pas en version précompilée pour Termux — il faut le compiler sur
+> l'appareil. Garder Termux au premier plan et le téléphone branché ; l'écran
+> peut sembler figé sans que rien n'ait échoué.
+
+Le script est **idempotent** : le relancer met à jour le dépôt et complète ce
+qui manque. Il installe les paquets système, clone ou met à jour le dépôt,
+vérifie la chaîne, génère le tableau de bord, installe les dépendances puis
+crée un lanceur.
+
+Il se replie automatiquement si l'environnement Python est « géré par le
+système » (PEP 668) : nouvel essai, puis environnement virtuel, que le lanceur
+réactive de lui-même.
+
+Ensuite :
+
+```bash
+bash ~/PEAFirst/demarrer.sh
+```
+
+Le lanceur maintient l'appareil éveillé (`termux-wake-lock`) le temps de la
+session et affiche les adresses. Ouvrir alors
+<http://127.0.0.1:8000/tableau-de-bord> dans le navigateur Android : **les dix
+onglets deviennent utilisables**, onglet Scripts compris — les traitements
+s'exécutent sur le téléphone, avec leur sortie affichée.
+
+Pour collecter depuis le téléphone :
+
+```bash
+export EODHD_API_KEY="votre_cle"
+python scripts/enrich_marche.py --historique --filtre pea --limite 18 --rafraichir 10
+```
+
+> Ce script n'a pas été éprouvé sur un appareil Android réel : sa logique est
+> testée, y compris le repli PEP 668 et le lanceur, mais la compilation de
+> `pydantic-core` sous Termux dépend de l'appareil et des versions. En cas
+> d'échec, `--chaine` reste utilisable et couvre l'essentiel.
+
+### Ce qui reste hors de portée
 
 Atteindre l'application depuis le téléphone supposerait qu'elle écoute sur le
 réseau local : `run.py` la lie volontairement à `127.0.0.1`, c'est-à-dire à
