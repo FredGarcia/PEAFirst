@@ -492,6 +492,32 @@ Il se replie automatiquement si l'environnement Python est « géré par le
 système » (PEP 668) : nouvel essai, puis environnement virtuel, que le lanceur
 réactive de lui-même.
 
+### Où sont les fichiers
+
+Le script installe dans `~/PEAFirst`, soit
+`/data/data/com.termux/files/home/PEAFirst`. C'est le **dossier privé de
+Termux** : ni le gestionnaire de fichiers ni le navigateur d'Android ne peuvent
+l'ouvrir — c'est une protection du système, pas une anomalie. On y accède
+depuis Termux (`cd ~/PEAFirst`).
+
+Pour consulter le tableau de bord **hors de Termux**, il doit être copié dans
+le stockage partagé. Le script s'en charge : Android demande l'autorisation, le
+fichier arrive dans **Téléchargements** sous le nom `peafirst_dashboard.html`,
+ouvrable d'un appui.
+
+Après chaque collecte ou régénération :
+
+```bash
+bash ~/PEAFirst/exporter_tableau.sh
+```
+
+Il régénère le tableau de bord et le recopie dans Téléchargements. Si
+l'autorisation de stockage n'a pas été accordée :
+
+```bash
+termux-setup-storage
+```
+
 Ensuite :
 
 ```bash

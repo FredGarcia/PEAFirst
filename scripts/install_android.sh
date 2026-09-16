@@ -20,6 +20,7 @@ set -euo pipefail
 
 DEPOT="${PEAFIRST_DEPOT:-https://github.com/FredGarcia/PEAFirst.git}"
 DOSSIER="${PEAFIRST_DOSSIER:-$HOME/PEAFirst}"
+DOSSIER_PARTAGE=""
 MODE="complet"
 PIP_EXTRA=""
 [ "${1:-}" = "--chaine" ] && MODE="chaine"
@@ -152,6 +153,67 @@ LANCEUR
   ok "lanceur créé : $DOSSIER/demarrer.sh"
 }
 
+# --- stockage partagé --------------------------------------------------------
+exporter_tableau() {
+  etape "Accès depuis Android"
+  # Le dossier de Termux est privé : ni le gestionnaire de fichiers ni le
+  # navigateur d'Android ne peuvent l'ouvrir. Le tableau de bord doit donc être
+  # copié dans le stockage partagé pour être consultable hors de Termux.
+  if [ "$TERMUX" -ne 1 ]; then
+    creer_exportateur
+    return 0
+  fi
+
+  if [ ! -d "$HOME/storage" ]; then
+    alerte "Autorisation de stockage requise : Android va la demander."
+    termux-setup-storage 2>/dev/null || true
+    # L'autorisation est accordée par une boîte de dialogue : on laisse le
+    # temps à l'utilisateur de répondre avant de vérifier.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      [ -d "$HOME/storage" ] && break
+      sleep 2
+    done
+  fi
+
+  if [ ! -d "$HOME/storage" ]; then
+    alerte "Stockage partagé indisponible : lancer « termux-setup-storage »"
+    alerte "puis « bash $DOSSIER/exporter_tableau.sh »."
+  else
+    local cible="$HOME/storage/downloads"
+    [ -d "$cible" ] || cible="$HOME/storage/shared"
+    if cp "$DOSSIER/data/dashboard.html" "$cible/peafirst_dashboard.html" 2>/dev/null; then
+      ok "copié dans Téléchargements : peafirst_dashboard.html"
+      DOSSIER_PARTAGE="$cible"
+    else
+      alerte "copie impossible vers $cible"
+    fi
+  fi
+
+  creer_exportateur
+}
+
+# Réexport après chaque régénération du tableau de bord.
+creer_exportateur() {
+  cat > "$DOSSIER/exporter_tableau.sh" <<'EXPORT'
+#!/data/data/com.termux/files/usr/bin/bash
+# Régénère le tableau de bord et le copie dans Téléchargements.
+cd "$(dirname "$0")"
+[ -f .venv/bin/activate ] && . .venv/bin/activate
+python scripts/dashboard.py
+cible="$HOME/storage/downloads"
+[ -d "$cible" ] || cible="$HOME/storage/shared"
+if [ -d "$cible" ]; then
+  cp data/dashboard.html "$cible/peafirst_dashboard.html"
+  echo "Copié : $cible/peafirst_dashboard.html"
+  echo "Visible dans Téléchargements, ouvrable depuis le navigateur Android."
+else
+  echo "Stockage partagé absent : lancer d'abord termux-setup-storage"
+fi
+EXPORT
+  chmod +x "$DOSSIER/exporter_tableau.sh"
+  ok "exporter_tableau.sh créé"
+}
+
 # --- clés d'API --------------------------------------------------------------
 configurer_cles() {
   etape "Clés d'API (facultatif)"
@@ -169,6 +231,7 @@ configurer_cles() {
 installer_paquets
 recuperer_depot
 verifier_chaine
+exporter_tableau
 
 if [ "$MODE" = "complet" ]; then
   installer_application
@@ -181,9 +244,15 @@ cat <<RESUME
 
   Dossier : $DOSSIER
 
-  Consulter sans rien lancer
-    termux-open $DOSSIER/data/dashboard.html
-    (ou ouvrir ce fichier depuis un navigateur Android)
+  Où sont les fichiers
+    $DOSSIER
+    C'est le dossier privé de Termux : invisible depuis le gestionnaire de
+    fichiers Android. Y accéder depuis Termux uniquement (cd ~/PEAFirst).
+
+  Consulter le tableau de bord
+    depuis Android : ${DOSSIER_PARTAGE:+Téléchargements > peafirst_dashboard.html}${DOSSIER_PARTAGE:-lancer d abord « bash $DOSSIER/exporter_tableau.sh »}
+    depuis Termux  : termux-open $DOSSIER/data/dashboard.html
+    après une collecte : bash $DOSSIER/exporter_tableau.sh
 
   Chaîne de données — aucune clé requise
     cd $DOSSIER
