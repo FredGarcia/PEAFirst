@@ -21,6 +21,12 @@ set -euo pipefail
 DEPOT="${PEAFIRST_DEPOT:-https://github.com/FredGarcia/PEAFirst.git}"
 DOSSIER="${PEAFIRST_DOSSIER:-$HOME/PEAFirst}"
 DOSSIER_PARTAGE=""
+# Termux n'a pas de /tmp : son dossier temporaire est $PREFIX/tmp, exposé par
+# TMPDIR. Écrire en dur dans /tmp fait échouer la redirection, donc la commande
+# entière. On retombe sur le dossier personnel si TMPDIR est absent.
+TEMPO="${TMPDIR:-${PREFIX:-}/tmp}"
+[ -d "$TEMPO" ] || TEMPO="$HOME"
+JOURNAL_PIP="$TEMPO/peafirst_pip.log"
 MODE="complet"
 PIP_EXTRA=""
 [ "${1:-}" = "--chaine" ] && MODE="chaine"
@@ -103,8 +109,8 @@ installer_application() {
   # d'abord sans, puis avec l'option qui lève le garde-fou, et enfin dans un
   # environnement virtuel, qui est la voie propre.
   PIP_EXTRA=""
-  if ! eval python -m pip install $paquets 2>/tmp/peafirst_pip.log; then
-    if grep -q "externally-managed-environment" /tmp/peafirst_pip.log 2>/dev/null; then
+  if ! eval python -m pip install $paquets 2>"$JOURNAL_PIP"; then
+    if grep -q "externally-managed-environment" "$JOURNAL_PIP" 2>/dev/null; then
       alerte "environnement géré par le système : seconde tentative"
       PIP_EXTRA="--break-system-packages"
       if ! eval python -m pip install $PIP_EXTRA $paquets; then
@@ -116,7 +122,8 @@ installer_application() {
         eval python -m pip install $paquets || echec "installation impossible"
       fi
     else
-      tail -5 /tmp/peafirst_pip.log >&2
+      tail -15 "$JOURNAL_PIP" >&2
+      alerte "journal complet : $JOURNAL_PIP"
       echec "installation interrompue. Réessayer, ou se rabattre sur --chaine."
     fi
   fi
